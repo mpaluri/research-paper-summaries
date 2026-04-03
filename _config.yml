@@ -1,6 +1,0 @@
-title: Research Paper Summaries
-description: Three-level explainers for quickly understanding research papers — from beginner to expert.
-remote_theme: pages-themes/cayman@v0.2.0
-plugins:
-  - jekyll-remote-theme
-  - jekyll-seo-tag
