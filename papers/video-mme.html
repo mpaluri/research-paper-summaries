@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video-MME — Comprehensive Evaluation Benchmark of Multi-modal LLMs in Video Analysis</title>
+<meta name="description" content="Three-level explainer + frontier analysis: Video-MME benchmark for evaluating MLLMs on video understanding">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem}
+.back{display:inline-block;font-size:.875rem;color:var(--accent);text-decoration:none;margin-bottom:1.5rem}
+.back:hover{text-decoration:underline}
+h1{font-size:1.6rem;font-weight:700;line-height:1.3;margin-bottom:.75rem}
+.paper-info{font-size:.875rem;color:var(--text2);margin-bottom:.5rem}
+.paper-info a{color:var(--accent);text-decoration:none}
+.paper-info a:hover{text-decoration:underline}
+.tldr{font-size:.9rem;color:var(--text2);padding:1rem 1.25rem;background:var(--bg2);border-radius:8px;margin-bottom:2rem;border-left:3px solid var(--accent)}
+.level{margin-bottom:2.5rem;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.level-header{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;cursor:pointer;background:var(--bg2);user-select:none;border-bottom:1px solid var(--border)}
+.level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.l1 .level-dot{background:#2da44e}.l2 .level-dot{background:#bf8700}.l3 .level-dot{background:#cf222e}.l4 .level-dot{background:#8250df}
+.level-header h2{font-size:1rem;font-weight:600;margin:0;flex:1}
+.chevron{font-size:.8rem;color:var(--text3);transition:transform .2s}
+.level.open .chevron{transform:rotate(180deg)}
+.level-body{display:none;padding:1.5rem 1.25rem}
+.level.open .level-body{display:block}
+h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}
+.level-body > h3:first-child{margin-top:0}
+p{margin-bottom:.75rem}
+ul,ol{margin:0 0 .75rem 1.25rem}
+li{margin-bottom:.25rem}
+strong{font-weight:600}
+code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--code-bg);padding:1px 5px;border-radius:3px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;margin:.75rem 0;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.5}
+table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.875rem}
+th{text-align:left;font-weight:600;padding:.5rem .75rem;border-bottom:2px solid var(--border);font-size:.8rem}
+td{padding:.5rem .75rem;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0}
+.card-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}
+.card-label.green{color:var(--green)}.card-label.amber{color:#bf8700}.card-label.red{color:var(--red)}.card-label.blue{color:var(--accent)}.card-label.purple{color:#8250df}
+.card p:last-child{margin-bottom:0}
+.takeaway{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0}
+.takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.35rem}
+.takeaway p:last-child{margin-bottom:0}
+.result-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.75rem 0}
+.result-box{text-align:center;padding:1rem;border-radius:8px}
+.result-box.green-bg{background:var(--green-bg);border:1px solid var(--green)}
+.result-box.amber-bg{background:#fff8c5;border:1px solid #bf8700}
+@media(prefers-color-scheme:dark){.result-box.amber-bg{background:#2a2000;border-color:#bf8700}}
+.result-number{font-size:1.75rem;font-weight:700;line-height:1}
+.result-box.green-bg .result-number{color:var(--green)}
+.result-box.amber-bg .result-number{color:#bf8700}
+.result-label{font-size:.75rem;color:var(--text2);margin-top:.25rem}
+.quiz{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1.5rem}
+.quiz-title{font-weight:600;font-size:.9rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.q{margin-bottom:1.25rem}
+.q:last-of-type{margin-bottom:.5rem}
+.q-text{font-weight:500;font-size:.9rem;margin-bottom:.5rem}
+.q-options{list-style:none;padding:0;margin:0}
+.q-btn{display:block;width:100%;text-align:left;padding:.5rem .85rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);transition:border-color .12s,background .12s}
+.q-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg)}
+.q-btn:disabled{cursor:default}
+.q-btn.correct{border-color:var(--green)!important;background:var(--green-bg)!important}
+.q-btn.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;opacity:.7}
+.q-btn.reveal{border-color:var(--green)!important;background:var(--green-bg)!important}
+.q-explain{display:none;font-size:.8rem;color:var(--text2);margin:.4rem 0 0;padding:.5rem .85rem;border-left:2px solid var(--border)}
+.q-explain.show{display:block}
+.score{display:none;padding:.85rem 1rem;border-radius:6px;font-weight:600;font-size:.9rem;margin-top:.75rem}
+.score.show{display:block}
+.score.pass{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}
+.score.fail{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}
+.reset-btn{display:none;margin-top:.5rem;padding:.4rem 1rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.8rem;font-family:inherit;color:var(--text)}
+.reset-btn.show{display:inline-block}
+.reset-btn:hover{border-color:var(--accent);background:var(--accent-bg)}
+.frontier-table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.8rem}
+.frontier-table th{text-align:left;font-weight:600;padding:.5rem .5rem;border-bottom:2px solid var(--border);font-size:.75rem}
+.frontier-table td{padding:.5rem;border-bottom:1px solid var(--border);vertical-align:top}
+.tag-open{font-size:.7rem;padding:2px 6px;border-radius:3px;background:var(--red-bg);color:var(--red);font-weight:500}
+.tag-addressed{font-size:.7rem;padding:2px 6px;border-radius:3px;background:var(--green-bg);color:var(--green);font-weight:500}
+.tag-partial{font-size:.7rem;padding:2px 6px;border-radius:3px;background:#fff8c5;color:#bf8700;font-weight:500}
+@media(prefers-color-scheme:dark){.tag-partial{background:#2a2000}}
+.tag-active{font-size:.7rem;padding:2px 6px;border-radius:3px;background:var(--accent-bg);color:var(--accent);font-weight:500}
+footer{margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:.8rem;color:var(--text2)}
+@media(max-width:600px){.result-row{grid-template-columns:1fr}.container{padding:1.5rem 1rem 4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<a class="back" href="../index.html">← Back to all papers</a>
+
+<h1>Video-MME: The First-Ever Comprehensive Evaluation Benchmark of Multi-modal LLMs in Video Analysis</h1>
+<p class="paper-info">Fu, Dai, Luo, Li, Ren, Zhang, Wang, Zhou, Shen, Zhang, Chen, Li, Lin, Zhao, Li, Xu, Zheng, Chen, Shan, He, Sun — May 2024 (CVPR 2025)</p>
+<p class="paper-info"><a href="https://arxiv.org/abs/2405.21075">📄 arXiv:2405.21075</a> &nbsp;·&nbsp; <a href="https://arxiv.org/pdf/2405.21075">📥 PDF</a> &nbsp;·&nbsp; <a href="https://github.com/MME-Benchmarks/Video-MME">💻 GitHub</a> &nbsp;·&nbsp; <a href="https://video-mme.github.io/home_page.html">🌐 Project</a></p>
+<div class="tldr"><strong>TL;DR:</strong> The first comprehensive benchmark for evaluating how well multimodal AI models understand video — spanning 900 videos (11 seconds to 1 hour), 6 domains, 30 categories, and 2,700 expert-annotated questions. Reveals that all models degrade on longer videos and that subtitles/audio significantly help.</div>
+
+<!-- ============ LEVEL 1 ============ -->
+<div class="level l1 open" id="level1">
+<div class="level-header" onclick="toggle('level1')">
+  <div class="level-dot"></div>
+  <h2>Level 1 — Beginner</h2>
+  <span class="chevron">▼</span>
+</div>
+<div class="level-body">
+
+<h3>What is this paper about?</h3>
+<p>AI models like GPT-4o and Gemini can look at images and answer questions about them. But the real world isn't a photograph — it's a video: things move, change, and unfold over time. This paper asks: <strong>how well can these AI models actually understand videos?</strong></p>
+<p>The answer is "not as well as you'd think" — and before this paper, we didn't even have a good way to measure it.</p>
+
+<h3>The report card analogy</h3>
+<div class="card">
+<div class="card-label blue">Core idea</div>
+<p>Think of Video-MME as building a proper report card for video-understanding AI. Before it, the existing "tests" were like giving a college student only arithmetic quizzes — too easy, too narrow, not covering enough subjects. Video-MME is the first test comprehensive enough to actually tell you how good (or bad) these models are.</p>
+</div>
+
+<h3>What makes this benchmark special? Four things.</h3>
+<p><strong>1. Diversity — covers lots of subjects.</strong> The benchmark spans 6 big categories (knowledge, film &amp; TV, sports, artistic performance, daily life, and multilingual content) broken into 30 specific subtypes — football replays, cooking tutorials, documentaries, magic shows, news reports, and more.</p>
+<p><strong>2. Duration — short to long.</strong> Videos range from 11 seconds to 1 full hour. Understanding a 10-second clip is fundamentally different from understanding a 30-minute documentary. Most prior benchmarks only had short clips.</p>
+<p><strong>3. Multiple modalities — not just the picture.</strong> Beyond video frames, the benchmark tests whether models can use subtitles and audio to improve understanding. Many videos are hard to understand from visuals alone.</p>
+<p><strong>4. Quality — humans wrote everything.</strong> All 2,700 questions (3 per video, 900 videos) were written and reviewed by human experts, not auto-generated. Any question a model could answer without watching the video was thrown out.</p>
+
+<h3>Key results</h3>
+<div class="result-row">
+<div class="result-box green-bg"><div class="result-number">75%</div><div class="result-label">Gemini 1.5 Pro<br>(best commercial model)</div></div>
+<div class="result-box amber-bg"><div class="result-number">59%</div><div class="result-label">VILA-1.5<br>(best open-source model)</div></div>
+</div>
+<p><strong>All models get worse as videos get longer.</strong> Gemini 1.5 Pro dropped from 81.7% on short videos to 67.4% on long ones — a 14-point cliff.</p>
+<p><strong>Subtitles and audio help a lot.</strong> Adding subtitles boosted Gemini 1.5 Pro by 6.2 percentage points overall, and by 10.1 points on long videos.</p>
+
+<div class="takeaway">
+<div class="takeaway-label">Key takeaway</div>
+<p>If you want AI that can be a doctor reviewing surgery footage, a sports analyst breaking down game film, or a tutor explaining a lecture video, you need models that truly understand video. Video-MME gives the field a reliable measuring stick for tracking progress toward that goal.</p>
+</div>
+
+<!-- Quiz L1 -->
+<div class="quiz" id="quiz-l1">
+<div class="quiz-title">Quiz — Level 1</div>
+
+<div class="q"><div class="q-text">1. What was the main gap Video-MME was designed to fill?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">There were no AI models capable of processing video</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,true)">Existing video benchmarks were too narrow — lacking diversity in video types, durations, and modalities</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">Researchers needed a benchmark that only tested long videos</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">Image benchmarks were too difficult for current models</button></li>
+</ul>
+<div class="q-explain" id="ex-l1-0">Video-MME's four distinguishing features — diversity, duration coverage, multi-modal inputs, and quality annotations — were all designed to address shortcomings in prior benchmarks that were too narrow in scope. Models already existed; the problem was measuring them properly.</div>
+</div>
+
+<div class="q"><div class="q-text">2. Why did the authors filter out questions that Gemini 1.5 Pro could answer without watching the video?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">To make Gemini look worse on the benchmark</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">To reduce the total number of questions to save time</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,true)">To ensure questions genuinely require understanding the video content, not just guessing from text</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">To prevent Gemini from being used in the evaluation</button></li>
+</ul>
+<div class="q-explain" id="ex-l1-1">If a model can answer "What is Argentina's #10's biggest achievement in 2022?" without seeing the video, the question is testing world knowledge, not video understanding. Filtering these out ensures the benchmark measures what it claims to measure.</div>
+</div>
+
+<div class="q"><div class="q-text">3. What happens to model performance as video duration increases?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">Performance stays roughly the same across all durations</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">Performance improves because longer videos provide more context</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,true)">Performance declines significantly for all models tested</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">Only open-source models get worse; commercial models stay stable</button></li>
+</ul>
+<div class="q-explain" id="ex-l1-2">Every model tested — commercial and open-source alike — showed declining accuracy on longer videos. Gemini 1.5 Pro dropped from 81.7% on short videos to 67.4% on long ones. The reasons include sparser frame sampling, harder reasoning tasks, and the inherent difficulty of long-context understanding.</div>
+</div>
+
+<div class="q"><div class="q-text">4. How do subtitles affect model performance on Video-MME?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">Subtitles hurt performance because they distract the model</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,true)">Subtitles help slightly on short videos but dramatically on long videos</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">Subtitles only help multilingual videos and have no effect elsewhere</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">Subtitles make no difference for any model tested</button></li>
+</ul>
+<div class="q-explain" id="ex-l1-3">Subtitles boosted Gemini 1.5 Pro by 2.8% on short videos but by 10.1% on long videos. Long videos have sparser frame sampling so more visual information is lost — subtitles fill that gap by providing verbal content the model would otherwise miss.</div>
+</div>
+
+<div class="q"><div class="q-text">5. Why is it significant that Video-MME works for both image-based and video-based models?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">It proves image models are always better than video models</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,true)">It shows the benchmark is universal — image understanding is foundational to video understanding, and both model types can be fairly compared</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">It means the benchmark is too easy since image models can pass it</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">It demonstrates that video-specific architectures are unnecessary</button></li>
+</ul>
+<div class="q-explain" id="ex-l1-4">Image MLLMs like InternVL-Chat-V1.5 achieved ~50%, comparable to some video-specific models. This confirms that image understanding is the foundation of video understanding, and that Video-MME is broadly applicable across the MLLM landscape.</div>
+</div>
+
+<div class="score" id="score-l1"></div>
+<button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button>
+</div>
+</div></div>
+
+<!-- ============ LEVEL 2 ============ -->
+<div class="level l2" id="level2">
+<div class="level-header" onclick="toggle('level2')">
+  <div class="level-dot"></div>
+  <h2>Level 2 — Intermediate</h2>
+  <span class="chevron">▼</span>
+</div>
+<div class="level-body">
+
+<h3>How Video-MME is constructed</h3>
+<p>The pipeline has three stages: <strong>video collection → QA annotation → quality review</strong>.</p>
+<p><strong>Video collection</strong> starts with a domain hierarchy — 6 top-level domains from popular YouTube trends, subdivided into 30 fine-grained categories. For each category, videos are collected at three duration tiers: short (&lt;2 min), medium (4–15 min), and long (30–60 min). Subtitles are available for 744 of 900 videos; audio tracks for all 900.</p>
+<p><strong>QA annotation</strong> uses expert human annotators with strong English and vision-language research experience. Each annotator watches the entire video, then writes 3 multiple-choice questions with 4 options each. The 2,700 questions span 12 task types across perception and reasoning. Answer distribution is nearly uniform across A/B/C/D (25.1/27.2/25.3/22.4%).</p>
+<p><strong>Quality review</strong> is two-pass: a different annotator checks language and logic, then questions are text-only filtered with Gemini 1.5 Pro. If the model answers correctly without the video, the question is sent back for revision. Gemini scored &lt;15% on text-only, confirming genuine video dependency.</p>
+
+<h3>Certificate length — measuring temporal difficulty</h3>
+<div class="card">
+<div class="card-label purple">Key concept</div>
+<p>The <strong>certificate length</strong> is the minimum total duration of video sub-clips needed to answer a question. It isolates temporal difficulty from total video length. Video-MME's median certificate lengths are 26s (short), 164.7s (medium), and 890.7s (long) — far exceeding EgoSchema's ~100s.</p>
+</div>
+
+<h3>The information density problem</h3>
+<p>Gemini 1.5 Pro samples at 1 fps for short/medium videos and 0.5 fps for long ones, leveraging its massive context window. Most open-source models are limited to a fixed frame count — often just 8–16 frames regardless of duration. 8 frames from a 30-minute video means one frame every ~225 seconds. Huge amounts of visual information are simply lost.</p>
+
+<h3>The modality analysis</h3>
+<p><strong>Subtitles consistently outperform audio.</strong> Overall +6.2% vs +4.3%. Subtitles are clean text; audio includes ambient noise that models handle less well.</p>
+<p><strong>The benefit scales with duration.</strong> Subtitles add +2.8% on short videos but +10.1% on long videos — compensating for sparser frame sampling.</p>
+<p><strong>Domain matters.</strong> Sports gets +9.1% from subtitles (commentary carries play-by-play). Artistic Performance gets only +2.7% (visual content dominates). Multilingual sees up to +16.7% on long videos.</p>
+
+<h3>Why all models degrade on longer videos</h3>
+<p>Three compounding factors: (1) Task difficulty shifts — long videos emphasize reasoning over perception. (2) Frame sampling sparsity — fixed-frame models lose information density. (3) Long-context understanding is fundamentally hard — even with adequate frames, maintaining coherence across thousands of visual tokens remains a core challenge.</p>
+
+<div class="takeaway">
+<div class="takeaway-label">Key takeaway</div>
+<p>Video-MME's construction — domain hierarchy, certificate length analysis, multi-modal evaluation, and duration stratification — reveals that the long-video bottleneck is the critical frontier for MLLM development.</p>
+</div>
+
+<!-- Quiz L2 -->
+<div class="quiz" id="quiz-l2">
+<div class="quiz-title">Quiz — Level 2</div>
+
+<div class="q"><div class="q-text">1. What is the "certificate length" and why does it matter?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">The total runtime of the video — longer videos are harder</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,true)">The minimum total duration of video sub-clips necessary and sufficient to answer a question — it measures temporal difficulty</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">The number of frames a model needs to sample to answer correctly</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">The time it takes a human annotator to write a question about the video</button></li>
+</ul>
+<div class="q-explain" id="ex-l2-0">Certificate length isolates temporal difficulty from total video length. A 30-minute video might have a certificate length of only 60 seconds if the answer lives in one short segment — or 890 seconds if you need to piece together information from across the whole video.</div>
+</div>
+
+<div class="q"><div class="q-text">2. Why does the text-only filtering step use Gemini 1.5 Pro specifically?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">It was the cheapest model available for bulk filtering</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,true)">It was the strongest model available — if even it can't answer without video, the question truly requires visual content</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">It was the only model that could process text-only questions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">It was used because it would later be evaluated on the benchmark</button></li>
+</ul>
+<div class="q-explain" id="ex-l2-1">Using the strongest available model sets the highest bar. If even Gemini 1.5 Pro can't answer a question without the video, then the question genuinely requires video understanding. It scored less than 15% in this text-only setup.</div>
+</div>
+
+<div class="q"><div class="q-text">3. What is the "information density problem" for open-source models on long videos?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">Open-source models use too many frames, overwhelming their context window</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">They can only process audio, not video frames</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,true)">They sample a fixed number of frames (e.g. 8–16) regardless of duration, so longer videos get drastically sparser coverage</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">Their vision encoders compress frames too aggressively</button></li>
+</ul>
+<div class="q-explain" id="ex-l2-2">Most open-source models sample a fixed frame count — 8 frames from a 30-minute video means one frame every ~225 seconds. Even Gemini 1.5 Pro, which scales frame count with duration, still degrades — showing sparsity isn't the whole story.</div>
+</div>
+
+<div class="q"><div class="q-text">4. Why do subtitles help more than audio for most categories?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">Audio files are lower quality than subtitle files</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,true)">Subtitles are clean text transcriptions of speech, while audio includes ambient noise and non-verbal signals that models handle less effectively</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">Subtitles contain more information because they include stage directions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">Models cannot process audio at all — the audio results are estimated</button></li>
+</ul>
+<div class="q-explain" id="ex-l2-3">Subtitles distill the verbal content into clean text that language models process natively. Audio carries the same speech plus ambient sounds, music, and noise — useful but harder for current models to parse. The exception is multilingual content, where audio pronunciation cues sometimes help more.</div>
+</div>
+
+<div class="q"><div class="q-text">5. What three factors compound to cause performance degradation on longer videos?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">Lower video quality, fewer subtitles, and smaller model sizes</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">More questions per video, harder answer options, and time pressure</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,true)">Task difficulty shifts toward reasoning, frame sampling becomes sparser, and long-context understanding is fundamentally hard</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">Annotator fatigue, noisier ground truth, and evaluation metric limitations</button></li>
+</ul>
+<div class="q-explain" id="ex-l2-4">All three factors stack: (1) long videos have proportionally more reasoning questions; (2) fixed-frame models lose information density; (3) even with enough frames, maintaining coherence across thousands of visual tokens remains unsolved. That's why even Gemini 1.5 Pro drops 14+ points from short to long.</div>
+</div>
+
+<div class="score" id="score-l2"></div>
+<button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button>
+</div>
+</div></div>
+
+<!-- ============ LEVEL 3 ============ -->
+<div class="level l3" id="level3">
+<div class="level-header" onclick="toggle('level3')">
+  <div class="level-dot"></div>
+  <h2>Level 3 — Expert</h2>
+  <span class="chevron">▼</span>
+</div>
+<div class="level-body">
+
+<h3>Architectural paradigms evaluated</h3>
+<div class="card"><div class="card-label purple">Dual-encoder with temporal aggregation</div>
+<p>Models like Video-LLaMA use a ViT encoder with an image Q-Former per frame, then a video Q-Former for temporal modeling. The Q-Former's learned query vectors (typically 32) compress 196 patch tokens per frame via cross-attention — but this compression is trained on fixed distributions and can't adapt at inference to novel visual details. Fine-grained spatial detail, temporal micro-events, and cross-frame correspondences are systematically lost.</p></div>
+
+<div class="card"><div class="card-label blue">Frame-as-image approaches</div>
+<p>Image MLLMs like InternVL-Chat-V1.5 treat video as independent frames. No temporal modeling — the LLM must implicitly reason about time from frame ordering. Achieves ~50% on Video-MME, competitive with some video models, validating that image understanding is foundational.</p></div>
+
+<div class="card"><div class="card-label green">Long-context native models</div>
+<p>Gemini 1.5 Pro ingests frames at 1/0.5 fps, feeding hundreds of frames into its million-token context. GPT-4o samples up to 384 frames at 512×512. Avoids the information bottleneck but faces quadratic attention costs. Ring attention (as in Large World Models) distributes sequences across GPUs in a ring topology, enabling exact full attention for million-token contexts.</p></div>
+
+<h3>Evaluation methodology — design decisions</h3>
+<p><strong>MCQ format</strong> enables deterministic evaluation (direct regex matching, no ChatGPT judge) but allows elimination strategies and has a 25% random baseline. Answer extraction uses a standardized prompt template requesting only the letter response.</p>
+<p><strong>Subtitle synchronization</strong> couples with frame sampling: if a model samples 10 frames, it gets the 10 subtitle segments matching those timestamps. Sparse-frame models get sparse subtitles, confounding the modality analysis with the sampling strategy.</p>
+
+<h3>The 12 task types</h3>
+<p><strong>Perception tasks</strong> (object recognition, attribute perception, action recognition, OCR, counting, spatial reasoning) dominate short videos. <strong>Reasoning tasks</strong> (causal reasoning, temporal ordering, future prediction, information synthesis, summarization) dominate long videos. Counting is a joint bottleneck across all models.</p>
+
+<h3>Cross-category analysis (Gemini 1.5 Pro)</h3>
+<table>
+<thead><tr><th>Category</th><th>Frames only</th><th>+ Subtitles</th><th>Δ</th></tr></thead>
+<tbody>
+<tr><td>Knowledge</td><td>74.1%</td><td>83.2%</td><td>+9.2%</td></tr>
+<tr><td>Film &amp; Television</td><td>77.9%</td><td>81.8%</td><td>+3.9%</td></tr>
+<tr><td>Sports Competition</td><td>68.6%</td><td>77.7%</td><td>+9.1%</td></tr>
+<tr><td>Artistic Performance</td><td>78.8%</td><td>81.5%</td><td>+2.7%</td></tr>
+<tr><td>Life Record</td><td>77.4%</td><td>80.3%</td><td>+2.9%</td></tr>
+<tr><td>Multilingual</td><td>78.2%</td><td>85.9%</td><td>+7.7%</td></tr>
+<tr style="font-weight:600"><td>Overall</td><td>75.0%</td><td>81.3%</td><td>+6.2%</td></tr>
+</tbody>
+</table>
+
+<h3>Critical evaluation</h3>
+<div class="card"><div class="card-label amber">Strengths</div>
+<p>Rigorous human annotation + text-only filtering. First benchmark to systematically study subtitle/audio impact. Duration stratification reveals the long-video bottleneck. Clean evaluation without ChatGPT judge. Active leaderboard with 50+ models maintains ongoing relevance.</p></div>
+
+<div class="card"><div class="card-label red">Weaknesses</div>
+<p><strong>Scale:</strong> 900 videos / 2,700 questions limits statistical power for 90-cell subcategory analysis (~30 questions each). <strong>MCQ ceiling:</strong> 25% floor allows elimination. <strong>YouTube bias:</strong> No medical, surveillance, or broadcast content. <strong>English-centric:</strong> QA pairs are English-only despite a "multilingual" category. <strong>Static:</strong> Fixed questions risk training data contamination with no contamination analysis. <strong>No temporal grounding:</strong> Tests "what happened" but not "when." <strong>Subtitle coupling:</strong> Sparse-frame models get sparse subtitles, confounding the modality analysis.</p></div>
+
+<div class="takeaway">
+<div class="takeaway-label">Key takeaway</div>
+<p>Video-MME established the template for comprehensive video MLLM evaluation. Its design decisions — duration stratification, multi-modal inputs, certificate length analysis — directly shaped how the field measures progress. The limitations are real but well-understood, and successor benchmarks build on rather than replace it.</p>
+</div>
+
+<!-- Quiz L3 -->
+<div class="quiz" id="quiz-l3">
+<div class="quiz-title">Quiz — Level 3</div>
+
+<div class="q"><div class="q-text">1. Why is Q-Former compression fundamentally lossy for video understanding?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">They use random sampling which misses key frames</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,true)">Learned query vectors compress frames during training but can't adapt at inference to novel visual details the training didn't cover</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">They only encode the first and last frame of each video</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">The ViT encoder runs at too low a resolution to capture detail</button></li>
+</ul>
+<div class="q-explain" id="ex-l3-0">The 32 learned queries attend to patterns useful during training, but at inference they can't dynamically preserve unexpected details — a quick text overlay, a small object, or a split-second event. Compression happens before the question is seen, so there's no way to know what to keep.</div>
+</div>
+
+<div class="q"><div class="q-text">2. How does ring attention solve the memory bottleneck for long video sequences?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">It eliminates the need for attention entirely, replacing it with convolutions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">It approximates attention by only attending to nearby tokens within a fixed window</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,true)">It distributes the sequence across GPUs in a ring, rotating key/value blocks so each GPU computes exact full attention without storing the entire matrix locally</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">It reduces the sequence length by compressing tokens before attention is computed</button></li>
+</ul>
+<div class="q-explain" id="ex-l3-1">Ring attention is mathematically identical to standard full attention — no approximation. Each GPU computes attention for its local queries against every key/value block as they rotate around the ring, with communication overlapped behind computation.</div>
+</div>
+
+<div class="q"><div class="q-text">3. What is the main methodological trade-off of using MCQ instead of open-ended generation?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',2,true)">MCQ allows elimination strategies and has a 25% random baseline, which may overstate model capability</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">MCQ questions are harder to write than open-ended questions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">MCQ format cannot test reasoning, only perception</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">MCQ makes it impossible to compare commercial and open-source models fairly</button></li>
+</ul>
+<div class="q-explain" id="ex-l3-2">The upside is deterministic evaluation with no judge model bias. The downside is a 25% floor — a model that understands nothing still scores 25%, and elimination inflates scores further. Open-ended generation is more discriminating but needs a subjective evaluator.</div>
+</div>
+
+<div class="q"><div class="q-text">4. How does subtitle synchronization confound the modality analysis?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">Subtitles are randomly sampled from the full track</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">The full subtitle track is always provided</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,true)">Subtitles are synchronized to sampled frame timestamps, so sparse-frame models also get sparse subtitles — compounding information loss</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">Subtitles are provided as a separate input unconnected to frames</button></li>
+</ul>
+<div class="q-explain" id="ex-l3-3">If a model samples 10 frames, it gets only 10 matching subtitle segments — not the full transcript. So when subtitles help open-source models less than Gemini, it's unclear whether they're worse at using subtitles or just receiving far fewer.</div>
+</div>
+
+<div class="q"><div class="q-text">5. What is the benchmark contamination risk, and how does Video-MME partially mitigate it?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">The benchmark is too large for models to memorize</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">All videos are behind a paywall so training pipelines can't access them</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,true)">Questions were filtered so they can't be answered from text alone, but the fixed question set could still leak into training data — and no contamination analysis is provided</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">The YouTube videos are regularly rotated and replaced</button></li>
+</ul>
+<div class="q-explain" id="ex-l3-4">Text-only filtering ensures questions can't be gamed from world knowledge alone — that's partial mitigation. But 2,700 fixed QA pairs on public GitHub and arXiv can eventually seep into training corpora. Dynamic or held-out test sets would be stronger.</div>
+</div>
+
+<div class="score" id="score-l3"></div>
+<button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button>
+</div>
+</div></div>
+
+<!-- ============ LEVEL 4 — FRONTIER ============ -->
+<div class="level l4" id="level4">
+<div class="level-header" onclick="toggle('level4')">
+  <div class="level-dot"></div>
+  <h2>Phase 4 — Frontier</h2>
+  <span class="chevron">▼</span>
+</div>
+<div class="level-body">
+
+<h3>Improvement vectors</h3>
+
+<div class="card"><div class="card-label blue">1. Scale and statistical power</div>
+<p>900 videos / 2,700 QAs across 90 subcategory-duration cells means ~30 questions each — too few for robust fine-grained analysis. ALLVB (2025) demonstrates that automated annotation pipelines (GPT-4o + human QC) can scale to 252K QAs.</p></div>
+
+<div class="card"><div class="card-label blue">2. Open-ended evaluation</div>
+<p>MCQ-only has a 25% random baseline and allows elimination. MLVU adds open-ended captioning, summarization, and free-form QA alongside MCQ. A more discriminating evaluation format, though harder to score.</p></div>
+
+<div class="card"><div class="card-label blue">3. Temporal grounding</div>
+<p>Video-MME asks "what happened" but not "when." Temporal localization is critical for real applications. LongVideoBench introduces "referring reasoning" and CrossVid (2026) pushes into cross-video temporal reasoning.</p></div>
+
+<div class="card"><div class="card-label red">4. Contamination resistance</div>
+<p>Fixed benchmarks leak into training data. GPT-5 and Gemini 2.5 Pro both cite Video-MME as a primary benchmark, meaning their training pipelines are aware of it. No current video benchmark has robust dynamic or held-out evaluation.</p></div>
+
+<div class="card"><div class="card-label red">5. Decoupled subtitle evaluation</div>
+<p>Subtitle synchronization couples with frame sampling — sparse-frame models get sparse subtitles. Testing with full transcripts regardless of frame count would isolate the true modality effect.</p></div>
+
+<div class="card"><div class="card-label amber">6. Beyond YouTube</div>
+<p>All 900 videos are from YouTube. Medical imaging, surveillance, industrial inspection, and broadcast content have distinct characteristics. MLVU partially addresses this with surveillance and egocentric footage.</p></div>
+
+<h3>Latest work building on Video-MME</h3>
+
+<p><strong>Successor benchmarks:</strong> MLVU (CVPR 2025) adds open-ended tasks and referring QA. ALLVB (AAAI 2025) scales to 1,376 videos averaging ~2 hours with 252K QAs. LongVideoBench introduces referring reasoning. CrossVid (2026) evaluates cross-video reasoning. MME-Unify (ICLR 2026) unifies understanding and generation evaluation.</p>
+
+<p><strong>Architectural advances:</strong> VideoChat-Flash proposes hierarchical compression (~1/50 ratio with minimal loss). QuoTA allocates tokens by query relevance (+3.2% across benchmarks). LP-Comp (NeurIPS 2025) achieves one token per frame via learnable progressive compression. The token compression field has exploded with dozens of methods (FlashVID, ForestPrune, DToMA, METok).</p>
+
+<p><strong>Industry adoption:</strong> Video-MME is cited by OpenAI (GPT-4.1 as "industry standard measure," GPT-5), Google (Gemini 2.5 Pro, Gemini 3 Pro) as a primary video understanding benchmark.</p>
+
+<h3>Scorecard</h3>
+<table class="frontier-table">
+<thead><tr><th>Improvement vector</th><th>Status</th><th>Key work</th></tr></thead>
+<tbody>
+<tr><td>Scale (more videos/questions)</td><td><span class="tag-addressed">Addressed</span></td><td>ALLVB (252K QAs)</td></tr>
+<tr><td>Open-ended evaluation</td><td><span class="tag-addressed">Addressed</span></td><td>MLVU (open + MCQ)</td></tr>
+<tr><td>Temporal grounding</td><td><span class="tag-partial">Partial</span></td><td>LongVideoBench</td></tr>
+<tr><td>Contamination resistance</td><td><span class="tag-open">Open gap</span></td><td>—</td></tr>
+<tr><td>Decoupled subtitle eval</td><td><span class="tag-open">Open gap</span></td><td>—</td></tr>
+<tr><td>Beyond YouTube domains</td><td><span class="tag-partial">Partial</span></td><td>MLVU (surveillance, ego)</td></tr>
+<tr><td>Cross-video reasoning</td><td><span class="tag-addressed">Addressed</span></td><td>CrossVid (2026)</td></tr>
+<tr><td>Token compression efficiency</td><td><span class="tag-active">Active</span></td><td>VideoChat-Flash, QuoTA, LP-Comp</td></tr>
+<tr><td>Unified understand + generate</td><td><span class="tag-active">Active</span></td><td>MME-Unify (ICLR 2026)</td></tr>
+</tbody>
+</table>
+
+</div></div>
+
+<a class="back" href="../index.html" style="margin-top:2rem">← Back to all papers</a>
+
+</div>
+
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('open')}
+
+var S={};
+function ans(btn,qid,qi,ok){
+  if(!S[qid])S[qid]={a:[],t:document.querySelectorAll('#quiz-'+qid+' .q').length};
+  var s=S[qid];if(s.a[qi]!=null)return;
+  s.a[qi]=ok;
+  btn.parentElement.querySelectorAll('.q-btn').forEach(function(b){
+    b.disabled=true;
+    if(b===btn)b.classList.add(ok?'correct':'incorrect');
+    if(!ok&&b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(',true)')>-1)b.classList.add('reveal');
+  });
+  var ex=document.getElementById('ex-'+qid+'-'+qi);
+  if(ex)ex.classList.add('show');
+  var done=s.a.filter(function(x){return x!=null}).length;
+  if(done===s.t){
+    var c=s.a.filter(function(x){return x===true}).length;
+    var el=document.getElementById('score-'+qid);
+    var pass=c>=4;
+    el.className='score show '+(pass?'pass':'fail');
+    el.textContent=c+'/'+s.t+(c===s.t?' — Perfect score!':pass?' — Great job! Level passed.':' — Review the material and try again.');
+    if(!pass)document.getElementById('reset-'+qid).classList.add('show');
+  }
+}
+function resetQuiz(qid){
+  S[qid]=null;
+  var container=document.getElementById('quiz-'+qid);
+  container.querySelectorAll('.q-btn').forEach(function(b){b.disabled=false;b.classList.remove('correct','incorrect','reveal')});
+  container.querySelectorAll('.q-explain').forEach(function(e){e.classList.remove('show')});
+  document.getElementById('score-'+qid).className='score';
+  document.getElementById('reset-'+qid).classList.remove('show');
+}
+</script>
+</body>
+</html>

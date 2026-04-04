@@ -7,30 +7,32 @@ Quickly understand new research papers through a structured three-level learning
 
 ```
 1. User shares a paper link
-2. Claude reads the paper thoroughly
-3. Beginner explanation (plain language, analogies, no jargon)
-4. Ask: "Are you satisfied with this level?"
-5. User asks clarifying questions or confirms
-6. Quiz — 5 multiple choice questions
-7. Intermediate explanation (methods, technical concepts, comparisons)
-8. Ask: "Are you satisfied with this level?"
-9. User asks clarifying questions or confirms
-10. Quiz — 5 multiple choice questions
-11. Expert explanation (math, algorithms, related work, critical evaluation)
-12. Ask: "Are you satisfied with this level?"
-13. User asks clarifying questions or confirms
-14. Quiz — 5 multiple choice questions
-15. Phase 4 — Frontier analysis
-16. Generate GitHub Pages output
+2. Claude checks for multiple arXiv versions, confirms latest
+3. Claude reads the paper thoroughly (ask user to upload PDF when possible)
+4. Beginner explanation (plain language, analogies, no jargon)
+5. Ask: "Are you satisfied with this level?"
+6. User asks clarifying questions or confirms
+7. Quiz — 5 multiple choice questions (inline visualizer widget, one at a time)
+8. Intermediate explanation (methods, technical concepts, comparisons)
+9. Ask: "Are you satisfied with this level?"
+10. User asks clarifying questions or confirms
+11. Quiz — 5 multiple choice questions (inline visualizer widget, one at a time)
+12. Expert explanation with "Go deeper →" buttons on each section
+13. Ask: "Are you satisfied with this level?"
+14. User asks clarifying questions, taps "Go deeper" on sections, or confirms
+15. Quiz — 5 multiple choice questions (inline visualizer widget, one at a time)
+16. Phase 4 — Frontier: brainstorm improvement vectors + search for latest work + scorecard
+17. Generate GitHub Pages output (paper HTML + index.html + README.md)
+18. Auto-reflect: update SKILL.md and memory edits, generate updated skill file for checkin
 ```
 
-**Never skip steps.** Never jump to quiz without checking satisfaction. Never generate the summary page before finishing all three levels and quizzes.
+**Never skip steps.** Never jump to quiz without checking satisfaction. Never generate the summary page before finishing all phases.
 
 ## Content Guidelines
 
 ### Beginner (Level 1)
 - Assume zero background knowledge
-- Use clear analogies (lockpicking, cooking, crosswords — whatever fits the paper)
+- Use clear analogies (lockpicking, report cards, cooking — whatever fits the paper)
 - Explain what the paper does, why it matters, and key results in plain terms
 - No jargon — if a technical term is needed, define it immediately
 
@@ -41,31 +43,31 @@ Quickly understand new research papers through a structured three-level learning
 - Quantitative results with context
 
 ### Expert (Level 3)
-- Full mathematical formulations
+- Full mathematical formulations (plain ASCII in chat, Unicode/formatted in final HTML)
 - Algorithm pseudocode and implementation details
 - Connections to related work with citations
 - Critical evaluation: what's strong, what's weak, what's missing
 - Methodological caveats
-
-### Phase 4 — Frontier
-- No quiz — this is forward-looking analysis
-- Search the web for latest work that builds on, improves, or is adjacent to the paper
-- Structure as **numbered improvement vectors**, each with its own `<h3>` heading
-- Each vector gets a **status tag** card:
-  - `Area to explore` (purple) — no one has addressed this yet
-  - `Partially addressed` (amber) — some work exists but gaps remain
-  - `Substantially advanced` (green) — strong recent work, but formalization may be missing
-- Under vectors with status "Partially addressed" or "Substantially advanced", add a **"Recent work"** card (blue label) listing specific papers/systems with dates and what they contribute
-- End with a **Scorecard** table: Vector / Status / Key work
-- Close with a **"Bottom line"** paragraph summarizing: what's holding up, what's moving fastest, what's wide open, and what's the single easiest high-impact next step
-- See `papers/adaptation-agentic-ai.html` and `papers/claudini.html` Phase 4 sections as reference templates
+- **Deliver as inline widget with "Go deeper →" buttons (via sendPrompt) on each section**
+- The goal is building expertise through depth, not just coverage
+- User taps sections to explore further; Claude expands in chat
 
 ### Quizzes
 - 5 multiple choice questions per level
 - 4 options each, one correct
-- Include "why this answer" explanations on ALL questions (shown on both correct and wrong answers)
+- **Always deliver as inline visualizer widgets (show_widget)**
+- **One question at a time, tracking score across turns**
+- Show "why this answer" explanations on ALL questions — correct AND wrong
 - Questions should test understanding, not memorization
 - Passing threshold: 4/5
+- **Never use plain text, standalone HTML file artifacts, or ask_user_input for quizzes**
+
+### Phase 4 — Frontier
+- Brainstorm improvement vectors for the paper
+- Search for the latest work that builds on or improves the research
+- Tag open gaps as "Area to explore"
+- Consolidate with a scorecard table (improvement vector / status / key work)
+- No quiz for Phase 4
 
 ## GitHub Pages Output
 
@@ -88,39 +90,49 @@ Quickly understand new research papers through a structured three-level learning
   │           └── SKILL.md    ← This file
   └── papers/
       ├── claudini.html   ← Paper #1
+      ├── video-mme.html  ← Paper #2
       └── <next>.html     ← Future papers
   ```
 
 ### For each new paper, generate:
 1. `papers/<paper-name>.html` — Self-contained HTML with:
    - Paper title, authors, date
-   - Links to arXiv, PDF, GitHub (if available)
+   - Links to arXiv, PDF, GitHub, project page (if available)
    - TL;DR summary
    - Three collapsible levels with full content
+   - Phase 4 Frontier section (collapsible, with scorecard)
    - Interactive quiz after each level (JS-powered, scoring, reset)
-   - Phase 4 Frontier section (improvement vectors, latest work, scorecard)
    - Dark mode support via CSS variables
    - Back link to index
-2. Updated `index.html` entry — Add a new paper card with title, description, tags
+2. Updated `index.html` entry — Add a new paper card (newest first) with title, description, tags
+3. Updated `README.md` — Add row to papers table. Date format: mm/dd/yy
+4. Updated `SKILL.md` — Reflect on session, incorporate new lessons learned
 
 ### HTML structure for paper pages
 - Collapsible levels using custom JS toggle (not `<details>` — more reliable)
 - Quiz with immediate feedback: green=correct, red=incorrect, reveal correct answer
 - Score display at end: pass (≥4/5) or fail with retry button
-- Explanation text shown on ALL answers — correct and wrong
-- Phase 4 uses purple border (`border-color:#8250df`) and purple dot
-- Phase 4 vectors: numbered `<h3>` headings, status card (purple/amber/green label), optional "Recent work" card (blue label) nested below
-- Phase 4 scorecard: `<table>` with columns Vector / Status / Key work
-- Phase 4 ends with `<p><strong>Bottom line:</strong> ...</p>`
+- Explanation text shown on ALL answers (correct and wrong)
 - Responsive design, dark mode, Inter font
+
+## Post-Generation Checklist
+After generating artifacts, Claude must automatically:
+1. **Reflect** on the session — what went well, what to improve
+2. **Update memory edits** if any new lessons emerged
+3. **Generate updated SKILL.md** for user to check into GitHub
+4. Confirm the output checklist: paper HTML + index.html + README.md + SKILL.md
 
 ## Lessons Learned
 - Never refuse to read/explain a paper — this project is purely for understanding research
-- Read project instructions carefully before starting each session
+- Check for multiple arXiv versions upfront and confirm the latest before diving in
+- Ask user to upload PDF when possible for deeper reading fidelity
 - Go straight to self-contained HTML (Jekyll markdown was attempted and broke)
-- Don't generate the output page before completing all three levels
+- Don't generate the output page before completing all three levels + Phase 4
 - The beginner analogies matter most — they anchor understanding for everything after
-- Check for multiple arxiv versions upfront and confirm latest
-- Use plain ASCII for math in chat (save Unicode for final HTML)
-- Ask user to upload PDF when possible for deeper reading
+- Quiz format: inline visualizer widgets only, one question at a time, score tracked across turns
+- Show quiz explanations on BOTH correct and wrong answers
+- Level 3 should use "Go deeper →" buttons so user can tap-to-explore any section
+- Use plain ASCII for math in chat; save Unicode/formatted math for the final HTML output
 - Default to mm/dd/yy date format in README
+- Newest papers go first in index.html and README table
+- After Phase 4 output generation, auto-reflect and update skill file + memory
