@@ -8,6 +8,7 @@ Three-level explainers (Beginner → Intermediate → Expert) for quickly unders
 
 | # | Paper | Topic | Date |
 |:--|:------|:------|:-----|
+| 2 | [Adaptation of Agentic AI](papers/adaptation-agentic-ai.html) | Agentic AI, adaptation, post-training, memory, skills | Dec 2025 |
 | 1 | [Claudini](papers/claudini.html) | AI safety, adversarial attacks, autoresearch | Mar 2026 |
 
 ## Adding a new paper
@@ -15,7 +16,8 @@ Three-level explainers (Beginner → Intermediate → Expert) for quickly unders
 1. Generate the summary HTML via the Claude project
 2. Add the file to `papers/`
 3. Add a card linking to it in `index.html`
-4. Push — site updates automatically
+4. Update this README
+5. Push — site updates automatically
 
 ## License
 
