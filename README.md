@@ -1,6 +1,6 @@
 # Research Paper Summaries
 
-Three-level explainers (Beginner → Intermediate → Expert) for quickly understanding research papers, with interactive quizzes.
+Three-level explainers (Beginner → Intermediate → Expert) plus a Phase 4 frontier analysis for quickly understanding research papers. Each level includes interactive quizzes, and the frontier section maps improvement vectors against the latest follow-up work.
 
 **Live site:** https://mpaluri.github.io/research-paper-summaries/
 

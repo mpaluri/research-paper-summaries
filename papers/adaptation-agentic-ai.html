@@ -7,8 +7,8 @@
 <meta name="description" content="Three-level explainer: Adaptation of Agentic AI — how to make AI agents better after pre-training.">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0}
-@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129}}
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0;--purple:#8250df;--purple-bg:#fbefff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129;--purple:#bc8cff;--purple-bg:#2a1a3a}}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
 .container{max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem}
@@ -21,11 +21,8 @@ h1{font-size:1.6rem;font-weight:700;line-height:1.3;margin-bottom:.75rem}
 .tldr{font-size:.9rem;color:var(--text2);padding:1rem 1.25rem;background:var(--bg2);border-radius:8px;margin-bottom:2rem;border-left:3px solid var(--accent)}
 .level{margin-bottom:2.5rem;border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .level-header{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;cursor:pointer;background:var(--bg2);user-select:none;border-bottom:1px solid var(--border)}
-.level-header:hover{background:var(--bg2)}
 .level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.l1 .level-dot{background:#2da44e}
-.l2 .level-dot{background:#bf8700}
-.l3 .level-dot{background:#cf222e}
+.l1 .level-dot{background:#2da44e}.l2 .level-dot{background:#bf8700}.l3 .level-dot{background:#cf222e}.l4 .level-dot{background:var(--purple)}
 .level-header h2{font-size:1rem;font-weight:600;margin:0;flex:1}
 .chevron{font-size:.8rem;color:var(--text3);transition:transform .2s}
 .level.open .chevron{transform:rotate(180deg)}
@@ -38,7 +35,6 @@ ul,ol{margin:0 0 .75rem 1.25rem}
 li{margin-bottom:.25rem}
 strong{font-weight:600}
 em{font-style:italic}
-blockquote{border-left:3px solid var(--accent);padding:.75rem 1rem;margin:1rem 0;background:var(--accent-bg);border-radius:0 6px 6px 0;font-size:.9rem}
 code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--code-bg);padding:1px 5px;border-radius:3px}
 pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;margin:.75rem 0;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.5}
 table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.875rem}
@@ -47,7 +43,7 @@ td{padding:.5rem .75rem;border-bottom:1px solid var(--border)}
 tr:last-child td{border-bottom:none}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0}
 .card-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}
-.card-label.green{color:var(--green)}.card-label.amber{color:#bf8700}.card-label.red{color:var(--red)}.card-label.blue{color:var(--accent)}.card-label.purple{color:#8250df}
+.card-label.green{color:var(--green)}.card-label.amber{color:#bf8700}.card-label.red{color:var(--red)}.card-label.blue{color:var(--accent)}.card-label.purple{color:var(--purple)}
 .card p:last-child{margin-bottom:0}
 .takeaway{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0}
 .takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.35rem}
@@ -61,16 +57,18 @@ tr:last-child td{border-bottom:none}
 .result-box.green-bg .result-number{color:var(--green)}
 .result-box.amber-bg .result-number{color:#bf8700}
 .result-label{font-size:.75rem;color:var(--text2);margin-top:.25rem}
+.tag-explore{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--purple-bg);color:var(--purple);margin:.25rem 0}
+.tag-advanced{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--green-bg);color:var(--green);margin:.25rem 0}
+.tag-partial{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:#fff8c5;color:#bf8700;margin:.25rem 0}
+@media(prefers-color-scheme:dark){.tag-partial{background:#2a2000}}
 .quiz{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1.5rem}
 .quiz-title{font-weight:600;font-size:.9rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
-.q{margin-bottom:1.25rem}
-.q:last-of-type{margin-bottom:.5rem}
+.q{margin-bottom:1.25rem}.q:last-of-type{margin-bottom:.5rem}
 .q-text{font-weight:500;font-size:.9rem;margin-bottom:.5rem}
 .q-options{list-style:none;padding:0;margin:0}
 .q-btn{display:block;width:100%;text-align:left;padding:.5rem .85rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);transition:border-color .12s,background .12s}
 .q-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg)}
-.q-btn:disabled{cursor:default}
-.q-btn:disabled:hover{border-color:inherit;background:inherit}
+.q-btn:disabled{cursor:default}.q-btn:disabled:hover{border-color:inherit;background:inherit}
 .q-btn.correct{border-color:var(--green)!important;background:var(--green-bg)!important}
 .q-btn.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;opacity:.7}
 .q-btn.reveal{border-color:var(--green)!important;background:var(--green-bg)!important}
@@ -112,90 +110,72 @@ tr:last-child td{border-bottom:none}
 <h3>The student-with-a-toolbox analogy</h3>
 <div class="card">
 <div class="card-label blue">Core idea</div>
-<p>Think of an AI agent as a smart student sitting an open-book exam. The student (the AI model) has a toolbox on the desk &mdash; a calculator, a dictionary, a search engine, a notebook for memory. There are two fundamentally different ways to help:</p>
+<p>Think of an AI agent as a smart student sitting an open-book exam. The student (the AI model) has a toolbox on the desk &mdash; a calculator, a dictionary, a search engine, a notebook for memory. Two ways to help:</p>
 <p><strong>1. Coach the student</strong> &mdash; teach them to reason better, use tools more skillfully, plan ahead.</p>
 <p><strong>2. Upgrade the toolbox</strong> &mdash; give them a better calculator, a smarter search engine, a better notebook.</p>
 </div>
 
 <h3>The four strategies (A1, A2, T1, T2)</h3>
-<p>The paper's big insight is that the entire messy landscape of "making agents better" boils down to a clean 2x2 grid based on two questions: <em>What are you improving?</em> (student vs. toolbox) and <em>What signal tells you it's working?</em> (did the tool work, or did the final answer come out right?)</p>
+<p>The paper's big insight: the entire messy landscape of "making agents better" boils down to a clean 2x2 grid based on two questions: <em>What are you improving?</em> (student vs. toolbox) and <em>What signal tells you it's working?</em> (did the tool work, or did the final answer come out right?)</p>
 
-<div class="card">
-<div class="card-label green">A1 &mdash; Coach the student using tool feedback</div>
-<p>The student writes code, runs it, sees "all tests pass." That success signal teaches the student to write better code next time. Like learning from lab experiments &mdash; the equipment gives you direct feedback.</p>
-</div>
+<div class="card"><div class="card-label green">A1 &mdash; Coach the student using tool feedback</div>
+<p>The student writes code, runs it, sees "all tests pass." That success signal teaches the student to write better code. Like learning from lab experiments &mdash; the equipment gives direct feedback.</p></div>
 
-<div class="card">
-<div class="card-label amber">A2 &mdash; Coach the student using final-answer feedback</div>
-<p>Did the final answer on the exam match the answer key? If yes, reinforce whatever the student did. Like grading a math test &mdash; you only care about the bottom line.</p>
-</div>
+<div class="card"><div class="card-label amber">A2 &mdash; Coach the student using final-answer feedback</div>
+<p>Did the final answer match the answer key? If yes, reinforce whatever the student did. Like grading a math test &mdash; you only care about the bottom line.</p></div>
 
-<div class="card">
-<div class="card-label blue">T1 &mdash; Upgrade the tools independently</div>
-<p>Build a better search engine or calculator that <em>any</em> student can use. The tools are trained on their own, without any specific student in mind. Plug-and-play.</p>
-</div>
+<div class="card"><div class="card-label blue">T1 &mdash; Upgrade the tools independently</div>
+<p>Build a better search engine or calculator that <em>any</em> student can use. Trained on their own, without any specific student in mind. Plug-and-play.</p></div>
 
-<div class="card">
-<div class="card-label purple">T2 &mdash; Upgrade tools for this specific student</div>
-<p>The student is fixed (maybe a closed-source API you can't retrain). But you can tune the search engine to return results <em>this particular student</em> understands best. The student's performance tells you whether the tool upgrade worked.</p>
-</div>
+<div class="card"><div class="card-label purple">T2 &mdash; Upgrade tools for this specific student</div>
+<p>The student is fixed (maybe a closed-source API). Tune the search engine to return results <em>this particular student</em> understands best. The student's performance tells you whether the upgrade worked.</p></div>
 
 <h3>Why does this matter?</h3>
-<p>The paper argues that the best strategy is often <strong>not</strong> to retrain the whole AI model (expensive, risky, causes forgetting). Instead, upgrade the tools around it. A striking finding: a small 7B-parameter search tool trained with just 2,400 examples using T2 matched or beat a monolithic agent trained with 70x more data.</p>
+<p>The paper argues that the best strategy is often <strong>not</strong> to retrain the whole AI model (expensive, risky). Instead, upgrade the tools around it. A small 7B-parameter search tool trained with just 2,400 examples using T2 matched or beat a monolithic agent trained with 70x more data.</p>
 
 <div class="result-row">
 <div class="result-box green-bg"><div class="result-number">70x</div><div class="result-label">Less data needed<br>(T2 vs A2)</div></div>
 <div class="result-box amber-bg"><div class="result-number">100+</div><div class="result-label">Methods organized<br>into 4 paradigms</div></div>
 </div>
 
-<div class="takeaway">
-<div class="takeaway-label">Key takeaway</div>
-<p>Real-world systems will combine strategies: rare, expensive retraining of the core model (A1/A2) with frequent, cheap upgrades to tools, memory, and helper modules (T1/T2). You don't retrain your CEO every week &mdash; you upgrade the tools and processes around them.</p>
-</div>
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div>
+<p>Real-world systems will combine strategies: rare, expensive retraining of the core model (A1/A2) with frequent, cheap upgrades to tools, memory, and helper modules (T1/T2). You don't retrain your CEO every week &mdash; you upgrade the tools and processes around them.</p></div>
 
-<!-- Quiz L1 -->
 <div class="quiz" id="quiz-l1">
 <div class="quiz-title">Quiz &mdash; Level 1</div>
-
 <div class="q"><div class="q-text">1. What is the core problem this paper is trying to solve?</div><ul class="q-options">
 <li><button class="q-btn" onclick="ans(this,'l1',0,false)">How to build foundation models from scratch</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',0,true)">How to make AI agents better after they've already been pre-trained</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',0,false)">How to replace human workers with AI agents</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',0,false)">How to make AI models smaller and faster</button></li>
 </ul><div class="q-explain" id="ex-l1-0">The paper focuses on adaptation &mdash; improving agents, tools, and their interaction after pre-training, not building models from scratch.</div></div>
-
 <div class="q"><div class="q-text">2. In the student-with-a-toolbox analogy, what does the "toolbox" represent?</div><ul class="q-options">
 <li><button class="q-btn" onclick="ans(this,'l1',1,false)">The AI model's internal knowledge and reasoning ability</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',1,false)">The training data used to pre-train the model</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',1,true)">External components like search engines, code runners, memory, and APIs</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',1,false)">The user's instructions and prompts</button></li>
-</ul><div class="q-explain" id="ex-l1-1">Tools are external callable components &mdash; retrievers, APIs, code executors, memory modules &mdash; that the agent (student) uses to extend its capabilities beyond its internal knowledge.</div></div>
-
+</ul><div class="q-explain" id="ex-l1-1">Tools are external callable components &mdash; retrievers, APIs, code executors, memory modules &mdash; that the agent uses to extend its capabilities beyond its internal knowledge.</div></div>
 <div class="q"><div class="q-text">3. What makes A1 different from A2?</div><ul class="q-options">
 <li><button class="q-btn" onclick="ans(this,'l1',2,false)">A1 upgrades tools while A2 upgrades the agent</button></li>
-<li><button class="q-btn" onclick="ans(this,'l1',2,true)">A1 uses feedback from whether the tool worked correctly; A2 uses feedback from whether the final answer was right</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,true)">A1 uses feedback from whether the tool worked correctly; A2 uses feedback from the final answer</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',2,false)">A1 is cheaper than A2</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',2,false)">A1 works without tools while A2 requires tools</button></li>
-</ul><div class="q-explain" id="ex-l1-2">Both A1 and A2 adapt the agent. The difference is the signal source: A1 learns from tool execution outcomes (e.g., code tests passed), while A2 learns from whether the final answer was correct.</div></div>
-
+</ul><div class="q-explain" id="ex-l1-2">Both A1 and A2 adapt the agent. The difference is the signal: A1 learns from tool execution outcomes (e.g., code tests passed), while A2 learns from whether the final answer was correct.</div></div>
 <div class="q"><div class="q-text">4. Why is T2 particularly important for closed-source AI models?</div><ul class="q-options">
 <li><button class="q-btn" onclick="ans(this,'l1',3,false)">It lets you retrain the closed-source model directly</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',3,true)">It lets you improve performance by upgrading tools around a model you can't modify</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',3,false)">It replaces the closed-source model with an open one</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',3,false)">It bypasses the API and accesses model weights directly</button></li>
 </ul><div class="q-explain" id="ex-l1-3">T2 keeps the agent frozen and optimizes the tools around it using the agent's outputs as a signal &mdash; perfect when you can't touch the model's parameters.</div></div>
-
 <div class="q"><div class="q-text">5. What was the striking data efficiency finding about T2 vs. A2?</div><ul class="q-options">
 <li><button class="q-btn" onclick="ans(this,'l1',4,false)">T2 required 70x more data than A2</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',4,false)">T2 and A2 required exactly the same amount of data</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',4,true)">A small T2-trained tool matched a monolithic A2 agent using roughly 70x less data</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',4,false)">T2 methods don't use any data at all</button></li>
-</ul><div class="q-explain" id="ex-l1-4">The s3 system (a T2 approach) trained a 7B search subagent with just 2,400 examples and matched agents trained with 70x more data &mdash; showing T2's dramatic data efficiency.</div></div>
-
+</ul><div class="q-explain" id="ex-l1-4">The s3 system (T2) trained a 7B search subagent with just 2,400 examples and matched agents trained with 70x more data.</div></div>
 <div class="score" id="score-l1"></div>
 <button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button>
 </div>
-
 </div></div>
 
 <!-- ============ LEVEL 2 ============ -->
@@ -208,88 +188,79 @@ tr:last-child td{border-bottom:none}
 <div class="level-body">
 
 <h3>The mathematical setup</h3>
-<p>Every adaptation method optimizes some objective function. The paper defines three ingredients: <strong>Agent A(theta)</strong> &mdash; the foundation model parameterized by theta; <strong>Tool T</strong> &mdash; everything external the agent calls; <strong>Objective O</strong> &mdash; a measurable signal. A1 and A2 both update theta but differ in what O measures. T1 and T2 leave theta frozen and update tool parameters phi, differing in where the training signal comes from.</p>
+<p>Every adaptation method optimizes some objective function over: <strong>Agent A(theta)</strong> &mdash; the foundation model; <strong>Tool T</strong> &mdash; everything external; <strong>Objective O</strong> &mdash; a measurable signal. A1/A2 update theta (agent weights); T1/T2 update phi (tool parameters). The difference is where the training signal comes from.</p>
 
 <h3>A1 in practice: learning from tool execution</h3>
 <div class="card"><div class="card-label green">The RLVR progression</div>
-<p><strong>Toolformer (2023)</strong> &mdash; Self-supervised SFT. Inserts API calls into text, keeps calls that reduce model perplexity.</p>
-<p><strong>Gorilla (2024)</strong> &mdash; AST-based correctness checking of generated API calls against ground-truth schemas.</p>
-<p><strong>DeepRetrieval (2025)</strong> &mdash; Full RL. Query reformulation as an MDP with reward = alpha*Recall@k + beta*nDCG@k + gamma*format_score. Trained with KL-regularized PPO. Achieved 3x recall improvement (65.1% vs 24.7%).</p>
+<p><strong>Toolformer (2023)</strong> &mdash; Self-supervised SFT. Inserts API calls, keeps calls that reduce perplexity.</p>
+<p><strong>Gorilla (2024)</strong> &mdash; AST-based correctness checking of generated API calls against schemas.</p>
+<p><strong>DeepRetrieval (2025)</strong> &mdash; Full RL. Query reformulation as MDP with reward = alpha*Recall@k + beta*nDCG@k + gamma*format_score. KL-regularized PPO. 3x recall improvement (65.1% vs 24.7%).</p>
 </div>
 
 <h3>A2 in practice: learning from final outputs</h3>
 <p>A2 doesn't care <em>how</em> tools were used &mdash; only whether the final answer was right. Subtle trap: <strong>the agent can learn to ignore tools entirely</strong> and still improve if the answer happens to be correct.</p>
-
 <div class="card"><div class="card-label amber">Three branches</div>
-<p><strong>Reasoning-centric RL (DeepSeek-R1)</strong> &mdash; Pure RL with verifiable output rewards, no SFT warm-start needed. Emergent chain-of-thought and self-correction.</p>
-<p><strong>Self-refinement (TextGrad)</strong> &mdash; LLM critiques its own output, treats critique as a "textual gradient." Parameter-free &mdash; works on black-box APIs.</p>
-<p><strong>Multi-tool orchestration (ReTool)</strong> &mdash; Trains agents to decide when and how to use tools via outcome-based reward with reflection and multi-stage rollouts.</p>
+<p><strong>Reasoning-centric RL (DeepSeek-R1)</strong> &mdash; Pure RL with verifiable rewards. Emergent chain-of-thought, self-correction.</p>
+<p><strong>Self-refinement (TextGrad)</strong> &mdash; LLM critiques own output, treats critique as a "textual gradient." Parameter-free, works on black-box APIs.</p>
+<p><strong>Multi-tool orchestration (ReTool)</strong> &mdash; Trains agents to decide when/how to use tools via outcome-based reward.</p>
 </div>
 
 <h3>T1: plug-and-play tools</h3>
-<p>T1 tools are trained independently and serve any agent: CLIP and SAM for vision, dense retrievers for search. A clever insight: an agent trained via A1 (like DeepRetrieval) can be frozen and reused as a T1 tool &mdash; the paper calls this "graduation."</p>
+<p>Trained independently, serves any agent: CLIP/SAM for vision, dense retrievers for search. An A1-trained agent can be frozen and reused as T1 &mdash; the paper calls this "graduation."</p>
 
 <h3>T2: the "symbiotic inversion"</h3>
 <div class="card"><div class="card-label purple">Key T2 methods</div>
-<p><strong>REPLUG</strong> &mdash; Trains a retriever by using the frozen LLM's perplexity as the reward. Documents that reduce the LLM's confusion get ranked higher.</p>
-<p><strong>s3</strong> &mdash; 7B search subagent trained with "Gain Beyond RAG" reward: G = Quality(answer_with_search) - Quality(answer_with_RAG_only). Only 2,400 examples needed. Matched agents requiring 170K+ examples.</p>
-<p><strong>Memory as T2</strong> &mdash; Long-term memory is a special case of T2: an external store with learned read/write functions, updated using signals from the frozen agent. Memento trains memory policies from binary outcome rewards alone.</p>
+<p><strong>REPLUG</strong> &mdash; Trains retriever using frozen LLM's perplexity as reward.</p>
+<p><strong>s3</strong> &mdash; 7B search subagent, "Gain Beyond RAG" reward: G = Quality(with_search) - Quality(RAG_only). 2,400 examples matched 170K+ example baselines.</p>
+<p><strong>Memory as T2</strong> &mdash; Long-term memory is an external store with learned read/write, updated using frozen agent signals. Memento trains memory policies from binary outcome rewards.</p>
 </div>
 
 <h3>When to use what</h3>
 <table><thead><tr><th>Dimension</th><th>A1/A2 (agent)</th><th>T1/T2 (tools)</th></tr></thead><tbody>
 <tr><td>Data efficiency</td><td>High data cost</td><td>T2 needs 70x less data</td></tr>
 <tr><td>Forgetting risk</td><td>High &mdash; can destroy old skills</td><td>Low &mdash; changes localized</td></tr>
-<tr><td>Modularity</td><td>Monolithic retraining</td><td>Swap/upgrade tools independently</td></tr>
-<tr><td>Capability ceiling</td><td>Can improve fundamental reasoning</td><td>Limited by frozen agent's abilities</td></tr>
+<tr><td>Modularity</td><td>Monolithic retraining</td><td>Swap/upgrade independently</td></tr>
+<tr><td>Capability ceiling</td><td>Can improve fundamental reasoning</td><td>Limited by frozen agent</td></tr>
 </tbody></table>
 
 <div class="takeaway"><div class="takeaway-label">Key takeaway</div>
-<p>The paper recommends rare, expensive A1/A2 updates to establish a strong base model, then frequent, cheap T1/T2 adaptation of retrievers, search policies, memory, and planners for robustness and scalability.</p></div>
+<p>Rare, expensive A1/A2 updates for the base model; frequent, cheap T1/T2 adaptation of retrievers, search policies, memory, and planners for robustness and scalability.</p></div>
 
-<!-- Quiz L2 -->
 <div class="quiz" id="quiz-l2">
 <div class="quiz-title">Quiz &mdash; Level 2</div>
-
 <div class="q"><div class="q-text">1. Why can A2 methods accidentally train the agent to ignore its tools?</div><ul class="q-options">
 <li><button class="q-btn" onclick="ans(this,'l2',0,false)">The tools are removed during A2 training</button></li>
-<li><button class="q-btn" onclick="ans(this,'l2',0,true)">A2 rewards only the final answer, so the agent can improve likelihood without using tools at all</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,true)">A2 rewards only the final answer, so the agent can improve likelihood without using tools</button></li>
 <li><button class="q-btn" onclick="ans(this,'l2',0,false)">A2 methods don't have access to tool APIs</button></li>
 <li><button class="q-btn" onclick="ans(this,'l2',0,false)">The tools are too slow to use during training</button></li>
-</ul><div class="q-explain" id="ex-l2-0">Since A2 supervises only the final output, the agent can learn strategies that improve answer quality without invoking tools &mdash; the training signal doesn't explicitly reward tool use.</div></div>
-
+</ul><div class="q-explain" id="ex-l2-0">Since A2 supervises only the final output, the agent can learn strategies that improve answer quality without invoking tools &mdash; the signal doesn't explicitly reward tool use.</div></div>
 <div class="q"><div class="q-text">2. How does DeepRetrieval frame query reformulation, and what makes it A1?</div><ul class="q-options">
-<li><button class="q-btn" onclick="ans(this,'l2',1,false)">As a classification task with SFT &mdash; A1 because it uses labeled queries</button></li>
-<li><button class="q-btn" onclick="ans(this,'l2',1,true)">As an MDP with RL &mdash; A1 because the reward comes from retrieval metrics (tool execution outcomes)</button></li>
-<li><button class="q-btn" onclick="ans(this,'l2',1,false)">As a generation task with DPO &mdash; A1 because it uses human preferences</button></li>
-<li><button class="q-btn" onclick="ans(this,'l2',1,false)">As a contrastive learning problem &mdash; A1 because it compares tool outputs pairwise</button></li>
-</ul><div class="q-explain" id="ex-l2-1">DeepRetrieval treats query rewriting as an MDP where the reward combines retrieval metrics (Recall, nDCG) and format correctness &mdash; all derived from tool execution, the defining feature of A1.</div></div>
-
-<div class="q"><div class="q-text">3. What makes s3 (T2) so data-efficient compared to monolithic A2 training?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">As a classification task with SFT &mdash; uses labeled queries</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,true)">As an MDP with RL &mdash; reward comes from retrieval metrics (tool execution outcomes)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">As a generation task with DPO &mdash; uses human preferences</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">As contrastive learning &mdash; compares tool outputs pairwise</button></li>
+</ul><div class="q-explain" id="ex-l2-1">DeepRetrieval treats query rewriting as an MDP where the reward combines Recall, nDCG, and format correctness &mdash; all from tool execution, the defining feature of A1.</div></div>
+<div class="q"><div class="q-text">3. What makes s3 (T2) so data-efficient compared to monolithic A2?</div><ul class="q-options">
 <li><button class="q-btn" onclick="ans(this,'l2',2,false)">It uses a larger model with more parameters</button></li>
 <li><button class="q-btn" onclick="ans(this,'l2',2,true)">It trains a small, focused subagent on a narrow procedural skill rather than retraining a massive model</button></li>
-<li><button class="q-btn" onclick="ans(this,'l2',2,false)">It skips training and uses prompt engineering instead</button></li>
-<li><button class="q-btn" onclick="ans(this,'l2',2,false)">It uses synthetic data that's 70x cheaper to generate</button></li>
-</ul><div class="q-explain" id="ex-l2-2">T2 localizes adaptation to a small module (7B search subagent) learning one specific skill. A2 must update billions of parameters across entangled capabilities, requiring far more data.</div></div>
-
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">It skips training and uses prompt engineering</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">It uses synthetic data that's 70x cheaper</button></li>
+</ul><div class="q-explain" id="ex-l2-2">T2 localizes adaptation to a small module learning one specific skill. A2 retrains billions of parameters across entangled capabilities, requiring far more data.</div></div>
 <div class="q"><div class="q-text">4. How can an A1-trained agent become a T1 tool?</div><ul class="q-options">
-<li><button class="q-btn" onclick="ans(this,'l2',3,false)">By retraining it from scratch without tool feedback</button></li>
-<li><button class="q-btn" onclick="ans(this,'l2',3,true)">By freezing it and deploying it as a callable module inside a different system</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">By retraining it without tool feedback</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,true)">By freezing it and deploying it as a callable module in a different system</button></li>
 <li><button class="q-btn" onclick="ans(this,'l2',3,false)">By converting its weights to a retriever architecture</button></li>
 <li><button class="q-btn" onclick="ans(this,'l2',3,false)">By removing its tool-use capabilities</button></li>
-</ul><div class="q-explain" id="ex-l2-3">The paper calls this "graduation" &mdash; an agent trained via A1 (e.g., DeepRetrieval) can be frozen and reused as a plug-and-play T1 tool in entirely new agentic systems.</div></div>
-
+</ul><div class="q-explain" id="ex-l2-3">The paper calls this "graduation" &mdash; an A1-trained agent is frozen and reused as a plug-and-play T1 tool in new systems.</div></div>
 <div class="q"><div class="q-text">5. What is "parasitic adaptation"?</div><ul class="q-options">
 <li><button class="q-btn" onclick="ans(this,'l2',4,false)">When the agent adapts too slowly to be useful</button></li>
 <li><button class="q-btn" onclick="ans(this,'l2',4,true)">When a malicious tool or environment subtly shapes the agent's behavior through the reward signal</button></li>
-<li><button class="q-btn" onclick="ans(this,'l2',4,false)">When two agents compete for the same resources</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">When two agents compete for resources</button></li>
 <li><button class="q-btn" onclick="ans(this,'l2',4,false)">When the agent overfits to a single benchmark</button></li>
-</ul><div class="q-explain" id="ex-l2-4">Parasitic adaptation is a security risk where a compromised tool or environment manipulates the RL reward signal to hijack the agent's learning process &mdash; effectively controlling what the agent learns.</div></div>
-
+</ul><div class="q-explain" id="ex-l2-4">A security risk where a compromised tool manipulates the RL reward signal to hijack the agent's learning &mdash; controlling what it learns.</div></div>
 <div class="score" id="score-l2"></div>
 <button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button>
 </div>
-
 </div></div>
 
 <!-- ============ LEVEL 3 ============ -->
@@ -302,109 +273,166 @@ tr:last-child td{border-bottom:none}
 <div class="level-body">
 
 <h3>Formal framework</h3>
-<p>Adaptation is defined over a tuple (A, T, D, E, O): Agent A(theta), Tool set T, offline Data D, Environment E, and Objective O. The four paradigms are distinguished by two binary choices:</p>
+<p>Adaptation over tuple (A, T, D, E, O): Agent A(theta), Tool set T, offline Data D, Environment E, Objective O.</p>
 <pre>A1: min_theta O_tool(T(A_theta(x)))      -- agent weights, tool-execution signal
 A2: min_theta O_agent(A_theta(x, T(a)))   -- agent weights, output signal
 T1: min_phi   O_tool(T_phi(a))            -- tool weights, independent signal
 T2: min_phi   O_agent(A(x, T_phi(a)))     -- tool weights, frozen-agent signal</pre>
-<p>When a method modifies both agent and tool, the paper assigns it to the paradigm of its <em>dominant locus of optimization</em> and flags the secondary component explicitly.</p>
+<p>Boundary cases: when both agent and tool are modified, assigned by <em>dominant locus of optimization</em> with secondary component flagged.</p>
 
 <h3>A1: the RLVR evolution</h3>
 <div class="card"><div class="card-label green">Three phases</div>
-<p><strong>Phase 1 &mdash; Toolformer (2023):</strong> Self-supervised SFT. Keep tool call c if Loss(text_with_c) &lt; Loss(text_without_c). Perplexity reduction <em>is</em> the signal.</p>
-<p><strong>Phase 2 &mdash; Gorilla (2024):</strong> AST-based correctness. Parse generated API call into an abstract syntax tree, compare against ground-truth schema.</p>
-<p><strong>Phase 3 &mdash; DeepRetrieval (2025):</strong> Full MDP. R = alpha*Recall@k + beta*nDCG@k + gamma*format_score. Policy: max E[R(s,a)] - beta*KL(pi_theta || pi_ref). Result: 65.1% vs 24.7% recall.</p>
+<p><strong>Phase 1 &mdash; Toolformer:</strong> Keep tool call c if Loss(text_with_c) &lt; Loss(text_without_c).</p>
+<p><strong>Phase 2 &mdash; Gorilla:</strong> AST-based correctness. Parse API call, compare against schema.</p>
+<p><strong>Phase 3 &mdash; DeepRetrieval:</strong> MDP. R = alpha*Recall@k + beta*nDCG@k + gamma*format_score. max E[R(s,a)] - beta*KL(pi_theta || pi_ref). 65.1% vs 24.7% recall.</p>
 </div>
-<p>Cross-domain principles: (1) verifiable rewards essential, (2) reward must be dense enough for useful gradients, (3) KL regularization prevents mode collapse.</p>
 
 <h3>A2: DeepSeek-R1 and TextGrad</h3>
-<p><strong>DeepSeek-R1:</strong> Pure RL with verifiable rewards (no SFT warm-start). Emergent chain-of-thought, self-correction, backtracking. Sparse signal (final answer correctness) sufficient at scale.</p>
-<p><strong>TextGrad:</strong> Parameter-free A2. o_(t+1) = LLM(x, o_t, critique(o_t)). Gradient descent in natural language space. Works on black-box APIs &mdash; test-time compute scaling.</p>
-<p><strong>ReTool:</strong> Bridges A1/A2. Trains tool-use decisions via outcome reward (A2), but tool execution feeds into reasoning (A1-like). Classified A2 by dominant locus.</p>
+<p><strong>DeepSeek-R1:</strong> Pure RL, no SFT warm-start. Emergent reasoning at scale.</p>
+<p><strong>TextGrad:</strong> o_(t+1) = LLM(x, o_t, critique(o_t)). Gradient descent in natural language. Works on black-box APIs.</p>
+<p><strong>ReTool:</strong> Bridges A1/A2. Outcome reward (A2), tool execution in reasoning trace (A1-like). Classified A2 by dominant locus.</p>
 
 <h3>T2: REPLUG, s3, and memory</h3>
 <div class="card"><div class="card-label purple">Formal T2 objectives</div>
-<p><strong>REPLUG:</strong> min_phi E_x[-log P_theta(o | x, R_phi(x))], theta frozen. Retriever optimized via frozen LLM perplexity. No parameter access needed &mdash; only output probabilities.</p>
-<p><strong>s3:</strong> Gain Beyond RAG reward: G = Quality(answer_with_search) - Quality(answer_with_RAG_only). Measures <em>marginal value</em> of search tool. 2,400 examples matched 170K+ example baselines.</p>
-<p><strong>Memento:</strong> Memory read/write policies trained from binary agent outcome rewards. Pure T2, no human annotation.</p>
+<p><strong>REPLUG:</strong> min_phi E_x[-log P_theta(o | x, R_phi(x))], theta frozen.</p>
+<p><strong>s3:</strong> G = Quality(answer_with_search) - Quality(answer_with_RAG_only). Marginal value of search. 2,400 examples = 170K+ baselines.</p>
+<p><strong>Memento:</strong> Memory read/write policies from binary outcome rewards. Pure T2, no annotation.</p>
 </div>
 
-<h3>Memory taxonomy (v3 contribution)</h3>
+<h3>Memory taxonomy (v3)</h3>
 <ul>
 <li><strong>Dynamic stores</strong> &mdash; episodic buffers, key-value caches</li>
 <li><strong>Experiential/reflective</strong> &mdash; Reflexion-style failed-attempt storage</li>
-<li><strong>Structured</strong> &mdash; knowledge graphs, trees, databases with learned read/write</li>
+<li><strong>Structured</strong> &mdash; knowledge graphs, trees, learned read/write</li>
 <li><strong>Parametric</strong> &mdash; LoRA adapters / soft prompts (blurs agent/tool boundary)</li>
-<li><strong>Skill libraries</strong> &mdash; reusable procedural knowledge; skills from one agent become T1 tools for others</li>
+<li><strong>Skill libraries</strong> &mdash; reusable procedural knowledge; skills from one agent become T1 for others</li>
 </ul>
 
 <h3>Evaluation framework (Section 7)</h3>
 <table><thead><tr><th>Dimension</th><th>A1/T1</th><th>A2/T2</th></tr></thead><tbody>
 <tr><td>Signal metrics</td><td>Verifiable: pass rate, Recall, nDCG</td><td>Holistic: exact match, F1, LLM-as-judge</td></tr>
-<tr><td>Objectivity</td><td>High &mdash; deterministic</td><td>Lower &mdash; subjective/biased judges</td></tr>
+<tr><td>Objectivity</td><td>High &mdash; deterministic</td><td>Lower &mdash; subjective judges</td></tr>
 <tr><td>Benchmarks</td><td>SWE-bench, HumanEval, BEIR, MTEB</td><td>MMLU, MATH, task-specific</td></tr>
 </tbody></table>
-<p>Critical gap: almost no benchmarks measure T2 specifically &mdash; how well tools improve when trained under agent supervision.</p>
+<p>Critical gap: almost no benchmarks measure T2 specifically.</p>
 
 <h3>Connections to related work</h3>
 <div class="card"><div class="card-label blue">Positioning</div>
-<p><strong>Vs. agent surveys (Wang 2024, Xi 2025):</strong> Those catalog architectures; this focuses on adaptation. The 2x2 taxonomy is novel.</p>
-<p><strong>Vs. RLHF:</strong> A2 is more general &mdash; includes non-parametric methods (TextGrad) and tool-augmented settings.</p>
-<p><strong>Vs. RAG surveys:</strong> Decomposes RAG into T1 retriever / T2 retriever / A1 generator / A2 generator &mdash; clarifying design decisions.</p>
-<p><strong>Vs. Claudini:</strong> Autoresearch is A1 (benchmark results = tool execution signal), with resulting optimizers deployable as T1 tools.</p>
+<p><strong>Vs. agent surveys:</strong> Those catalog architectures; this focuses on adaptation. 2x2 taxonomy is novel.</p>
+<p><strong>Vs. RLHF:</strong> A2 is more general &mdash; includes non-parametric methods and tool-augmented settings.</p>
+<p><strong>Vs. RAG surveys:</strong> Decomposes RAG into T1/T2 retriever + A1/A2 generator.</p>
 </div>
 
 <h3>Critical evaluation</h3>
 <div class="card"><div class="card-label amber">Strengths and weaknesses</div>
-<p><strong>Strengths:</strong> Genuinely clarifying taxonomy; concrete T2 efficiency case study (s3); honest boundary-case treatment; v3 adds memory, skills, and evaluation framework.</p>
-<p><strong>Weaknesses:</strong> 70x claim drawn from single comparison with potential confounders; no controlled experiments (survey, not experimental paper); paradigm boundaries can be ambiguous; scoped to single-agent only; evaluation framework prescriptive but not empirically validated; no formal inclusion/exclusion criteria for surveyed papers.</p>
+<p><strong>Strengths:</strong> Clarifying taxonomy; concrete T2 efficiency case study; honest boundary-case treatment; v3 adds memory, skills, evaluation framework.</p>
+<p><strong>Weaknesses:</strong> 70x claim from single comparison; no controlled experiments; soft paradigm boundaries; single-agent scope only; evaluation framework not empirically validated.</p>
 </div>
 
 <div class="takeaway"><div class="takeaway-label">Key takeaway</div>
-<p>The 2x2 framework (agent vs. tool, execution vs. output signal) provides a genuine organizing principle for agentic adaptation. The strongest practical insight is that T2 &mdash; training tools under frozen agent supervision &mdash; achieves remarkable data efficiency and modularity, making it the recommended default for production systems built on closed-source foundation models.</p></div>
+<p>The 2x2 framework provides a genuine organizing principle. The strongest practical insight: T2 &mdash; training tools under frozen agent supervision &mdash; achieves remarkable data efficiency and modularity, making it the recommended default for production systems on closed-source models.</p></div>
 
-<!-- Quiz L3 -->
 <div class="quiz" id="quiz-l3">
 <div class="quiz-title">Quiz &mdash; Level 3</div>
-
 <div class="q"><div class="q-text">1. How does the paper formally distinguish A1 from A2?</div><ul class="q-options">
-<li><button class="q-btn" onclick="ans(this,'l3',0,true)">A1 minimizes O_tool(T(A_theta(x))) using tool-execution quality; A2 minimizes O_agent(o) using final output quality</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,true)">A1 minimizes O_tool(T(A_theta(x))); A2 minimizes O_agent(o) &mdash; different objective functions over the same parameters</button></li>
 <li><button class="q-btn" onclick="ans(this,'l3',0,false)">A1 uses supervised learning; A2 uses reinforcement learning exclusively</button></li>
 <li><button class="q-btn" onclick="ans(this,'l3',0,false)">A1 optimizes tool parameters phi; A2 optimizes agent parameters theta</button></li>
 <li><button class="q-btn" onclick="ans(this,'l3',0,false)">A1 requires online interaction; A2 works only with offline data</button></li>
-</ul><div class="q-explain" id="ex-l3-0">Both A1 and A2 optimize theta (agent weights), but A1's objective is defined over the tool's execution result &mdash; O_tool &mdash; while A2's objective is defined over the agent's final output &mdash; O_agent. This is the formal axis that separates them, regardless of SFT vs RL.</div></div>
-
-<div class="q"><div class="q-text">2. What is the "Gain Beyond RAG" reward used in s3, and why is it effective?</div><ul class="q-options">
-<li><button class="q-btn" onclick="ans(this,'l3',1,false)">G = Quality(RAG_answer) - Quality(no_retrieval_answer) &mdash; measures RAG's absolute value</button></li>
-<li><button class="q-btn" onclick="ans(this,'l3',1,true)">G = Quality(answer_with_search) - Quality(answer_with_RAG_only) &mdash; isolates the marginal value of search specifically</button></li>
-<li><button class="q-btn" onclick="ans(this,'l3',1,false)">G = Recall@k of search results &mdash; measures retrieval quality directly</button></li>
-<li><button class="q-btn" onclick="ans(this,'l3',1,false)">G = Human preference score &mdash; uses human annotations to judge search quality</button></li>
-</ul><div class="q-explain" id="ex-l3-1">By subtracting RAG-only quality from search-augmented quality, the reward isolates exactly how much the search subagent contributed beyond basic retrieval. This marginal signal prevents the searcher from getting credit for what the retriever already handles.</div></div>
-
+</ul><div class="q-explain" id="ex-l3-0">Both optimize theta, but A1's objective is over tool execution quality (O_tool) while A2's is over final output quality (O_agent). This formal axis separates them regardless of SFT vs RL.</div></div>
+<div class="q"><div class="q-text">2. What is "Gain Beyond RAG" in s3, and why is it effective?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">G = Quality(RAG) - Quality(no_retrieval) &mdash; measures RAG's absolute value</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,true)">G = Quality(with_search) - Quality(RAG_only) &mdash; isolates the marginal value of search specifically</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">G = Recall@k &mdash; measures retrieval quality directly</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">G = Human preference score</button></li>
+</ul><div class="q-explain" id="ex-l3-1">By subtracting RAG-only quality from search-augmented quality, the reward isolates exactly how much the search subagent contributed beyond basic retrieval. This prevents the searcher from getting credit for what the retriever already handles.</div></div>
 <div class="q"><div class="q-text">3. Why does the paper identify a "T2 evaluation gap"?</div><ul class="q-options">
-<li><button class="q-btn" onclick="ans(this,'l3',2,false)">T2 methods are too new to have any published results</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">T2 methods are too new to have results</button></li>
 <li><button class="q-btn" onclick="ans(this,'l3',2,true)">Existing benchmarks measure tool or agent quality independently, but none measure how well tools improve under agent supervision</button></li>
 <li><button class="q-btn" onclick="ans(this,'l3',2,false)">T2 methods can't be evaluated because the agent is frozen</button></li>
-<li><button class="q-btn" onclick="ans(this,'l3',2,false)">The gap is about compute cost, not benchmark design</button></li>
-</ul><div class="q-explain" id="ex-l3-2">Benchmarks like BEIR measure retrieval in isolation (T1), and MMLU measures agent answers (A2), but no standard benchmark asks: "did this tool get better at serving this specific agent?" T2's defining property lacks dedicated evaluation infrastructure.</div></div>
-
-<div class="q"><div class="q-text">4. How does TextGrad achieve A2 adaptation without accessing model weights?</div><ul class="q-options">
-<li><button class="q-btn" onclick="ans(this,'l3',3,false)">It fine-tunes a separate small model as a proxy for the main agent</button></li>
-<li><button class="q-btn" onclick="ans(this,'l3',3,true)">It uses an LLM to critique its own output and iteratively refines, treating the critique as a "textual gradient"</button></li>
-<li><button class="q-btn" onclick="ans(this,'l3',3,false)">It distills the main model into a smaller fine-tunable model</button></li>
-<li><button class="q-btn" onclick="ans(this,'l3',3,false)">It uses retrieval-augmented generation to improve answers without changing the model</button></li>
-</ul><div class="q-explain" id="ex-l3-3">TextGrad frames LLM self-critique as gradient descent in natural language space. Since it only needs text outputs (not parameters), it works on any API &mdash; making it test-time compute scaling rather than traditional training.</div></div>
-
-<div class="q"><div class="q-text">5. What criterion does the paper use when a method modifies both agent and tool?</div><ul class="q-options">
-<li><button class="q-btn" onclick="ans(this,'l3',4,false)">It is excluded from the taxonomy entirely</button></li>
-<li><button class="q-btn" onclick="ans(this,'l3',4,false)">It is assigned to whichever paradigm was published first</button></li>
-<li><button class="q-btn" onclick="ans(this,'l3',4,true)">It is assigned to the paradigm of its dominant locus of optimization, with the secondary component flagged</button></li>
-<li><button class="q-btn" onclick="ans(this,'l3',4,false)">It is always classified as A2 since final output quality is the ultimate measure</button></li>
-</ul><div class="q-explain" id="ex-l3-4">The paper uses "dominant locus of optimization" &mdash; whichever component receives the primary parameter updates determines the paradigm. The secondary component is noted. This is pragmatic and the authors acknowledge it can be ambiguous in edge cases.</div></div>
-
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">The gap is about compute cost, not benchmarks</button></li>
+</ul><div class="q-explain" id="ex-l3-2">BEIR measures retrieval (T1), MMLU measures agent answers (A2), but no benchmark asks: "did this tool get better at serving this specific agent?" T2's defining property lacks evaluation infrastructure.</div></div>
+<div class="q"><div class="q-text">4. How does TextGrad achieve A2 adaptation without model weights?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">Fine-tunes a proxy model</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,true)">Uses LLM self-critique as iterative "textual gradients" &mdash; parameter-free test-time adaptation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">Distills the model into a smaller fine-tunable version</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">Uses RAG to improve answers without changing the model</button></li>
+</ul><div class="q-explain" id="ex-l3-3">TextGrad frames self-critique as gradient descent in natural language space. Since it only needs text outputs, it works on any API &mdash; test-time compute scaling rather than training.</div></div>
+<div class="q"><div class="q-text">5. What criterion handles methods that modify both agent and tool?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">Excluded from the taxonomy</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">Assigned by publication date</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,true)">Assigned by dominant locus of optimization, secondary component flagged</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">Always classified as A2</button></li>
+</ul><div class="q-explain" id="ex-l3-4">Whichever component receives primary parameter updates determines the paradigm. The secondary is noted. Pragmatic but acknowledged as ambiguous in edge cases like ReTool.</div></div>
 <div class="score" id="score-l3"></div>
 <button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button>
 </div>
+</div></div>
+
+<!-- ============ PHASE 4 ============ -->
+<div class="level l4" id="level4">
+<div class="level-header" onclick="toggle('level4')">
+  <div class="level-dot"></div>
+  <h2>Phase 4 &mdash; Frontier</h2>
+  <span class="chevron">&#9660;</span>
+</div>
+<div class="level-body">
+
+<p>Six improvement vectors for this paper, mapped against recent work (as of April 2026) that addresses &mdash; or doesn't address &mdash; each one.</p>
+
+<h3>1. Controlled cross-paradigm experiments</h3>
+<span class="tag-explore">Area to explore</span>
+<p>The 70x T2 efficiency claim comes from comparing s3 against specific A2 baselines across different papers, models, and datasets. A rigorous version would hold everything constant &mdash; same base model, same task, same compute budget &mdash; and sweep A1/A2/T1/T2 head-to-head. No one has done this yet. This would be the single most valuable empirical contribution to validate the survey's claims.</p>
+
+<h3>2. Co-adaptation: jointly training agent and tools</h3>
+<span class="tag-partial">Partially addressed</span>
+<p>The survey flags co-adaptation as a key open problem but offers no algorithms. Recent infrastructure work is laying the groundwork:</p>
+<div class="card"><div class="card-label blue">Recent work</div>
+<p><strong>Agent Lightning (Microsoft, late 2025)</strong> &mdash; Separates task execution from model training. Universal (input, output, reward) trajectory format. RL with virtually no code modification. Works for multi-tool, multi-agent workflows.</p>
+<p><strong>NVIDIA NeMo Gym + NeMo RL (Jan 2026)</strong> &mdash; Modular RL infrastructure for scientific agents. GRPO support, end-to-end FP8 training.</p>
+</div>
+<p>The plumbing exists, but no one has published a formal co-adaptation algorithm with convergence guarantees or stability analysis. Game-theoretic formulations and credit assignment across the agent-tool boundary remain open.</p>
+
+<h3>3. Multi-agent adaptation</h3>
+<span class="tag-partial">Partially addressed</span>
+<p>The survey scopes to single-agent systems, but production systems increasingly involve multiple agents sharing tools.</p>
+<div class="card"><div class="card-label blue">Recent work</div>
+<p><strong>Google Paradigms of Intelligence (Mar 2026)</strong> &mdash; Decentralized RL against mixed opponent pools produces cooperative multi-agent behavior without hardcoded coordination. Agents performed <em>better</em> with no prior information about adversaries, adapting through trial and error alone.</p>
+</div>
+<p>This shows multi-agent adaptation can emerge from standard training, but doesn't address the survey's specific gap: how to adapt shared tools when multiple agents depend on them without degrading any individual agent's performance.</p>
+
+<h3>4. Memory adaptation formalization</h3>
+<span class="tag-advanced">Substantially advanced</span>
+<div class="card"><div class="card-label green">Recent work</div>
+<p><strong>AgeMem (Jan 2026)</strong> &mdash; Unifies long-term and short-term memory management into the agent's policy as learnable tool-based actions (add, update, delete, retrieve, summarize, filter). Three-stage progressive RL with step-wise GRPO. 4.8&ndash;8.6 percentage point improvements over baselines.</p>
+<p><strong>ALMA (Feb 2026)</strong> &mdash; Meta-learns the memory architecture itself. Discovers domain-specific designs that surpass human-designed baselines while being more cost-efficient. Challenges the assumption that memory architecture is fixed.</p>
+</div>
+<p>Strong advances, but formal guarantees remain missing &mdash; no theory of optimal forgetting, no bounds on memory staleness, no analysis of when memory-based T2 outperforms parametric A2.</p>
+
+<h3>5. Safety under adaptation</h3>
+<span class="tag-explore">Area to explore</span>
+<p>The survey flags reward hacking and parasitic adaptation but proposes no concrete mitigations.</p>
+<div class="card"><div class="card-label amber">Community response</div>
+<p><strong>ICLR 2026 "Lifelong Agents" workshop</strong> &mdash; First unified forum bridging continual learning, RL, memory, and safety for long-lived agents. Covers continual fine-tuning, domain shift adaptation, and tool-use strategies.</p>
+</div>
+<p>Workshop-level discussion is happening, but concrete primitives are missing: no constrained RL formulations guaranteeing tool-use safety during adaptation, no automated detection of parasitic adaptation, no formal verification for adapted tools. This is the widest gap between identified risks and actual solutions.</p>
+
+<h3>6. Paradigm selection benchmark</h3>
+<span class="tag-explore">Area to explore</span>
+<p>The survey recommends combining paradigms but gives no decision procedure. ReTool provides indirect evidence (67% on AIME in 400 steps vs text-based RL at 40%/1080 steps), but this is one data point. No one has built a meta-benchmark or selection controller that recommends A1/A2/T1/T2 given task, budget, and model access constraints. This would transform the survey from a conceptual framework into an actionable design tool.</p>
+
+<h3>Scorecard</h3>
+<table><thead><tr><th>Vector</th><th>Status</th><th>Key work</th></tr></thead><tbody>
+<tr><td>Controlled cross-paradigm experiments</td><td><span class="tag-explore">Area to explore</span></td><td>No one has done this</td></tr>
+<tr><td>Co-adaptation algorithms</td><td><span class="tag-partial">Partially addressed</span></td><td>Agent Lightning, NeMo Gym</td></tr>
+<tr><td>Multi-agent adaptation</td><td><span class="tag-partial">Partially addressed</span></td><td>Google decentralized RL</td></tr>
+<tr><td>Memory formalization</td><td><span class="tag-advanced">Substantially advanced</span></td><td>AgeMem, ALMA</td></tr>
+<tr><td>Safety primitives</td><td><span class="tag-explore">Area to explore</span></td><td>ICLR workshop only</td></tr>
+<tr><td>Paradigm selection benchmark</td><td><span class="tag-explore">Area to explore</span></td><td>No one has done this</td></tr>
+</tbody></table>
+
+<div class="takeaway"><div class="takeaway-label">Bottom line</div>
+<p>The survey's 2x2 framework is holding up &mdash; nothing since has broken the taxonomy. The frontier is moving fastest on memory (vector 4) and infrastructure (vector 2), while safety (vector 5), controlled experiments (vector 1), and paradigm selection (vector 6) remain wide open.</p></div>
 
 </div></div>
 
@@ -414,7 +442,6 @@ T2: min_phi   O_agent(A(x, T_phi(a)))     -- tool weights, frozen-agent signal</
 
 <script>
 function toggle(id){document.getElementById(id).classList.toggle('open')}
-
 var S={};
 function ans(btn,qid,qi,ok){
   if(!S[qid])S[qid]={a:[],t:document.querySelectorAll('#quiz-'+qid+' .q').length};
