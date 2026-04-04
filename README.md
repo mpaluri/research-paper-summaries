@@ -6,10 +6,10 @@ Three-level explainers (Beginner → Intermediate → Expert) for quickly unders
 
 ## Papers
 
-| # | Paper | Topic | Date |
-|:--|:------|:------|:-----|
-| 2 | [Adaptation of Agentic AI](papers/adaptation-agentic-ai.html) | Agentic AI, adaptation, post-training, memory, skills | Dec 2025 |
-| 1 | [Claudini](papers/claudini.html) | AI safety, adversarial attacks, autoresearch | Mar 2026 |
+| # | Paper | Tags | Paper date | Summary created |
+|:--|:------|:-----|:-----------|:----------------|
+| 1 | [Claudini](papers/claudini.html) | AI safety, adversarial attacks, autoresearch | 03/19/26 | 04/02/26 |
+| 2 | [Adaptation of Agentic AI](papers/adaptation-agentic-ai.html) | agentic AI, adaptation, survey, post-training, memory, skills | 12/18/25 | 04/03/26 |
 
 ## Adding a new paper
 
