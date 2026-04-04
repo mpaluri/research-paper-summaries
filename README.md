@@ -6,11 +6,11 @@ Three-level explainers (Beginner → Intermediate → Expert) for quickly unders
 
 ## Papers
 
-| # | Paper | Topic | Date |
-|:--|:------|:------|:-----|
-| 3 | [Video-MME](papers/video-mme.html) | Video understanding, benchmarks, MLLMs | 04/04/26 |
-| 2 | [Adaptation of Agentic AI](papers/adaptation-agentic-ai.html) | Agentic AI, post-training, memory, survey | 04/04/26 |
-| 1 | [Claudini](papers/claudini.html) | AI safety, adversarial attacks, autoresearch | Mar 2026 |
+| # | Paper | Topic | Published | Created |
+|:--|:------|:------|:----------|:--------|
+| 3 | [Video-MME](papers/video-mme.html) | Video understanding, benchmarks, MLLMs | 05/31/24 | 04/04/26 |
+| 2 | [Adaptation of Agentic AI](papers/adaptation-agentic-ai.html) | Agentic AI, post-training, memory, survey | 12/20/25 | 04/03/26 |
+| 1 | [Claudini](papers/claudini.html) | AI safety, adversarial attacks, autoresearch | 03/31/26 | 03/31/26 |
 
 ## Adding a new paper
 
