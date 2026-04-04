@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Paper Summaries</title>
+<meta name="description" content="Three-level explainers for quickly understanding research papers — from beginner to expert.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.container{max-width:720px;margin:0 auto;padding:3rem 1.5rem 5rem}
+h1{font-size:1.75rem;font-weight:700;margin-bottom:.5rem}
+.subtitle{color:var(--text2);font-size:1rem;margin-bottom:2.5rem}
+h2{font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;font-size:.8rem}
+.paper-card{display:block;text-decoration:none;color:inherit;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:.75rem;transition:border-color .15s}
+.paper-card:hover{border-color:var(--accent)}
+.paper-card h3{font-size:1rem;font-weight:600;margin-bottom:.25rem}
+.paper-card p{font-size:.875rem;color:var(--text2);margin:0}
+.paper-meta-row{display:flex;gap:.75rem;margin-top:.5rem;flex-wrap:wrap}
+.tag{font-size:.75rem;padding:2px 8px;border-radius:4px;background:var(--accent-bg);color:var(--accent);font-weight:500}
+.how-it-works{margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border)}
+.how-it-works h2{margin-bottom:1rem}
+.level-row{display:flex;gap:1rem;margin-bottom:.5rem;align-items:baseline}
+.level-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.level-row p{font-size:.9rem}
+.l1{background:#2da44e}.l2{background:#bf8700}.l3{background:#cf222e}
+footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:.8rem;color:var(--text2)}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Research Paper Summaries</h1>
+  <p class="subtitle">Three-level explainers for quickly understanding research papers — from beginner to expert. Each summary includes interactive quizzes to test your understanding.</p>
+
+  <h2>Papers</h2>
+
+  <a class="paper-card" href="papers/video-mme.html">
+    <h3>Video-MME: The First-Ever Comprehensive Evaluation Benchmark of Multi-modal LLMs in Video Analysis</h3>
+    <p>A benchmark of 900 videos (11s to 1 hour) with 2,700 expert-annotated questions across 6 domains — revealing that all models degrade on longer videos and that subtitles/audio significantly help.</p>
+    <div class="paper-meta-row">
+      <span class="tag">video understanding</span>
+      <span class="tag">benchmarks</span>
+      <span class="tag">MLLMs</span>
+      <span class="tag">CVPR 2025</span>
+    </div>
+  </a>
+
+  <a class="paper-card" href="papers/adaptation-agentic-ai.html">
+    <h3>Adaptation of Agentic AI: A Survey of Post-Training, Memory, and Skills</h3>
+    <p>A unified 2×2 framework for making AI agents better after pre-training. Four paradigms — A1, A2, T1, T2 — organize 100+ methods. Key finding: training smarter tools (T2) can match full agent retraining with 70× less data.</p>
+    <div class="paper-meta-row">
+      <span class="tag">agentic AI</span>
+      <span class="tag">post-training</span>
+      <span class="tag">memory</span>
+      <span class="tag">survey</span>
+      <span class="tag">Dec 2025</span>
+    </div>
+  </a>
+
+  <a class="paper-card" href="papers/claudini.html">
+    <h3>Claudini: Autoresearch Discovers SOTA Adversarial Attack Algorithms for LLMs</h3>
+    <p>AI agents autonomously discover state-of-the-art adversarial attack algorithms by recombining existing methods — achieving 100% attack success on a hardened model.</p>
+    <div class="paper-meta-row">
+      <span class="tag">AI safety</span>
+      <span class="tag">adversarial attacks</span>
+      <span class="tag">autoresearch</span>
+      <span class="tag">Mar 2026</span>
+    </div>
+  </a>
+
+  <div class="how-it-works">
+    <h2>How this works</h2>
+    <div class="level-row"><div class="level-dot l1"></div><p><strong>Level 1 — Beginner:</strong> Plain language, analogies, no jargon. Assumes no background.</p></div>
+    <div class="level-row"><div class="level-dot l2"></div><p><strong>Level 2 — Intermediate:</strong> How the methods work, key technical concepts, comparisons.</p></div>
+    <div class="level-row"><div class="level-dot l3"></div><p><strong>Level 3 — Expert:</strong> Full math, algorithms, related work connections, critical evaluation.</p></div>
+    <p style="font-size:.9rem;color:var(--text2);margin-top:1rem">Each level ends with a 5-question interactive quiz. Score 4/5 or higher to pass.</p>
+  </div>
+
+  <footer>Built as a learning project. All cited papers retain their original licenses.</footer>
+</div>
+</body>
+</html>

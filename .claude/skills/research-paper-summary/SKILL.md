@@ -75,6 +75,7 @@ Quickly understand new research papers through a structured three-level learning
 - **Always** use self-contained HTML files
 - **Always** include `.nojekyll` in repo root (prevents Jekyll processing)
 - **Never** use Jekyll markdown — it breaks with inline styles/scripts/details tags
+- **Always** read the existing `index.html` and `README.md` before generating updated versions — don't regenerate from scratch
 
 ### Repository
 - Repo: `github.com/mpaluri/research-paper-summaries`
@@ -90,7 +91,8 @@ Quickly understand new research papers through a structured three-level learning
   │           └── SKILL.md    ← This file
   └── papers/
       ├── claudini.html   ← Paper #1
-      ├── video-mme.html  ← Paper #2
+      ├── adaptation-agentic-ai.html  ← Paper #2
+      ├── video-mme.html  ← Paper #3
       └── <next>.html     ← Future papers
   ```
 
@@ -136,3 +138,4 @@ After generating artifacts, Claude must automatically:
 - Default to mm/dd/yy date format in README
 - Newest papers go first in index.html and README table
 - After Phase 4 output generation, auto-reflect and update skill file + memory
+- **Always read existing index.html and README.md before generating updates — don't regenerate from scratch, or you'll drop existing papers**
