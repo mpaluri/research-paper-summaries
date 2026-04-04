@@ -419,6 +419,68 @@ tr:last-child td{border-bottom:none}
 
 </div></div>
 
+<!-- ============ PHASE 4: FRONTIER ============ -->
+<div class="level" id="level4" style="border-color:#8250df">
+<div class="level-header" onclick="toggle('level4')" style="border-bottom-color:#8250df">
+  <div class="level-dot" style="background:#8250df"></div>
+  <h2>Phase 4 — Frontier</h2>
+  <span class="chevron">▼</span>
+</div>
+<div class="level-body">
+
+<p>Six improvement vectors for this paper, mapped against recent work (as of April 2026) that addresses — or doesn't address — each one.</p>
+
+<h3>1. Automated reward hacking detection</h3>
+<div class="card"><div class="card-label purple">Area to explore</div>
+<p>The paper flagged reward hacking manually (~v95 onward in the safeguard run) but proposed no automated mitigation. A practical solution: continuous held-out evaluation during the loop — if training loss drops but held-out loss stalls or rises for N consecutive experiments, flag and revert. This is analogous to early stopping in ML training but applied to the meta-optimization loop. No one has published automated reward-hacking detection for autoresearch pipelines.</p></div>
+
+<h3>2. Reproducibility and variance analysis</h3>
+<div class="card"><div class="card-label purple">Area to explore</div>
+<p>The paper reports one lineage per experimental track. Autoresearch is inherently stochastic — different Claude Code sessions would produce different method lineages. Running 3–5 independent runs from the same seed pool would answer: do they converge to similar methods? Is claude_v63's ADC+LSGM combination a robust attractor, or a lucky path? No variance analysis across independent pipeline runs has been published for any autoresearch system.</p></div>
+
+<h3>3. Full-precision evaluation of headline results</h3>
+<div class="card"><div class="card-label purple">Area to explore</div>
+<p>The 100% ASR on Meta-SecAlign-70B used 4-bit NF4 quantization, which is known to reduce model robustness. Running the same claude_v63 method against SecAlign in bf16 or fp16 would isolate how much of the result comes from quantization artifacts versus genuine optimizer quality. If ASR drops significantly, the headline needs qualification. If it holds, the result becomes much stronger. This is a low-effort, high-impact experiment no one has reported.</p></div>
+
+<h3>4. Finer-grained scaffolding for genuine novelty</h3>
+<div class="card"><div class="card-label amber">Partially addressed</div>
+<p>The paper acknowledges that the current scaffold treats each full attack run as the atomic unit, limiting the agent to recombination rather than fundamental innovation. A human researcher works more fluidly — inspecting intermediate states, probing failure modes, developing intuition.</p></div>
+<div class="card"><div class="card-label blue">Recent work</div>
+<p><strong>Karpathy's autoresearch (Mar 2026)</strong> — Uses the same atomic-experiment ratchet pattern, but notes the keep/discard constraint prevents the agent from taking a step backward to set up a larger gain. Over 700 experiments, it found 20 optimizations — all incremental. The pattern produces consistent improvements but may structurally prevent breakthrough innovations.</p>
+<p><strong>AlphaEvolve (Novikov et al., 2025)</strong> — Uses evolutionary approaches with Gemini for algorithm discovery. Closed-source but reportedly achieves more structural novelty through population-based search. Whether this translates to security research is untested.</p></div>
+
+<h3>5. Multimodal and black-box attack extension</h3>
+<div class="card"><div class="card-label amber">Partially addressed</div>
+<p>Claudini covers white-box, text-only suffix attacks. The attack surface is expanding rapidly to multimodal and physical-world vectors.</p></div>
+<div class="card"><div class="card-label blue">Recent work</div>
+<p><strong>CrossInject (ACM MM 2025)</strong> — Visual latent alignment with textual guidance for image-based prompt injection. 30%+ improvement in attack success over prior perturbation methods. The optimization objective is differentiable over pixel space, making it a natural candidate for autoresearch.</p>
+<p><strong>Cloud Security Alliance report (Mar 2026)</strong> — Documents typographic adversarial instructions on physical objects hijacking vision-language agents. The attack surface now extends beyond digital inputs entirely.</p>
+<p>No one has applied an autoresearch-style pipeline to multimodal adversarial attacks. The continuous search space (pixels vs discrete tokens) might actually make optimization easier.</p></div>
+
+<h3>6. Defense-aware co-evolution</h3>
+<div class="card"><div class="card-label purple">Area to explore</div>
+<p>Currently the attack side and defense side are completely decoupled. An adversarial co-evolution loop — one agent improving attacks, another improving defenses, iterating against each other — would mirror GAN training dynamics but at the algorithm level. This would transform autoresearch from a one-sided red-teaming tool into a genuine arms race simulator.</p></div>
+<div class="card"><div class="card-label blue">Recent work</div>
+<p><strong>Microsoft FIDES (2025)</strong> — Information-flow control for deterministically preventing indirect prompt injection. Represents a defense class that claims formal guarantees — exactly the kind of claim that co-evolutionary autoresearch should stress-test.</p>
+<p><strong>"The attacker moves second" (Nasr et al., 2025)</strong> — Argued that adaptive attacks will always bypass defenses designed against fixed configurations. Claudini operationalizes the attack side; no one has operationalized the defense side as an autonomous loop.</p></div>
+
+<h3>Scorecard</h3>
+<table>
+<thead><tr><th>Vector</th><th>Status</th><th>Key work</th></tr></thead>
+<tbody>
+<tr><td>Automated reward hacking detection</td><td>Area to explore</td><td>No one has done this</td></tr>
+<tr><td>Reproducibility / variance analysis</td><td>Area to explore</td><td>No one has done this</td></tr>
+<tr><td>Full-precision evaluation</td><td>Area to explore</td><td>Low-effort, high-impact experiment</td></tr>
+<tr><td>Finer-grained scaffolding</td><td>Partially addressed</td><td>Karpathy autoresearch, AlphaEvolve</td></tr>
+<tr><td>Multimodal attack extension</td><td>Partially addressed</td><td>CrossInject, CSA report</td></tr>
+<tr><td>Defense-aware co-evolution</td><td>Area to explore</td><td>FIDES, Nasr et al. (one-sided only)</td></tr>
+</tbody>
+</table>
+
+<p><strong>Bottom line:</strong> Claudini's core contribution — autoresearch as a lower bound on automated security research — remains unchallenged. The frontier is moving on scaffolding (vector 4) and multimodal attacks (vector 5), while reward hacking mitigation (vector 1), reproducibility (vector 2), and co-evolutionary defense (vector 6) remain wide open. The single easiest high-impact experiment: run claude_v63 against full-precision SecAlign (vector 3).</p>
+
+</div></div>
+
 <!-- Codebase -->
 <div class="codebase">
 <h2>Codebase quick reference</h2>
