@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transfusion &mdash; Predict the Next Token and Diffuse Images with One Multi-Modal Model</title>
+<meta name="description" content="Three-level explainer: Transfusion unified transformer for text and image generation">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0;--purple:#8250df;--purple-bg:#fbefff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129;--purple:#bc8cff;--purple-bg:#2a1a3a}}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem}.back{display:inline-block;font-size:.875rem;color:var(--accent);text-decoration:none;margin-bottom:1.5rem}.back:hover{text-decoration:underline}h1{font-size:1.6rem;font-weight:700;line-height:1.3;margin-bottom:.75rem}.paper-info{font-size:.875rem;color:var(--text2);margin-bottom:.5rem}.paper-info a{color:var(--accent);text-decoration:none}.paper-info a:hover{text-decoration:underline}.tldr{font-size:.9rem;color:var(--text2);padding:1rem 1.25rem;background:var(--bg2);border-radius:8px;margin-bottom:2rem;border-left:3px solid var(--accent)}.level{margin-bottom:2.5rem;border:1px solid var(--border);border-radius:10px;overflow:hidden}.level-header{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;cursor:pointer;background:var(--bg2);user-select:none;border-bottom:1px solid var(--border)}.level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.l1 .level-dot{background:#2da44e}.l2 .level-dot{background:#bf8700}.l3 .level-dot{background:#cf222e}.l4 .level-dot{background:var(--purple)}.level-header h2{font-size:1rem;font-weight:600;margin:0;flex:1}.chevron{font-size:.8rem;color:var(--text3);transition:transform .2s}.level.open .chevron{transform:rotate(180deg)}.level-body{display:none;padding:1.5rem 1.25rem}.level.open .level-body{display:block}h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}.level-body>h3:first-child{margin-top:0}p{margin-bottom:.75rem}ul,ol{margin:0 0 .75rem 1.25rem}li{margin-bottom:.25rem}strong{font-weight:600}em{font-style:italic}code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--code-bg);padding:1px 5px;border-radius:3px}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;margin:.75rem 0;font-size:.8rem;line-height:1.5}pre code{background:none;padding:0}table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.875rem}th{text-align:left;font-weight:600;padding:.5rem .75rem;border-bottom:2px solid var(--border);font-size:.8rem}td{padding:.5rem .75rem;border-bottom:1px solid var(--border)}tr:last-child td{border-bottom:none}.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0}.card-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}.card-label.green{color:var(--green)}.card-label.amber{color:#bf8700}.card-label.red{color:var(--red)}.card-label.blue{color:var(--accent)}.card-label.purple{color:var(--purple)}.card p:last-child{margin-bottom:0}.takeaway{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0}.takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.35rem}.takeaway p:last-child{margin-bottom:0}.result-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:.75rem 0}.result-box{text-align:center;padding:1rem;border-radius:8px}.result-box.green-bg{background:var(--green-bg);border:1px solid var(--green)}.result-box.amber-bg{background:#fff8c5;border:1px solid #bf8700}.result-box.red-bg{background:var(--red-bg);border:1px solid var(--red)}@media(prefers-color-scheme:dark){.result-box.amber-bg{background:#2a2000;border-color:#bf8700}}.result-number{font-size:1.75rem;font-weight:700;line-height:1}.result-box.green-bg .result-number{color:var(--green)}.result-box.amber-bg .result-number{color:#bf8700}.result-box.red-bg .result-number{color:var(--red)}.result-label{font-size:.75rem;color:var(--text2);margin-top:.25rem}.tag-explore{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--purple-bg);color:var(--purple);margin:.25rem 0}.tag-addressed{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--green-bg);color:var(--green);margin:.25rem 0}.tag-partial{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:#fff8c5;color:#bf8700;margin:.25rem 0}@media(prefers-color-scheme:dark){.tag-partial{background:#2a2000}}.quiz{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1.5rem}.quiz-title{font-weight:600;font-size:.9rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}.q{margin-bottom:1.25rem}.q:last-of-type{margin-bottom:.5rem}.q-text{font-weight:500;font-size:.9rem;margin-bottom:.5rem}.q-options{list-style:none;padding:0;margin:0}.q-btn{display:block;width:100%;text-align:left;padding:.5rem .85rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);transition:border-color .12s,background .12s}.q-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg)}.q-btn:disabled{cursor:default}.q-btn:disabled:hover{border-color:inherit;background:inherit}.q-btn.correct{border-color:var(--green)!important;background:var(--green-bg)!important}.q-btn.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;opacity:.7}.q-btn.reveal{border-color:var(--green)!important;background:var(--green-bg)!important}.q-explain{display:none;font-size:.8rem;color:var(--text2);margin:.4rem 0 0;padding:.5rem .85rem;border-left:2px solid var(--border)}.q-explain.show{display:block}.score{display:none;padding:.85rem 1rem;border-radius:6px;font-weight:600;font-size:.9rem;margin-top:.75rem}.score.show{display:block}.score.pass{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}.score.fail{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}.reset-btn{display:none;margin-top:.5rem;padding:.4rem 1rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.8rem;font-family:inherit;color:var(--text)}.reset-btn.show{display:inline-block}.reset-btn:hover{border-color:var(--accent);background:var(--accent-bg)}@media(max-width:600px){.result-row{grid-template-columns:1fr}.container{padding:1.5rem 1rem 4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back" href="../index.html">&larr; Back to all papers</a>
+<h1>Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model</h1>
+<p class="paper-info">Zhou, Yu, Alon, Levy et al. &mdash; August 2024 (ICLR 2025 Oral)</p>
+<p class="paper-info"><a href="https://arxiv.org/abs/2408.11039">&#128196; arXiv:2408.11039</a> &nbsp;&middot;&nbsp; <a href="https://arxiv.org/pdf/2408.11039">&#128229; PDF</a></p>
+<div class="tldr"><strong>TL;DR:</strong> A single transformer that uses next-token prediction for text and diffusion denoising for images simultaneously &mdash; achieving image quality matching DALL-E 2 and SDXL while preserving LLaMA-1-level text ability, at less than 1/3 the compute of discrete tokenization approaches like Chameleon.</div>
+<!-- L1 -->
+<div class="level l1 open" id="level1"><div class="level-header" onclick="toggle('level1')"><div class="level-dot"></div><h2>Level 1 &mdash; Beginner</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+<h3>What problem does this solve?</h3>
+<p>AI today has two brilliant employees. One is amazing at writing &mdash; give it a prompt and it&rsquo;ll write a perfect essay, word by word. The other is amazing at painting &mdash; give it a description and it&rsquo;ll create a masterpiece. But they work in completely different buildings, speak different languages, and can&rsquo;t collaborate.</p>
+<p>Language models (like LLaMA, GPT) are great at text. Diffusion models (like Stable Diffusion, DALL-E) are great at images. But they&rsquo;re separate systems stitched together with duct tape. <strong>Transfusion says: what if one brain could do both?</strong></p>
+<h3>The cooking analogy</h3>
+<div class="card"><div class="card-label blue">Core idea</div><p>The old way (Chameleon) takes a beautiful steak photo, chops it into tiny numbered LEGO pieces (discrete tokens), and has the text chef reassemble it. The chef is great at words but the LEGO steak looks blocky &mdash; you lost information when you chopped it up. Transfusion keeps the image smooth and continuous. The <em>same</em> chef switches between writing (text) and painting (images), using different techniques but the same brain.</p></div>
+<h3>What does it actually do?</h3>
+<p>Transfusion trains <strong>one single transformer</strong> to do two things simultaneously:</p>
+<ol>
+<li><strong>For text:</strong> Predict the next word (like GPT &mdash; &ldquo;The cat sat on the ___&rdquo;)</li>
+<li><strong>For images:</strong> Remove noise from a fuzzy image step by step (like diffusion models &mdash; start with TV static, gradually sharpen into a picture)</li>
+</ol>
+<p>It uses a different &ldquo;recipe&rdquo; for each type of data, but the same brain processes both. When it sees text tokens, it does next-word prediction. When it sees image patches, it does denoising. The losses are simply added together.</p>
+<h3>Why does this matter?</h3>
+<p>Three big reasons:</p>
+<ol>
+<li><strong>No information loss.</strong> When you convert images to discrete tokens, you&rsquo;re compressing a smooth photo into numbered LEGO blocks. Transfusion keeps images as smooth, continuous data.</li>
+<li><strong>Way more efficient.</strong> Transfusion matches Chameleon&rsquo;s image quality using less than 1/3 the compute. Massive cost saving at scale.</li>
+<li><strong>One model does everything.</strong> Text generation, image generation, image captioning, mixed content &mdash; all from a single model.</li>
+</ol>
+<h3>Key results</h3>
+<div class="result-row">
+<div class="result-box green-bg"><div class="result-number">0.63</div><div class="result-label">GenEval Overall<br>(beats DALL-E 2 &amp; SDXL)</div></div>
+<div class="result-box amber-bg"><div class="result-number">&lt;1/3</div><div class="result-label">Compute vs Chameleon<br>(same image quality)</div></div>
+<div class="result-box green-bg"><div class="result-number">7B</div><div class="result-label">Parameters<br>(matches LLaMA-1 on text)</div></div>
+</div>
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>This paper from Meta is the architectural thesis for unified media generation + understanding. For a media gen agent producing comics, magazines, and slide decks &mdash; Transfusion can natively produce both text and images in one pass, not two separate systems glued together.</p></div>
+<div class="quiz" id="quiz-l1"><div class="quiz-title">Quiz &mdash; Level 1</div>
+<div class="q"><div class="q-text">1. What are the TWO different training objectives Transfusion uses within a single model?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l1',0,false)">Image classification + text summarization</button></li><li><button class="q-btn" onclick="ans(this,'l1',0,true)">Next-token prediction for text + diffusion denoising for images</button></li><li><button class="q-btn" onclick="ans(this,'l1',0,false)">Image tokenization + text tokenization</button></li><li><button class="q-btn" onclick="ans(this,'l1',0,false)">Contrastive learning for text + GANs for images</button></li></ul><div class="q-explain" id="ex-l1-0">The model predicts the next word for text and removes noise from images &mdash; two fundamentally different objectives in one model.</div></div>
+<div class="q"><div class="q-text">2. Why does Transfusion avoid converting images into discrete tokens?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l1',1,false)">Discrete tokens are too slow to process</button></li><li><button class="q-btn" onclick="ans(this,'l1',1,false)">It&rsquo;s impossible to tokenize images</button></li><li><button class="q-btn" onclick="ans(this,'l1',1,true)">Converting to discrete tokens loses information &mdash; continuous representations preserve more detail</button></li><li><button class="q-btn" onclick="ans(this,'l1',1,false)">Discrete tokens require a separate model to decode</button></li></ul><div class="q-explain" id="ex-l1-1">VQ-VAE quantization snaps continuous values to the nearest codebook entry, losing fine detail. Continuous VAE patches avoid this.</div></div>
+<div class="q"><div class="q-text">3. In the cooking analogy, what does &ldquo;chopping the steak into LEGO pieces&rdquo; represent?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l1',2,false)">Splitting text into sentences</button></li><li><button class="q-btn" onclick="ans(this,'l1',2,true)">Discretizing continuous images into numbered tokens</button></li><li><button class="q-btn" onclick="ans(this,'l1',2,false)">Compressing the model weights</button></li><li><button class="q-btn" onclick="ans(this,'l1',2,false)">Breaking training into multiple stages</button></li></ul><div class="q-explain" id="ex-l1-2">VQ-VAE converts smooth continuous images into a finite set of discrete codes &mdash; like replacing a smooth photograph with LEGO blocks.</div></div>
+<div class="q"><div class="q-text">4. Compared to Chameleon, Transfusion achieves similar image quality using approximately how much compute?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l1',3,false)">The same amount</button></li><li><button class="q-btn" onclick="ans(this,'l1',3,false)">Half the compute</button></li><li><button class="q-btn" onclick="ans(this,'l1',3,true)">Less than one-third the compute</button></li><li><button class="q-btn" onclick="ans(this,'l1',3,false)">Ten times less compute</button></li></ul><div class="q-explain" id="ex-l1-3">At every compute budget, Transfusion produces better images. To match Transfusion&rsquo;s quality, Chameleon needs ~3.3&times; more FLOPs.</div></div>
+<div class="q"><div class="q-text">5. What makes Transfusion particularly relevant for products that create interleaved image-text documents?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l1',4,false)">It can only generate images, but very fast</button></li><li><button class="q-btn" onclick="ans(this,'l1',4,false)">It requires two separate models that communicate via an API</button></li><li><button class="q-btn" onclick="ans(this,'l1',4,true)">A single model natively produces both text and images, so interleaved content comes naturally</button></li><li><button class="q-btn" onclick="ans(this,'l1',4,false)">It uses a special comic book training dataset</button></li></ul><div class="q-explain" id="ex-l1-4">Since one model handles both modalities, generating a mixed document is a natural sequence &mdash; text tokens then image patches then more text.</div></div>
+<div class="score" id="score-l1"></div><button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button></div>
+</div></div>
+<!-- L2 -->
+<div class="level l2" id="level2"><div class="level-header" onclick="toggle('level2')"><div class="level-dot"></div><h2>Level 2 &mdash; Intermediate</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+<h3>Training: how do you teach one model two skills?</h3>
+<p>Transfusion trains on a carefully balanced diet:</p>
+<table><thead><tr><th>Data type</th><th>Source</th><th>Proportion</th></tr></thead><tbody>
+<tr><td>Text</td><td>Tokenized text corpus (same recipe as LLaMA)</td><td>~50% of tokens</td></tr>
+<tr><td>Image-text pairs</td><td>Paired datasets (image + caption, VAE-encoded)</td><td>~50% of tokens</td></tr>
+</tbody></table>
+<p>Total: <strong>2 trillion tokens</strong> for the 7B model.</p>
+<h3>The training loop</h3>
+<ol>
+<li><strong>Encode images</strong> &mdash; Run each image through a frozen VAE encoder &rarr; 256 continuous patch vectors per image</li>
+<li><strong>Build the mixed sequence</strong> &mdash; Interleave text tokens and image patches: <code>[text] [BOI] [patches] [EOI] [more text]</code></li>
+<li><strong>Add noise to image patches</strong> &mdash; Sample a random diffusion timestep <em>t</em>, add Gaussian noise to each image patch</li>
+<li><strong>Forward pass</strong> &mdash; The transformer processes the entire mixed sequence</li>
+<li><strong>Compute dual loss</strong> &mdash; Cross-entropy for text positions, MSE for image positions</li>
+<li><strong>Backpropagate</strong> &mdash; Both losses flow through the shared transformer weights</li>
+</ol>
+<p>Balancing: &lambda; = 1 (equal weighting) works well &mdash; the two objectives are surprisingly compatible.</p>
+<h3>Diffusion inside a transformer</h3>
+<table><thead><tr><th></th><th>Standard diffusion</th><th>Transfusion</th></tr></thead><tbody>
+<tr><td>Denoiser</td><td>U-Net predicts noise</td><td>Transformer predicts noise</td></tr>
+<tr><td>Architecture</td><td>Separate model</td><td>Same model that does text</td></tr>
+<tr><td>Operates on</td><td>Full image latent</td><td>Per-patch vectors in a sequence</td></tr>
+<tr><td>Text conditioning</td><td>Cross-attention</td><td>Causal attention (text precedes image)</td></tr>
+</tbody></table>
+<p>Each image patch gets a <strong>timestep embedding</strong> added before entering the transformer &mdash; this tells the model &ldquo;these patches have noise level <em>t</em>.&rdquo;</p>
+<h3>Inference: generating a mixed document</h3>
+<p><strong>Step 1 &mdash; Text generation.</strong> The model generates text tokens one at a time, left to right, exactly like GPT. When it predicts <code>[BOI]</code> (beginning of image), it switches to image mode.</p>
+<p><strong>Step 2 &mdash; Image generation.</strong> Start from pure noise. Run N denoising passes through the transformer, each pass predicting and subtracting noise, producing progressively cleaner patches. After N steps, decode patches to pixels via the VAE decoder.</p>
+<p><strong>Step 3 &mdash; Resume text.</strong> The model continues generating text autoregressively, now conditioned on both the preceding text AND the generated image. When it predicts another <code>[BOI]</code>, it generates another image.</p>
+<table><thead><tr><th>Component</th><th>Cost</th></tr></thead><tbody>
+<tr><td>Text generation</td><td>1 forward pass per token (standard)</td></tr>
+<tr><td>Image generation</td><td><strong>N forward passes</strong> per image (N = denoising steps, typically 250)</td></tr>
+<tr><td>Image decoding</td><td>1 VAE decoder pass (cheap)</td></tr>
+</tbody></table>
+<h3>Scaling experiments</h3>
+<table><thead><tr><th>Model size</th><th>Parameters</th><th>Key finding</th></tr></thead><tbody>
+<tr><td>0.16B</td><td>160M</td><td>Even tiny models benefit from the dual objective</td></tr>
+<tr><td>0.37B</td><td>370M</td><td>Transfusion pulls ahead of Chameleon on images</td></tr>
+<tr><td>0.76B</td><td>760M</td><td>Gap widens &mdash; efficiency advantage grows with scale</td></tr>
+<tr><td>7B</td><td>7B</td><td>Matches LLaMA-1 on text, beats DALL-E 2 on images</td></tr>
+</tbody></table>
+<p>The scaling curve tells two stories: text quality scales similarly for both approaches, but Transfusion scales <strong>much better</strong> for images. The gap <em>grows</em> with compute.</p>
+<h3>The competition</h3>
+<table><thead><tr><th>Model</th><th>Type</th><th>Text</th><th>Image</th><th>Unified?</th></tr></thead><tbody>
+<tr><td>LLaMA-1 7B</td><td>Text-only LM</td><td>&#10004; Strong</td><td>&#10008; None</td><td>No</td></tr>
+<tr><td>DALL-E 2</td><td>Image-only diffusion</td><td>&#10008; None</td><td>&#10004; Good</td><td>No</td></tr>
+<tr><td>SDXL</td><td>Image-only diffusion</td><td>&#10008; None</td><td>&#10004; Better</td><td>No</td></tr>
+<tr><td>Chameleon 7B</td><td>Unified (discrete tokens)</td><td>&#10004; Strong</td><td>&#9898; Okay</td><td>Yes</td></tr>
+<tr><td>Show-o</td><td>Unified (mixed)</td><td>&#9898; Decent</td><td>&#9898; Decent</td><td>Yes</td></tr>
+<tr><td><strong>Transfusion 7B</strong></td><td><strong>Unified (continuous)</strong></td><td><strong>&#10004; Strong</strong></td><td><strong>&#10004; Good</strong></td><td><strong>Yes</strong></td></tr>
+</tbody></table>
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>Transfusion is the first model competitive with dedicated systems on both modalities simultaneously. Previous unified models always sacrificed one for the other.</p></div>
+<h3>Limitations the authors acknowledge</h3>
+<table><thead><tr><th>Limitation</th><th>Detail</th></tr></thead><tbody>
+<tr><td>Image resolution</td><td>Trained at 256&times;256 only &mdash; modern models generate at 1024&times;1024+</td></tr>
+<tr><td>No video</td><td>Framework could extend but wasn&rsquo;t tested</td></tr>
+<tr><td>VAE dependency</td><td>Image quality capped by the VAE&rsquo;s reconstruction ability</td></tr>
+<tr><td>Inference speed</td><td>250 denoising steps per image is slow</td></tr>
+<tr><td>No interleaved training</td><td>Trained on pairs, not true interleaved documents</td></tr>
+<tr><td>7B only</td><td>Didn&rsquo;t push to 70B+ where advantages would likely grow</td></tr>
+</tbody></table>
+<h3>Deep dive: GenEval</h3>
+<p>GenEval tests <strong>compositional image generation</strong> &mdash; not &ldquo;does the image look pretty&rdquo; but &ldquo;did the model actually generate what you asked for?&rdquo;</p>
+<table><thead><tr><th>Skill tested</th><th>Example</th><th>What it checks</th></tr></thead><tbody>
+<tr><td>Single object</td><td>&ldquo;a backpack&rdquo;</td><td>Can it generate one object correctly?</td></tr>
+<tr><td>Two objects</td><td>&ldquo;a cat and a dog&rdquo;</td><td>Both present, not just one?</td></tr>
+<tr><td>Counting</td><td>&ldquo;three apples&rdquo;</td><td>Correct count?</td></tr>
+<tr><td>Colors</td><td>&ldquo;a red car and a blue truck&rdquo;</td><td>Right colors on right objects?</td></tr>
+<tr><td>Position</td><td>&ldquo;cat to the left of a dog&rdquo;</td><td>Spatial relationships?</td></tr>
+<tr><td>Color attribution</td><td>&ldquo;green apple and red chair&rdquo;</td><td>Binding color to correct object (hardest)</td></tr>
+</tbody></table>
+<p>Scoring uses an object detector (DDETR) to check presence, color, position, and count.</p>
+<table><thead><tr><th>Model</th><th>Single</th><th>Two obj</th><th>Count</th><th>Colors</th><th>Position</th><th>Color attr</th><th>Overall</th></tr></thead><tbody>
+<tr><td>DALL-E 2</td><td>0.94</td><td>0.66</td><td>0.49</td><td>0.77</td><td>0.10</td><td>0.01</td><td>0.52</td></tr>
+<tr><td>SDXL</td><td>0.98</td><td>0.74</td><td>0.39</td><td>0.85</td><td>0.15</td><td>0.23</td><td>0.55</td></tr>
+<tr><td><strong>Transfusion 7B</strong></td><td><strong>0.99</strong></td><td><strong>0.78</strong></td><td><strong>0.42</strong></td><td><strong>0.87</strong></td><td><strong>0.16</strong></td><td><strong>0.40</strong></td><td><strong>0.63</strong></td></tr>
+</tbody></table>
+<p>Transfusion <strong>dominates</strong> on color attribution (0.40 vs 0.23 vs 0.01) &mdash; the hardest compositional skill. Still struggles with counting and position, which remain unsolved even for dedicated image models.</p>
+<h3>Deep dive: efficiency</h3>
+<p>Chameleon converts images into <strong>1,024 discrete tokens</strong>, each processed like a text token. Attention cost scales as O(n&sup2;) with sequence length.</p>
+<p><strong>Saving #1 &mdash; Fewer patches.</strong></p>
+<table><thead><tr><th>Representation</th><th>Tokens/patches per image</th><th>Relative length</th></tr></thead><tbody>
+<tr><td>Chameleon</td><td>1,024 tokens</td><td>1.0&times;</td></tr>
+<tr><td>Transfusion (default)</td><td>256 patches</td><td><strong>0.25&times;</strong></td></tr>
+<tr><td>Transfusion (compressed)</td><td>16 patches</td><td><strong>0.016&times;</strong></td></tr>
+</tbody></table>
+<p><strong>Saving #2 &mdash; Compression at inference.</strong> 256 &rarr; 64 patches: FID goes from 6.78 to 7.03 (barely noticeable). 256 &rarr; 16 patches: FID goes to 11.0 (still decent, 64&times; cheaper). You can choose your quality&ndash;cost tradeoff at inference time.</p>
+<p><strong>Saving #3 &mdash; No codebook bottleneck.</strong> No quantization loss, no codebook collapse, no straight-through estimator hacks.</p>
+<p><strong>Saving #4 &mdash; Better scaling curve.</strong> At every FLOP budget, Transfusion produces better images. To match Transfusion at 10&sup2;&sup1; FLOPs, Chameleon needs ~3.3&times; more compute.</p>
+<h3>Deep dive: architecture</h3>
+<p><strong>Shared backbone:</strong> All transformer layers (attention + FFN) process both text and image data. The model learns shared representations across modalities.</p>
+<p><strong>What&rsquo;s separate:</strong> Input embeddings (text uses token embeddings; images use a VAE encoder + linear projection) and output heads (text uses softmax over vocabulary; images use a U-Net-inspired decoder).</p>
+<p><strong>Attention masking &mdash; the critical design choice:</strong></p>
+<ul>
+<li><strong>Text tokens:</strong> standard causal (left-to-right) attention</li>
+<li><strong>Image patches:</strong> bidirectional attention <em>within the same image</em> &mdash; every patch sees every other patch</li>
+<li>Image patches CAN attend to all preceding text (conditioned on caption)</li>
+<li>Text after an image CAN attend to the image patches</li>
+<li>Patches from <strong>different images</strong> do NOT attend to each other</li>
+</ul>
+<p><strong>U-Net skip connections:</strong> Intermediate representations from earlier transformer layers are concatenated with the final layer output and fed to the image decoder. This gives access to both low-level features (textures, edges) and high-level semantics.</p>
+<table><thead><tr><th>Innovation</th><th>What</th><th>Why it matters</th></tr></thead><tbody>
+<tr><td>Continuous patches</td><td>Images as VAE-encoded vectors, not discrete tokens</td><td>No information loss, fewer patches needed</td></tr>
+<tr><td>Dual loss</td><td>Cross-entropy + diffusion MSE, added together</td><td>One model learns both objectives</td></tr>
+<tr><td>Bidirectional intra-image</td><td>Image patches attend to each other freely</td><td>Images aren&rsquo;t sequential &mdash; holistic reasoning</td></tr>
+<tr><td>Causal inter-modal</td><td>Text is autoregressive, images condition on text</td><td>Maintains language model properties</td></tr>
+<tr><td>U-Net skip connections</td><td>Early-layer features fed to image decoder</td><td>Better low-level detail in generated images</td></tr>
+<tr><td>Patch compression</td><td>256 &rarr; 64 &rarr; 16 patches</td><td>Tunable quality&ndash;cost tradeoff at inference</td></tr>
+</tbody></table>
+<div class="quiz" id="quiz-l2"><div class="quiz-title">Quiz &mdash; Level 2</div>
+<div class="q"><div class="q-text">1. How does the model know whether to apply cross-entropy loss or MSE loss at a given sequence position?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l2',0,false)">It randomly assigns a loss function to each position</button></li><li><button class="q-btn" onclick="ans(this,'l2',0,true)">A modality flag identifies each position as text or image, and the appropriate loss is applied</button></li><li><button class="q-btn" onclick="ans(this,'l2',0,false)">Cross-entropy is applied to the first half, MSE to the second half</button></li><li><button class="q-btn" onclick="ans(this,'l2',0,false)">The model learns which loss to apply through a gating mechanism</button></li></ul><div class="q-explain" id="ex-l2-0">Each position in the sequence has a modality type &mdash; text tokens get cross-entropy, image patches get MSE.</div></div>
+<div class="q"><div class="q-text">2. During image generation at inference, the model produces a clean image by:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l2',1,false)">Generating image tokens one at a time left to right, like text</button></li><li><button class="q-btn" onclick="ans(this,'l2',1,false)">Predicting all 256 patches in a single forward pass</button></li><li><button class="q-btn" onclick="ans(this,'l2',1,true)">Running multiple forward passes, each predicting and subtracting noise from patches until clean</button></li><li><button class="q-btn" onclick="ans(this,'l2',1,false)">Retrieving the closest image from the training set</button></li></ul><div class="q-explain" id="ex-l2-1">Standard diffusion inference &mdash; start from pure noise, iteratively denoise over N steps.</div></div>
+<div class="q"><div class="q-text">3. Why does Transfusion use bidirectional attention within image patches but causal attention for text?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l2',2,false)">Bidirectional is faster to compute than causal</button></li><li><button class="q-btn" onclick="ans(this,'l2',2,true)">Images have no sequential reading order &mdash; every patch is equally relevant, unlike text where word order matters</button></li><li><button class="q-btn" onclick="ans(this,'l2',2,false)">The authors tried causal for images and it was identical, so they picked arbitrarily</button></li><li><button class="q-btn" onclick="ans(this,'l2',2,false)">Bidirectional attention only works with continuous vectors, not discrete tokens</button></li></ul><div class="q-explain" id="ex-l2-2">The top-left corner of a photo is just as important as the bottom-right &mdash; there&rsquo;s no &ldquo;reading order.&rdquo; Text is inherently sequential.</div></div>
+<div class="q"><div class="q-text">4. In the GenEval benchmark, Transfusion&rsquo;s biggest advantage over DALL-E 2 and SDXL is in:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l2',3,false)">Single object generation (simple prompts)</button></li><li><button class="q-btn" onclick="ans(this,'l2',3,false)">Generating high-resolution images</button></li><li><button class="q-btn" onclick="ans(this,'l2',3,true)">Color attribution &mdash; binding the correct color to the correct object</button></li><li><button class="q-btn" onclick="ans(this,'l2',3,false)">Generating images faster than competing models</button></li></ul><div class="q-explain" id="ex-l2-3">0.40 vs 0.23 (SDXL) vs 0.01 (DALL-E 2). The hardest compositional skill by far.</div></div>
+<div class="q"><div class="q-text">5. Transfusion achieves better image quality than Chameleon at &lt;1/3 the compute primarily because:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l2',4,false)">It uses a larger training dataset</button></li><li><button class="q-btn" onclick="ans(this,'l2',4,true)">Continuous patches (fewer per image, no quantization loss) reduce sequence length quadratically for attention</button></li><li><button class="q-btn" onclick="ans(this,'l2',4,false)">It uses a more powerful VAE than Chameleon&rsquo;s VQ-VAE</button></li><li><button class="q-btn" onclick="ans(this,'l2',4,false)">It trains for more epochs on the same data</button></li></ul><div class="q-explain" id="ex-l2-4">256 patches vs 1,024 tokens = shorter sequences = quadratically less attention compute, plus no information lost to quantization.</div></div>
+<div class="score" id="score-l2"></div><button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button></div>
+</div></div>
+<!-- L3 -->
+<div class="level l3" id="level3"><div class="level-header" onclick="toggle('level3')"><div class="level-dot"></div><h2>Level 3 &mdash; Expert</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+<h3>Mathematical formulations</h3>
+<p>The joint objective:</p>
+<pre><code>L_total = L_LM + &lambda; &middot; L_DDPM</code></pre>
+<p><strong>Language modelling loss</strong> (standard next-token cross-entropy over text positions):</p>
+<pre><code>L_LM = -&Sigma;_{i &isin; T} log P_&theta;(x_i | x_{&lt;i})</code></pre>
+<p><strong>Diffusion loss</strong> (noise prediction over image positions):</p>
+<pre><code>L_DDPM = &Sigma;_{j &isin; I} E_{t,&epsilon;} [ || &epsilon; - &epsilon;_&theta;(z_j^(t), t, c) ||&sup2; ]
+
+where z_j^(t) = &radic;(&alpha;&#772;_t) &middot; z_j + &radic;(1 - &alpha;&#772;_t) &middot; &epsilon;</code></pre>
+<p>Here <em>z_j</em> is the clean latent patch vector from the VAE encoder, <em>t</em> is a uniformly sampled timestep, <em>&epsilon;</em> is the Gaussian noise added, and <em>&alpha;&#772;_t</em> is the cumulative noise schedule (cosine schedule from Nichol &amp; Dhariwal 2021).</p>
+<h3>The attention mask (formally)</h3>
+<p>Given text positions <em>T</em> and image positions <em>I_k</em> for the <em>k</em>-th image, the attention mask <em>M</em> has five rules:</p>
+<table><thead><tr><th>Case</th><th>Condition</th><th>M = 1?</th></tr></thead><tbody>
+<tr><td>Within same image</td><td>i, j &isin; I_k</td><td>&#10004; Bidirectional</td></tr>
+<tr><td>Text &rarr; text</td><td>i, j &isin; T, j &le; i</td><td>&#10004; Causal</td></tr>
+<tr><td>Image &rarr; preceding text</td><td>i &isin; I_k, j &lt; min(I_k)</td><td>&#10004; Allowed</td></tr>
+<tr><td>Text &rarr; preceding image</td><td>i &isin; T, j &isin; I_k, max(I_k) &lt; i</td><td>&#10004; Allowed</td></tr>
+<tr><td>Across different images</td><td>i &isin; I_k, j &isin; I_{k&prime;}, k &ne; k&prime;</td><td>&#10008; Blocked</td></tr>
+</tbody></table>
+<h3>Training pseudocode</h3>
+<pre><code>def train_step(batch, model, vae_encoder):
+    for sequence in batch:
+        patches, text_tokens = [], []
+        for element in sequence:
+            if element.type == "text":
+                text_tokens.append(model.text_embed(element.token_id))
+            elif element.type == "image":
+                z = vae_encoder(element.pixels)        # [256, d_vae]
+                z = model.image_proj(z)                 # [256, d_model]
+                t = randint(1, T)                       # sample timestep
+                eps = randn_like(z)                     # sample noise
+                z_noisy = sqrt(alpha_bar[t]) * z + sqrt(1 - alpha_bar[t]) * eps
+                z_noisy += model.timestep_embed(t)      # add timestep info
+                patches.append((z_noisy, eps, t))
+
+        # Build mixed sequence, construct attention mask
+        hidden = model.transformer(mixed_sequence, mask)
+
+        # Compute dual loss
+        lm_loss  = cross_entropy(hidden[text_pos], next_tokens)
+        dif_loss = mse(model.image_decoder(hidden[img_pos]), target_noise)
+        loss = lm_loss + lambda_ * dif_loss
+        loss.backward()</code></pre>
+<h3>Inference pseudocode</h3>
+<pre><code>def generate_document(model, vae_decoder, prompt):
+    tokens = tokenize(prompt)
+    while not done:
+        # --- Autoregressive text ---
+        next_token = model.predict_next(tokens)
+        tokens.append(next_token)
+        if next_token == BOI:
+            # --- Iterative image denoising ---
+            latents = randn(256, d_vae)         # pure noise
+            for step in range(N, 0, -1):
+                t_emb = model.timestep_embed(step)
+                pred_noise = model.forward_image(tokens, latents + t_emb)
+                latents = ddpm_update(latents, pred_noise, step)
+            image = vae_decoder(latents)
+            tokens.append(image_repr)
+            tokens.append(EOI)
+    return tokens</code></pre>
+<p><strong>DDPM update step:</strong></p>
+<pre><code>z^(t-1) = (1/&radic;&alpha;_t) &middot; (z^(t) - (1-&alpha;_t)/&radic;(1-&alpha;&#772;_t) &middot; &epsilon;_&theta;) + &sigma;_t &middot; w
+
+where w ~ N(0, I) for t > 1, &sigma;_1 = 0</code></pre>
+<h3>Critical evaluation</h3>
+<div class="card"><div class="card-label green">Strengths</div>
+<p><strong>Continuous patches</strong> &mdash; significant novelty. Demonstrating that you don&rsquo;t need to discretize images, and that keeping them continuous is strictly better, is an important empirical finding.</p>
+<p><strong>Bidirectional intra-image attention</strong> &mdash; elegant solution. The attention mask design is the architectural innovation that makes the whole thing work.</p>
+<p><strong>Thorough scaling study</strong> &mdash; four model sizes, clear compute&ndash;quality curves, good ablations on attention masks and skip connections.</p>
+<p><strong>U-Net skip connections in a transformer</strong> &mdash; nice practical contribution to image generation quality.</p>
+</div>
+<div class="card"><div class="card-label red">Weaknesses</div>
+<p><strong>&ldquo;Matches LLaMA-1 on text&rdquo;</strong> &mdash; true at 7B/2T, but LLaMA-1 is a 2023 model. Small but consistent text degradation when image data ratio increases. The Pareto frontier isn&rsquo;t fully quantified.</p>
+<p><strong>&ldquo;Beats DALL-E 2 and SDXL&rdquo;</strong> &mdash; on GenEval (compositional accuracy), not on FID (perceptual quality). Human preference was never tested. The paper cherry-picks the benchmark where it wins.</p>
+<p><strong>256&times;256 only</strong> &mdash; the elephant in the room. Scaling to 1024 means 16K patches &rarr; quadratic attention cost explodes.</p>
+<p><strong>No interleaved document evaluation</strong> &mdash; the paper&rsquo;s core promise is unified multimodal generation, but text and image benchmarks are tested separately. Nobody tested actual interleaved output quality.</p>
+<p><strong>VAE as black box</strong> &mdash; image quality ceiling set by the VAE, unexplored. How sensitive are results to VAE quality?</p>
+<p><strong>Single timestep per image</strong> &mdash; each training step samples one noise level per image. Is the model getting enough diffusion signal given ~50% of compute goes to text?</p>
+</div>
+<h3>Where this paper sits in the field</h3>
+<table><thead><tr><th>Year</th><th>Milestone</th><th>Contribution</th></tr></thead><tbody>
+<tr><td>2022</td><td>Flamingo</td><td>Frozen LM + frozen vision, glue layer &mdash; &ldquo;you can combine them&rdquo;</td></tr>
+<tr><td>2023</td><td>Chameleon</td><td>Discrete tokens for everything &mdash; &ldquo;you can unify them&rdquo;</td></tr>
+<tr><td>2024</td><td><strong>Transfusion</strong></td><td>Continuous diffusion inside LM &mdash; &ldquo;you can unify them without information loss&rdquo;</td></tr>
+<tr><td>2025+</td><td>???</td><td>High-res, multi-image consistency, video, editing &mdash; &ldquo;the real product&rdquo;</td></tr>
+</tbody></table>
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>Transfusion is a strong proof of concept that continuous diffusion inside a language model is viable and efficient. But it&rsquo;s exactly that &mdash; a proof of concept at 256px. The production version needs higher resolution, multi-image consistency, controllability, and faster inference.</p></div>
+<div class="quiz" id="quiz-l3"><div class="quiz-title">Quiz &mdash; Level 3</div>
+<div class="q"><div class="q-text">1. In the diffusion loss L_DDPM, the model is trained to predict:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l3',0,false)">The clean image patches z_j directly</button></li><li><button class="q-btn" onclick="ans(this,'l3',0,true)">The noise &epsilon; that was added to the patches at timestep t</button></li><li><button class="q-btn" onclick="ans(this,'l3',0,false)">The diffusion timestep t given the noisy patches</button></li><li><button class="q-btn" onclick="ans(this,'l3',0,false)">The posterior distribution q(z^(t-1) | z^(t))</button></li></ul><div class="q-explain" id="ex-l3-0">Standard &epsilon;-prediction &mdash; the model learns to identify what noise was added, enabling iterative removal.</div></div>
+<div class="q"><div class="q-text">2. In Transfusion&rsquo;s attention mask, image patches from <em>different</em> images in the same sequence:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l3',1,false)">Attend to each other bidirectionally</button></li><li><button class="q-btn" onclick="ans(this,'l3',1,false)">Attend to each other causally (earlier image &rarr; later image only)</button></li><li><button class="q-btn" onclick="ans(this,'l3',1,true)">Do NOT attend to each other &mdash; each image&rsquo;s patches only attend within their own image</button></li><li><button class="q-btn" onclick="ans(this,'l3',1,false)">Share attention weights but not attention values</button></li></ul><div class="q-explain" id="ex-l3-1">The attention mask blocks cross-image attention. Each image is a self-contained unit for patch-level reasoning.</div></div>
+<div class="q"><div class="q-text">3. The paper&rsquo;s claim of &ldquo;beating DALL-E 2 and SDXL&rdquo; is strongest on GenEval but weakest on:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l3',2,false)">Text generation benchmarks</button></li><li><button class="q-btn" onclick="ans(this,'l3',2,true)">FID (perceptual quality) and human preference evaluation, which was never tested</button></li><li><button class="q-btn" onclick="ans(this,'l3',2,false)">Training speed</button></li><li><button class="q-btn" onclick="ans(this,'l3',2,false)">Model parameter count</button></li></ul><div class="q-explain" id="ex-l3-2">GenEval tests compositional accuracy, not perceptual quality or aesthetics. FID is competitive but not SOTA, and human preference was never measured.</div></div>
+<div class="q"><div class="q-text">4. During the DDPM reverse step at inference, after subtracting the predicted noise the model:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l3',3,false)">Stops &mdash; the image is clean</button></li><li><button class="q-btn" onclick="ans(this,'l3',3,true)">Adds a small amount of fresh Gaussian noise &sigma;_t &middot; w (for all steps except the final one)</button></li><li><button class="q-btn" onclick="ans(this,'l3',3,false)">Runs the VAE encoder again on the result</button></li><li><button class="q-btn" onclick="ans(this,'l3',3,false)">Re-encodes the patches as discrete tokens</button></li></ul><div class="q-explain" id="ex-l3-3">The stochastic reverse process adds &sigma;_t &middot; w noise at each step (except t = 1) to maintain the correct distribution.</div></div>
+<div class="q"><div class="q-text">5. What is the most significant evaluation gap given Transfusion&rsquo;s stated goal of unified multi-modal generation?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l3',4,false)">They didn&rsquo;t test on enough languages</button></li><li><button class="q-btn" onclick="ans(this,'l3',4,true)">They never evaluated actual interleaved text-image document generation &mdash; text and image benchmarks were tested separately</button></li><li><button class="q-btn" onclick="ans(this,'l3',4,false)">They didn&rsquo;t compare against GPT-4</button></li><li><button class="q-btn" onclick="ans(this,'l3',4,false)">They only trained one model size</button></li></ul><div class="q-explain" id="ex-l3-4">The paper&rsquo;s promise is unified multimodal generation, but text and image quality are evaluated independently. No one tested interleaved document generation quality.</div></div>
+<div class="score" id="score-l3"></div><button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button></div>
+</div></div>
+<!-- Phase 4 -->
+<div class="level l4" id="level4"><div class="level-header" onclick="toggle('level4')"><div class="level-dot"></div><h2>Phase 4 &mdash; Frontier</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+<p>Transfusion received an <strong>ICLR 2025 Oral</strong> (top ~1% of submissions). Here&rsquo;s what it sparked and what comes next.</p>
+<h3>What happened since August 2024</h3>
+<table><thead><tr><th>Paper</th><th>Date</th><th>Key idea</th><th>Relationship</th></tr></thead><tbody>
+<tr><td>Janus-Pro (DeepSeek)</td><td>Jan 2025</td><td>Unified understanding + generation, separate vision encoders</td><td>Validates unified thesis but uses discrete tokens &mdash; opposite bet</td></tr>
+<tr><td>Show-o Turbo</td><td>Feb 2025</td><td>Accelerated unified model, discrete diffusion</td><td>Parallel work, focuses on inference speed</td></tr>
+<tr><td>MADFormer</td><td>Jun 2025</td><td>Mixed autoregressive + diffusion transformer</td><td>Direct evolution &mdash; explores which patches should be AR vs diffused</td></tr>
+<tr><td>Lumina-mGPT 2.0</td><td>Jul 2025</td><td>Standalone AR image gen, no diffusion needed</td><td>Challenges claim that you <em>need</em> diffusion for images</td></tr>
+<tr><td>ImAgent</td><td>2025</td><td>Training-free unified multimodal agent</td><td>Uses unified models as agent components</td></tr>
+</tbody></table>
+<div class="card"><div class="card-label blue">The field split</div><p>The community has divided into two camps: <strong>Continuous + Diffusion</strong> (Transfusion&rsquo;s bet &mdash; MADFormer, flow-matching variants) vs <strong>Discrete Tokens</strong> (Chameleon&rsquo;s bet &mdash; Janus-Pro, Emu3, Show-o). Consensus as of early 2026: continuous representations are winning for image quality, but discrete tokens are simpler to scale. No clear knockout yet.</p></div>
+<h3>Improvement vectors</h3>
+<h3>1. High resolution</h3><span class="tag-explore">Area to explore</span>
+<p>256px is a toy. 1024px with 8&times; downsampling = 16,384 patches &mdash; impossible with standard O(n&sup2;) attention. Paths forward: hierarchical generation (generate low-res, super-resolve), windowed/sparse attention, progressive patch compression (coarse-to-fine), or latent cascade with a lightweight upsampler.</p>
+<h3>2. Multi-image consistency</h3><span class="tag-explore">Area to explore</span>
+<p>Generate a 4-page comic &rarr; the fox looks different on every page. Paths: entity embeddings (persistent identity vector injected into each image), cross-image attention (let later image patches attend to earlier images), reference image conditioning. The attention mask needs a new rule allowing later images to reference earlier ones.</p>
+<h3>3. Faster inference</h3><span class="tag-partial">Partially addressed</span>
+<p>250 denoising steps &times; full transformer forward pass = very slow. Paths: DDIM (&rarr; 50 steps), DPM-Solver++ (&rarr; 20&ndash;25), consistency distillation (&rarr; 1&ndash;4), flow matching (&rarr; 10&ndash;20). Flow matching (behind SD3 and Flux) is the likely winner &mdash; mathematically simpler, straighter trajectories, fewer steps. Fully compatible with Transfusion&rsquo;s framework.</p>
+<h3>4. Controllability</h3><span class="tag-explore">Area to explore</span>
+<p>No way to condition on pose, depth, edges, or style references. Paths: ControlNet-style adapters, concatenating control embeddings with image patches, T2I-Adapter approach. The continuous patch representation makes this <em>easier</em> than adding control to discrete-token approaches.</p>
+<h3>5. Video extension</h3><span class="tag-explore">Area to explore</span>
+<p>The framework naturally extends to video. Each frame &rarr; patches with bidirectional intra-frame attention, plus temporal attention across frames. Frames can be diffused jointly or autoregressively (generate frame 1, condition frame 2 on it).</p>
+<h3>6. Better VAE</h3><span class="tag-partial">Partially addressed</span>
+<p>Image quality is capped by VAE reconstruction quality. Low-hanging fruit: swapping to SDXL&rsquo;s VAE (~20% better reconstruction), consistency decoder for sharper high-frequency detail, adversarial training (VAE-GAN), or higher-resolution latents with less spatial downsampling.</p>
+<h3>Scorecard</h3>
+<table><thead><tr><th>Dimension</th><th>Rating</th><th>Notes</th></tr></thead><tbody>
+<tr><td>Novelty</td><td>&#11088;&#11088;&#11088;&#11088; 4/5</td><td>Continuous diffusion inside LM is meaningful; pieces existed but the combination is new</td></tr>
+<tr><td>Rigor</td><td>&#11088;&#11088;&#11088;&#11088; 4/5</td><td>Thorough scaling experiments and ablations; loses a point for 256px and no interleaved eval</td></tr>
+<tr><td>Impact</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td><td>ICLR 2025 Oral; spawned a research direction; every unified model paper references it</td></tr>
+<tr><td>Clarity</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td><td>Exceptionally well-written; implementable from the paper alone</td></tr>
+<tr><td>Relevance</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td><td>Architectural thesis for a media generation agent</td></tr>
+<tr><td>Reproducibility</td><td>&#11088;&#11088;&#11088;&#11088; 4/5</td><td>Clear methodology but requires significant compute; no public model weights</td></tr>
+<tr><td><strong>Overall</strong></td><td><strong>&#11088;&#11088;&#11088;&#11088;&frac12; 4.5/5</strong></td><td></td></tr>
+</tbody></table>
+<table><thead><tr><th>Improvement vector</th><th>Status</th><th>Key work</th></tr></thead><tbody>
+<tr><td>High resolution</td><td><span class="tag-explore">Area to explore</span></td><td>No published high-res Transfusion variant</td></tr>
+<tr><td>Multi-image consistency</td><td><span class="tag-explore">Area to explore</span></td><td>Attention mask extension needed</td></tr>
+<tr><td>Faster inference</td><td><span class="tag-partial">Partially addressed</span></td><td>Flow matching, consistency distillation</td></tr>
+<tr><td>Controllability</td><td><span class="tag-explore">Area to explore</span></td><td>ControlNet-style adapters possible</td></tr>
+<tr><td>Video extension</td><td><span class="tag-explore">Area to explore</span></td><td>Temporal attention straightforward</td></tr>
+<tr><td>Better VAE</td><td><span class="tag-partial">Partially addressed</span></td><td>SDXL VAE, consistency decoder</td></tr>
+</tbody></table>
+<div class="takeaway"><div class="takeaway-label">Bottom line</div><p>Transfusion proved that continuous diffusion inside a language model isn&rsquo;t just possible &mdash; it&rsquo;s strictly better than discretizing images, and the field is now racing to build on that foundation. The single highest-impact next step: high-resolution generation with multi-image consistency for interleaved document production.</p></div>
+</div></div>
+<a class="back" href="../index.html" style="margin-top:2rem">&larr; Back to all papers</a>
+</div>
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('open')}
+var S={};
+function ans(btn,qid,qi,ok){if(!S[qid])S[qid]={a:[],t:document.querySelectorAll('#quiz-'+qid+' .q').length};var s=S[qid];if(s.a[qi]!=null)return;s.a[qi]=ok;btn.parentElement.querySelectorAll('.q-btn').forEach(function(b){b.disabled=true;if(b===btn)b.classList.add(ok?'correct':'incorrect');if(!ok&&b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(',true)')>-1)b.classList.add('reveal')});var ex=document.getElementById('ex-'+qid+'-'+qi);if(ex)ex.classList.add('show');var done=s.a.filter(function(x){return x!=null}).length;if(done===s.t){var c=s.a.filter(function(x){return x===true}).length;var el=document.getElementById('score-'+qid);var pass=c>=4;el.className='score show '+(pass?'pass':'fail');el.textContent=c+'/'+s.t+(c===s.t?' \u2014 Perfect score!':pass?' \u2014 Great job! Level passed.':' \u2014 Review the material and try again.');if(!pass)document.getElementById('reset-'+qid).classList.add('show')}}
+function resetQuiz(qid){S[qid]=null;var container=document.getElementById('quiz-'+qid);container.querySelectorAll('.q-btn').forEach(function(b){b.disabled=false;b.classList.remove('correct','incorrect','reveal')});container.querySelectorAll('.q-explain').forEach(function(e){e.classList.remove('show')});document.getElementById('score-'+qid).className='score';document.getElementById('reset-'+qid).classList.remove('show')}
+</script>
+</body>
+</html>
