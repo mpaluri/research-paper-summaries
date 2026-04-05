@@ -8,7 +8,8 @@ Three-level explainers (Beginner → Intermediate → Expert) for quickly unders
 
 | # | Paper | Topic | Published | Created |
 |:--|:------|:------|:----------|:--------|
-| 4 | [MMMU](papers/mmmu.html) | Multimodal benchmarks, expert reasoning | 11/27/23 | 04/04/26 |
+| 5 | [MMMU-Pro](papers/mmmu-pro.html) | Multimodal benchmarks, robustness, shortcuts | 09/04/24 | 04/05/26 |
+| 4 | [MMMU](papers/mmmu.html) | Multimodal benchmarks, expert reasoning | 11/27/23 | 04/05/26 |
 | 3 | [Video-MME](papers/video-mme.html) | Video understanding, benchmarks, MLLMs | 05/31/24 | 04/04/26 |
 | 2 | [Adaptation of Agentic AI](papers/adaptation-agentic-ai.html) | Agentic AI, post-training, memory, survey | 12/20/25 | 04/03/26 |
 | 1 | [Claudini](papers/claudini.html) | AI safety, adversarial attacks, autoresearch | 03/31/26 | 03/31/26 |

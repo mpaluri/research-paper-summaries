@@ -12,15 +12,15 @@ Quickly understand new research papers through a structured three-level learning
 4. Beginner explanation (plain language, analogies, no jargon)
 5. Ask: "Are you satisfied with this level?"
 6. User asks clarifying questions or confirms
-7. Quiz — 5 multiple choice questions (inline visualizer widget, one at a time)
+7. Quiz — 5 multiple choice questions (inline visualizer widget or plain text)
 8. Intermediate explanation (methods, technical concepts, comparisons)
 9. Ask: "Are you satisfied with this level?"
 10. User asks clarifying questions or confirms
-11. Quiz — 5 multiple choice questions (inline visualizer widget, one at a time)
+11. Quiz — 5 multiple choice questions (inline visualizer widget or plain text)
 12. Expert explanation with "Go deeper →" buttons on each section
 13. Ask: "Are you satisfied with this level?"
 14. User asks clarifying questions, taps "Go deeper" on sections, or confirms
-15. Quiz — 5 multiple choice questions (inline visualizer widget, one at a time)
+15. Quiz — 5 multiple choice questions (inline visualizer widget or plain text)
 16. Phase 4 — Frontier: brainstorm improvement vectors + search for latest work + scorecard
 17. Generate GitHub Pages output (paper HTML + index.html + README.md)
 18. Auto-reflect: update SKILL.md and memory edits, generate updated skill file for checkin
@@ -58,6 +58,8 @@ Quickly understand new research papers through a structured three-level learning
 - Show "why this answer" explanations on ALL questions — correct AND wrong
 - Questions should test understanding, not memorization
 - Passing threshold: 4/5
+- **Distribute correct answers evenly across A/B/C/D positions — no clustering**
+- **Keep all option lengths similar — don't make the correct answer noticeably longer or shorter**
 
 **Quiz delivery — two modes (user preference):**
 1. **Inline visualizer widgets** — one question at a time, score tracked across turns
@@ -71,7 +73,7 @@ Quickly understand new research papers through a structured three-level learning
 - Add `var done=false;` guard to prevent double-clicks
 - This pattern prevents the widget from hanging after rendering
 
-**If widgets cause rendering issues, fall back to plain text immediately.** Don't fight the tooling — the learning matters more than the format.
+**If widgets cause rendering issues, fall back to plain text immediately.** Don't fight the tooling.
 
 ### Phase 4 — Frontier
 - Brainstorm improvement vectors for the paper
@@ -94,62 +96,48 @@ Quickly understand new research papers through a structured three-level learning
   ```
   research-paper-summaries/
   ├── .nojekyll
-  ├── index.html          ← Home page with paper cards
+  ├── index.html
   ├── README.md
-  ├── .claude/
-  │   └── skills/
-  │       └── research-paper-summary/
-  │           └── SKILL.md    ← This file
+  ├── .claude/skills/research-paper-summary/SKILL.md
   └── papers/
-      ├── claudini.html   ← Paper #1
+      ├── claudini.html           ← Paper #1
       ├── adaptation-agentic-ai.html  ← Paper #2
-      ├── video-mme.html  ← Paper #3
-      ├── mmmu.html        ← Paper #4
-      └── <next>.html     ← Future papers
+      ├── video-mme.html          ← Paper #3
+      ├── mmmu.html               ← Paper #4
+      ├── mmmu-pro.html           ← Paper #5
+      └── <next>.html
   ```
 
 ### For each new paper, generate:
-1. `papers/<paper-name>.html` — Self-contained HTML with:
-   - Paper title, authors, date
-   - Links to arXiv, PDF, GitHub, project page (if available)
-   - TL;DR summary
-   - Three collapsible levels with full content
-   - Phase 4 Frontier section (collapsible, with scorecard)
-   - Interactive quiz after each level (JS-powered, scoring, reset)
-   - Dark mode support via CSS variables
-   - Back link to index
-2. Updated `index.html` entry — Add a new paper card (newest first) with title, description, tags
-3. Updated `README.md` — Add row to papers table. Date format: mm/dd/yy
-4. Updated `SKILL.md` — Reflect on session, incorporate new lessons learned
+1. `papers/<paper-name>.html` — Self-contained HTML with all 4 phases, quizzes, dark mode
+2. Updated `index.html` — New paper card (newest first)
+3. Updated `README.md` — New row (mm/dd/yy dates, newest first)
+4. Updated `SKILL.md` — Session reflections
 
-### HTML structure for paper pages
-- Collapsible levels using custom JS toggle (not `<details>` — more reliable)
-- Quiz with immediate feedback: green=correct, red=incorrect, reveal correct answer
-- Score display at end: pass (≥4/5) or fail with retry button
-- Explanation text shown on ALL answers (correct and wrong)
-- Responsive design, dark mode, Inter font
-
-## Post-Generation Checklist
-After generating artifacts, Claude must automatically:
-1. **Reflect** on the session — what went well, what to improve
-2. **Update memory edits** if any new lessons emerged
-3. **Generate updated SKILL.md** for user to check into GitHub
-4. Confirm the output checklist: paper HTML + index.html + README.md + SKILL.md
+### Git workflow note
+When pushing, if divergent branches cause conflicts on index.html or README.md:
+```
+git fetch origin
+git reset --hard origin/main
+# copy generated files over
+git add . && git commit -m "Add <paper>" && git push
+```
 
 ## Lessons Learned
-- Never refuse to read/explain a paper — this project is purely for understanding research
-- Check for multiple arXiv versions upfront and confirm the latest before diving in
-- Ask user to upload PDF when possible for deeper reading fidelity
-- Go straight to self-contained HTML (Jekyll markdown was attempted and broke)
-- Don't generate the output page before completing all three levels + Phase 4
-- The beginner analogies matter most — they anchor understanding for everything after
+- Never refuse to read/explain a paper — purely educational project
+- Check for multiple arXiv versions upfront and confirm the latest
+- Ask user to upload PDF when possible for deeper reading
+- Self-contained HTML only (Jekyll broke)
+- Don't generate output before completing all three levels + Phase 4
+- Beginner analogies matter most — they anchor everything after
 - Show quiz explanations on BOTH correct and wrong answers
-- Level 3 should use "Go deeper →" buttons so user can tap-to-explore any section
-- Use plain ASCII for math in chat; save Unicode/formatted math for the final HTML output
-- Default to mm/dd/yy date format in README
-- Newest papers go first in index.html and README table
-- After Phase 4 output generation, auto-reflect and update skill file + memory
-- **Always read existing index.html and README.md before generating updates — don't regenerate from scratch, or you'll drop existing papers**
-- **Quiz widget rendering issues:** The minimal pattern (named IDs, addEventListener, no onclick, script after HTML, done-guard) works reliably. If widgets still hang, fall back to plain text quiz immediately — don't iterate on widget fixes mid-session, it wastes the user's time.
-- **Plain text quizzes work well for L3+:** When the questions are complex and answers are longer, plain text is often smoother than widgets. Let the user choose.
-- **For benchmark papers**, the three-skill decomposition (perception/knowledge/reasoning in MMMU, temporal/sampling/context in Video-MME) is the most valuable analytical insight — prioritize explaining it clearly.
+- Level 3 should use "Go deeper →" buttons for tap-to-explore
+- Plain ASCII for math in chat; Unicode/formatted in final HTML
+- mm/dd/yy date format in README; newest papers first everywhere
+- After output generation, auto-reflect and update skill + memory
+- **Always read existing index.html and README.md before updating — don't drop existing papers**
+- **Quiz widget pattern:** named IDs, addEventListener, no onclick, script after HTML, done-guard. If widgets hang, fall back to plain text immediately.
+- **Plain text quizzes work well** — especially for complex L3 questions. Let user choose.
+- **Quiz answer distribution:** Spread correct answers evenly across A/B/C/D. Keep option lengths similar. Don't cluster correct answers at one position.
+- **For benchmark papers**, the key analytical insight (three-skill decomposition, delta decomposition, etc.) is the most valuable thing to explain clearly.
+- **Sequential papers from the same team** (MMMU → MMMU-Pro) benefit from explicit cross-referencing — the second paper's motivation directly maps to the first paper's Phase 4 weaknesses.
