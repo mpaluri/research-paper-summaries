@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MMMU — A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert AGI</title>
+<meta name="description" content="Three-level explainer: MMMU benchmark for evaluating multimodal models on college-level expert reasoning">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0;--purple:#8250df;--purple-bg:#fbefff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129;--purple:#bc8cff;--purple-bg:#2a1a3a}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem}
+.back{display:inline-block;font-size:.875rem;color:var(--accent);text-decoration:none;margin-bottom:1.5rem}
+.back:hover{text-decoration:underline}
+h1{font-size:1.6rem;font-weight:700;line-height:1.3;margin-bottom:.75rem}
+.paper-info{font-size:.875rem;color:var(--text2);margin-bottom:.5rem}
+.paper-info a{color:var(--accent);text-decoration:none}
+.paper-info a:hover{text-decoration:underline}
+.tldr{font-size:.9rem;color:var(--text2);padding:1rem 1.25rem;background:var(--bg2);border-radius:8px;margin-bottom:2rem;border-left:3px solid var(--accent)}
+.level{margin-bottom:2.5rem;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.level-header{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;cursor:pointer;background:var(--bg2);user-select:none;border-bottom:1px solid var(--border)}
+.level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.l1 .level-dot{background:#2da44e}.l2 .level-dot{background:#bf8700}.l3 .level-dot{background:#cf222e}.l4 .level-dot{background:var(--purple)}
+.level-header h2{font-size:1rem;font-weight:600;margin:0;flex:1}
+.chevron{font-size:.8rem;color:var(--text3);transition:transform .2s}
+.level.open .chevron{transform:rotate(180deg)}
+.level-body{display:none;padding:1.5rem 1.25rem}
+.level.open .level-body{display:block}
+h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}
+.level-body > h3:first-child{margin-top:0}
+p{margin-bottom:.75rem}
+ul,ol{margin:0 0 .75rem 1.25rem}
+li{margin-bottom:.25rem}
+strong{font-weight:600}
+em{font-style:italic}
+code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--code-bg);padding:1px 5px;border-radius:3px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;margin:.75rem 0;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.5}
+table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.875rem}
+th{text-align:left;font-weight:600;padding:.5rem .75rem;border-bottom:2px solid var(--border);font-size:.8rem}
+td{padding:.5rem .75rem;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0}
+.card-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}
+.card-label.green{color:var(--green)}.card-label.amber{color:#bf8700}.card-label.red{color:var(--red)}.card-label.blue{color:var(--accent)}.card-label.purple{color:var(--purple)}
+.card p:last-child{margin-bottom:0}
+.takeaway{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0}
+.takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.35rem}
+.takeaway p:last-child{margin-bottom:0}
+.result-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:.75rem 0}
+.result-box{text-align:center;padding:1rem;border-radius:8px}
+.result-box.green-bg{background:var(--green-bg);border:1px solid var(--green)}
+.result-box.amber-bg{background:#fff8c5;border:1px solid #bf8700}
+.result-box.red-bg{background:var(--red-bg);border:1px solid var(--red)}
+@media(prefers-color-scheme:dark){.result-box.amber-bg{background:#2a2000;border-color:#bf8700}}
+.result-number{font-size:1.75rem;font-weight:700;line-height:1}
+.result-box.green-bg .result-number{color:var(--green)}
+.result-box.amber-bg .result-number{color:#bf8700}
+.result-box.red-bg .result-number{color:var(--red)}
+.result-label{font-size:.75rem;color:var(--text2);margin-top:.25rem}
+.tag-explore{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--purple-bg);color:var(--purple);margin:.25rem 0}
+.tag-addressed{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--green-bg);color:var(--green);margin:.25rem 0}
+.tag-partial{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:#fff8c5;color:#bf8700;margin:.25rem 0}
+@media(prefers-color-scheme:dark){.tag-partial{background:#2a2000}}
+.quiz{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1.5rem}
+.quiz-title{font-weight:600;font-size:.9rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.q{margin-bottom:1.25rem}.q:last-of-type{margin-bottom:.5rem}
+.q-text{font-weight:500;font-size:.9rem;margin-bottom:.5rem}
+.q-options{list-style:none;padding:0;margin:0}
+.q-btn{display:block;width:100%;text-align:left;padding:.5rem .85rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);transition:border-color .12s,background .12s}
+.q-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg)}
+.q-btn:disabled{cursor:default}.q-btn:disabled:hover{border-color:inherit;background:inherit}
+.q-btn.correct{border-color:var(--green)!important;background:var(--green-bg)!important}
+.q-btn.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;opacity:.7}
+.q-btn.reveal{border-color:var(--green)!important;background:var(--green-bg)!important}
+.q-explain{display:none;font-size:.8rem;color:var(--text2);margin:.4rem 0 0;padding:.5rem .85rem;border-left:2px solid var(--border)}
+.q-explain.show{display:block}
+.score{display:none;padding:.85rem 1rem;border-radius:6px;font-weight:600;font-size:.9rem;margin-top:.75rem}
+.score.show{display:block}
+.score.pass{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}
+.score.fail{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}
+.reset-btn{display:none;margin-top:.5rem;padding:.4rem 1rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.8rem;font-family:inherit;color:var(--text)}
+.reset-btn.show{display:inline-block}
+.reset-btn:hover{border-color:var(--accent);background:var(--accent-bg)}
+@media(max-width:600px){.result-row{grid-template-columns:1fr}.container{padding:1.5rem 1rem 4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<a class="back" href="../index.html">&larr; Back to all papers</a>
+
+<h1>MMMU: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert AGI</h1>
+<p class="paper-info">Yue, Ni, Zhang, Zheng, Liu, Zhang, Stevens, Jiang, Ren, Sun, Wei, Yu, Yuan, Sun, Yin, Zheng, Yang, Liu, Huang, Sun, Su, Chen &mdash; November 2023 (CVPR 2024 Oral)</p>
+<p class="paper-info"><a href="https://arxiv.org/abs/2311.16502">&#128196; arXiv:2311.16502</a> &nbsp;&middot;&nbsp; <a href="https://arxiv.org/pdf/2311.16502">&#128229; PDF</a> &nbsp;&middot;&nbsp; <a href="https://github.com/MMMU-Benchmark/MMMU">&#128187; GitHub</a> &nbsp;&middot;&nbsp; <a href="https://mmmu-benchmark.github.io/">&#127760; Leaderboard</a></p>
+<div class="tldr"><strong>TL;DR:</strong> The first comprehensive multimodal benchmark testing college-level expert reasoning &mdash; 11,500 questions across 30 subjects with 30 heterogeneous image types. GPT-4V scored only 56% vs. human experts at 76&ndash;89%, revealing massive gaps in perception, knowledge, and reasoning.</div>
+
+<!-- ============ LEVEL 1 ============ -->
+<div class="level l1 open" id="level1">
+<div class="level-header" onclick="toggle('level1')">
+  <div class="level-dot"></div>
+  <h2>Level 1 &mdash; Beginner</h2>
+  <span class="chevron">&#9660;</span>
+</div>
+<div class="level-body">
+
+<h3>What is this paper about?</h3>
+<p>AI models like GPT-4V and Gemini can look at images and answer questions. But before MMMU, the "tests" we gave them were like kindergarten quizzes &mdash; "What animal is in this photo?" or "What color is the car?" MMMU asks: <strong>what if we gave these models actual college finals instead?</strong></p>
+
+<h3>The college final exam analogy</h3>
+<div class="card">
+<div class="card-label blue">Core idea</div>
+<p>Think of MMMU as building a proper college final exam for AI. Previous benchmarks were like giving a college student only arithmetic quizzes &mdash; too easy, too narrow. MMMU is the first test comprehensive enough to measure how far AI is from expert-level performance across many fields.</p>
+</div>
+
+<h3>What makes MMMU different? Four things.</h3>
+<p><strong>1. Breadth.</strong> 30 subjects across 6 disciplines: Art &amp; Design, Business, Science, Health &amp; Medicine, Humanities &amp; Social Science, and Tech &amp; Engineering.</p>
+<p><strong>2. Depth.</strong> Questions require college-level reasoning &mdash; applying Fourier transforms, diagnosing from medical imaging, analyzing circuit behavior. Prior benchmarks tested common sense.</p>
+<p><strong>3. Heterogeneous images.</strong> 30 image types: circuit diagrams, MRI scans, sheet music, chemical structures, geometric proofs, paintings, charts, comics, and more. Not just photographs.</p>
+<p><strong>4. Interleaved text and images.</strong> Questions weave text and images together ("Given &lt;image 1&gt; and &lt;image 2&gt;, calculate..."). The model must jointly understand both.</p>
+
+<h3>Key results</h3>
+<div class="result-row">
+<div class="result-box amber-bg"><div class="result-number">56%</div><div class="result-label">GPT-4V<br>(best at publication)</div></div>
+<div class="result-box red-bg"><div class="result-number">34%</div><div class="result-label">Best open-source<br>(BLIP-2, LLaVA-1.5)</div></div>
+<div class="result-box green-bg"><div class="result-number">89%</div><div class="result-label">Best human expert<br>(college seniors)</div></div>
+</div>
+
+<h3>Why do models struggle?</h3>
+<p>The authors analyzed 150 GPT-4V errors and found three root causes: <strong>35% perceptual</strong> (misread the image), <strong>29% knowledge gaps</strong> (didn't know the domain concept), and <strong>26% reasoning errors</strong> (understood inputs but botched the logic). The problem isn't just "see better" &mdash; it's a combination of seeing, knowing, and thinking.</p>
+
+<h3>What about converting images to text?</h3>
+<p>Adding OCR or image captions to text-only models didn't help. A text description of a circuit diagram can't capture the precise topology, component values, and connections. MMMU demands genuine multimodal understanding &mdash; not text proxies for vision.</p>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div>
+<p>If we want AI that can assist doctors reading MRI scans, engineers analyzing circuits, or art historians interpreting paintings, we need to measure how far away we are. MMMU is that measuring stick &mdash; and at launch, it showed the field was very far from expert-level multimodal AI.</p></div>
+
+<!-- Quiz L1 -->
+<div class="quiz" id="quiz-l1">
+<div class="quiz-title">Quiz &mdash; Level 1</div>
+<div class="q"><div class="q-text">1. What is MMMU's primary contribution compared to prior multimodal benchmarks?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">It uses a larger language model for evaluation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,true)">It tests college-level, expert-domain multimodal understanding across 30 subjects with heterogeneous image types</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">It focuses exclusively on medical imaging questions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">It replaces text-based questions entirely with image-only inputs</button></li>
+</ul><div class="q-explain" id="ex-l1-0">MMMU is a benchmark (a test), not a model. Its contribution is testing expert-level questions across 30 subjects with 30 heterogeneous image types &mdash; far beyond prior benchmarks that focused on everyday knowledge.</div></div>
+
+<div class="q"><div class="q-text">2. What was the single largest category of GPT-4V errors?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">Reasoning errors (26%)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">Knowledge gaps (29%)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,true)">Perceptual errors &mdash; misreading the visual input (35%)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">Textual understanding errors (6%)</button></li>
+</ul><div class="q-explain" id="ex-l1-1">35% of errors were perceptual &mdash; the model literally misread the image. This tells us that even the best models at publication had fundamental vision problems, not just reasoning or knowledge gaps.</div></div>
+
+<div class="q"><div class="q-text">3. Why didn't OCR or image captions help text-only LLMs on MMMU?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">The OCR tools had too many recognition errors</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,true)">MMMU requires spatial, structural, and relational understanding that text descriptions fundamentally can't capture</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">The LLMs couldn't process the additional text due to context limits</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">Captions were only generated for photographs, not diagrams</button></li>
+</ul><div class="q-explain" id="ex-l1-2">A caption like "a circuit with resistors" loses the exact topology, values, and connections needed to solve the problem. The information is inherently visual.</div></div>
+
+<div class="q"><div class="q-text">4. Which disciplines did models perform best on, and why?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">Science and Tech &amp; Engineering &mdash; more technical training data</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,true)">Art &amp; Design and Humanities &mdash; more natural images and less complex reasoning</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">Health &amp; Medicine &mdash; medical AI has advanced the furthest</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">Business &mdash; financial charts are common in training data</button></li>
+</ul><div class="q-explain" id="ex-l1-3">Art &amp; Design and Humanities use familiar image types (photos, paintings) and involve less mathematical reasoning. GPT-4V scored 65% on Art &amp; Design and 76% on Humanities vs. 42% on Tech &amp; Engineering.</div></div>
+
+<div class="q"><div class="q-text">5. Why do the authors say MMMU is "necessary but not sufficient" for Expert AGI?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">MMMU is too easy &mdash; models already score above 90%</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">It only tests text understanding, not visual understanding</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,true)">College exams are just one task type &mdash; Expert AGI must perform at the 90th percentile across a much broader range of real-world tasks</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">The benchmark has too few questions to be meaningful</button></li>
+</ul><div class="q-explain" id="ex-l1-4">Expert AGI means performing at the 90th percentile of skilled adults across broad tasks. College exams test knowledge and reasoning, but real-world expertise also involves tool use, collaboration, and open-ended problem solving.</div></div>
+
+<div class="score" id="score-l1"></div>
+<button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button>
+</div>
+</div></div>
+
+<!-- ============ LEVEL 2 ============ -->
+<div class="level l2" id="level2">
+<div class="level-header" onclick="toggle('level2')">
+  <div class="level-dot"></div>
+  <h2>Level 2 &mdash; Intermediate</h2>
+  <span class="chevron">&#9660;</span>
+</div>
+<div class="level-body">
+
+<h3>How MMMU is constructed</h3>
+<p>The pipeline has three stages: <strong>collection &rarr; quality control &rarr; difficulty filtering</strong>.</p>
+<p><strong>Collection:</strong> 50+ college students (including co-authors) from different majors pulled questions from textbooks, online course materials, and exams. Annotators followed copyright rules and preferred questions with non-co-located answers to reduce contamination risk.</p>
+<p><strong>Quality control:</strong> Three passes &mdash; (1) lexical overlap + URL similarity for deduplication, (2) format/typo checking by different co-authors, (3) difficulty classification into four tiers.</p>
+<p><strong>Difficulty filtering:</strong> Bottom ~10% ("very easy") removed. Final distribution: 28% easy, 45% medium, 27% hard.</p>
+
+<h3>Dataset at a glance</h3>
+<table><thead><tr><th>Split</th><th>Count</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>Development</td><td>150</td><td>Few-shot examples (5 per subject)</td></tr>
+<tr><td>Validation</td><td>900</td><td>Hyperparameter tuning, quick eval</td></tr>
+<tr><td>Test</td><td>10,500</td><td>Held-out evaluation (answers released Feb 2026)</td></tr>
+</tbody></table>
+<p>94% multiple-choice, 6% open-ended. 97.5% include at least one image. 7.4% have multiple images. Images appear at beginning (18%), middle (37%), or end (50%) of questions.</p>
+
+<h3>The 30 image types problem</h3>
+<p>Prior benchmarks mostly had photographs. MMMU includes diagrams, tables, charts, chemical structures, paintings, geometric shapes, music sheets, medical scans, microscopic images, comics, and more. GPT-4V did well on photos and paintings but collapsed on geometric shapes, music sheets, and chemical structures &mdash; sometimes near random chance (25%). Models haven't generalized visual perception beyond common training distributions.</p>
+
+<h3>Evaluation methodology</h3>
+<p><strong>Zero-shot only</strong> in main results &mdash; no fine-tuning on MMMU. Tests genuine capability, not benchmark-specific adaptation.</p>
+<p><strong>Rule-based answer extraction</strong> using regex, not an LLM judge. Deterministic and reproducible &mdash; no judge variability.</p>
+<p><strong>Micro-averaged accuracy:</strong> each question counts equally regardless of subject. Subjects with more questions (Tech &amp; Engineering: 2,784) dominate over smaller ones (Humanities: 947).</p>
+
+<h3>The human expert baseline</h3>
+<p>90 college seniors &mdash; 3 per subject &mdash; took their subject's 30 validation questions with textbooks but no internet. Worst: 76.2%, median: 82.6%, best: 88.6%.</p>
+
+<h3>The difficulty cliff</h3>
+<p>GPT-4V scored 76% on easy questions but only 31% on hard ones &mdash; nearly random. Open-source models dropped from ~41% to ~27%. Hard questions require multi-step expert reasoning that hits a shared capability ceiling across all models.</p>
+
+<h3>The three-skill decomposition</h3>
+<div class="card"><div class="card-label purple">Key insight</div>
+<p>MMMU tests three skills simultaneously: <strong>perception</strong> (can you see what's in the image?), <strong>knowledge</strong> (do you know the domain concepts?), and <strong>reasoning</strong> (can you chain the logic?). The error analysis shows these fail somewhat independently: 35% perceptual, 29% knowledge, 26% reasoning. A model could reason perfectly but still fail because it misread a diagram.</p></div>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div>
+<p>MMMU's construction &mdash; domain-expert annotators, heterogeneous image types, interleaved inputs, and three-skill decomposition &mdash; makes it diagnostic, not just a pass/fail score. It tells you where to invest improvement effort.</p></div>
+
+<!-- Quiz L2 -->
+<div class="quiz" id="quiz-l2">
+<div class="quiz-title">Quiz &mdash; Level 2</div>
+<div class="q"><div class="q-text">1. Why did the authors use rule-based regex extraction instead of an LLM judge?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">LLM judges didn't exist at publication</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,true)">Rule-based extraction is deterministic and reproducible &mdash; no variability from a judge model's interpretation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">Regex is faster, and speed was the primary concern</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">The benchmark only contains numerical answers</button></li>
+</ul><div class="q-explain" id="ex-l2-0">Rule-based extraction gives the same result every time. Different labs evaluating on MMMU get identical scores for the same model outputs &mdash; no judge disagreements.</div></div>
+
+<div class="q"><div class="q-text">2. What does the performance gap across image types reveal?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Chemical structure questions are poorly written</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,true)">Models haven't generalized visual perception beyond common training distributions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Models have strong vision but lack domain knowledge</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Vision encoders can only process photographs</button></li>
+</ul><div class="q-explain" id="ex-l2-1">Models trained on billions of natural images do well on photos but collapse on chemical structures, music notation, and geometric diagrams &mdash; formats with completely different spatial grammars.</div></div>
+
+<div class="q"><div class="q-text">3. What contamination mitigation did annotators use during collection?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">Only used paywalled textbooks</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,true)">Preferred questions without immediately available answers &mdash; e.g., answers in separate documents</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">Generated all questions synthetically with GPT-4</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">Encrypted all questions before publishing</button></li>
+</ul><div class="q-explain" id="ex-l2-2">By choosing questions whose answers live in separate documents or at the back of textbooks, they reduced the chance that training data would contain both Q and A together.</div></div>
+
+<div class="q"><div class="q-text">4. Why does GPT-4V's advantage disappear on hard questions?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">Hard questions are mostly text-only</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,true)">Hard questions require multi-step expert reasoning that exceeds the capability ceiling of all current models</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">Hard questions have annotation errors</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">Open-source models were fine-tuned on hard questions</button></li>
+</ul><div class="q-explain" id="ex-l2-3">GPT-4V scored 76% on easy but 31% on hard &mdash; near random. All models hit the same ceiling because hard questions demand reasoning chains that break down regardless of model scale.</div></div>
+
+<div class="q"><div class="q-text">5. Why is the three-skill decomposition diagnostically valuable?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">It predicts which questions a model will get wrong</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">It proves perception is always the hardest skill</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,true)">It identifies which failure mode to prioritize &mdash; different bottlenecks need different fixes</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">It replaces per-subject accuracy breakdowns</button></li>
+</ul><div class="q-explain" id="ex-l2-4">35% perceptual = invest in vision encoders. 29% knowledge = add domain training data. 26% reasoning = improve chain-of-thought. Each failure mode has a different fix.</div></div>
+
+<div class="score" id="score-l2"></div>
+<button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button>
+</div>
+</div></div>
+
+<!-- ============ LEVEL 3 ============ -->
+<div class="level l3" id="level3">
+<div class="level-header" onclick="toggle('level3')">
+  <div class="level-dot"></div>
+  <h2>Level 3 &mdash; Expert</h2>
+  <span class="chevron">&#9660;</span>
+</div>
+<div class="level-body">
+
+<h3>Benchmark design philosophy</h3>
+<p>MMMU is framed around Morris et al.'s (2023) AGI taxonomy, targeting Level 3 ("Expert AGI") &mdash; an AI performing at the 90th percentile of skilled adults. The benchmark operationalizes this via college-level exams. The authors frame MMMU as a <em>necessary</em> condition (an Expert AGI should ace these) not a <em>sufficient</em> one (acing them doesn't make you Expert AGI).</p>
+
+<h3>Data curation methodology</h3>
+<p>The 50+ annotators were <em>domain experts</em> in their subjects (college students in those majors), not crowd workers. Questions reflect authentic expert assessment patterns.</p>
+<div class="card"><div class="card-label amber">Quality control details</div>
+<p><strong>Stage 1 &mdash; Deduplication:</strong> Lexical overlap + source URL similarity, then human review. Catches near-identical questions but misses semantically equivalent ones with different phrasing.</p>
+<p><strong>Stage 2 &mdash; Format standardization:</strong> Cross-checker was not the original annotator (weak independent review).</p>
+<p><strong>Stage 3 &mdash; Difficulty filtering:</strong> Labels assigned by authors, not calibrated against human solve rates. Human expert evaluation covers only 900 validation questions.</p></div>
+
+<h3>Evaluation design decisions</h3>
+<p><strong>Zero-shot only in main results.</strong> Disadvantages models with strong few-shot learning (Flamingo variants); advantages models with strong RLHF instruction-following.</p>
+<p><strong>Micro-averaged accuracy</strong> means larger subjects dominate: Tech &amp; Engineering (2,784 questions) has ~3&times; the weight of Humanities (947). Macro-averaging would weight all subjects equally.</p>
+<p><strong>MCQ dominance (94%)</strong> creates a 25% random floor and enables elimination strategies. Open-ended questions (6%) use brittle key-phrase matching.</p>
+
+<h3>Architectural implications</h3>
+<p>Models with stronger vision encoders (GPT-4V, InternVL-Chat-V1.2) dramatically outperform weaker ones (Kosmos2, Fuyu-8B). But the language backbone matters equally &mdash; LLaVA-1.5-13B (CLIP ViT-L + Vicuna-13B) gets 34%; InternVL-Chat-V1.2 (InternViT-6B + stronger LLM) gets 46%.</p>
+
+<h3>The interleaved input challenge</h3>
+<p>Images at varying positions (beginning 18%, middle 37%, end 50%) with multi-image questions (7.4%) test cross-modal reference tracking. Architecturally demanding: Q-Former models (BLIP-2) compress images separately, potentially losing cross-image relationships. Direct projection models (LLaVA) embed images inline but at higher compute cost.</p>
+
+<h3>Critical evaluation</h3>
+<div class="card"><div class="card-label green">Strengths</div>
+<p>Genuine expert-level difficulty with authentic source materials. Heterogeneous image types expose real generalization failures. Actionable error decomposition. Deterministic evaluation. Meaningful human expert baseline.</p></div>
+
+<div class="card"><div class="card-label red">Weaknesses</div>
+<p><strong>No contamination analysis.</strong> Questions on public HuggingFace/arXiv; test answers released Feb 2026.</p>
+<p><strong>Uncalibrated difficulty labels.</strong> Author judgments, not validated against human solve rates on the test set.</p>
+<p><strong>Subject imbalance.</strong> Tech &amp; Eng dominates under micro-averaging.</p>
+<p><strong>Static benchmark.</strong> Fixed questions with no refresh mechanism. Contamination risk grows over time.</p>
+<p><strong>MCQ ceiling.</strong> 25% floor allows elimination. Less discriminating as models approach human performance.</p>
+<p><strong>English-only.</strong> All QA pairs in English despite global applicability.</p>
+<p><strong>Single-turn, no tool use.</strong> Real experts use calculators, references, and iterative problem-solving.</p></div>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div>
+<p>MMMU established the template for expert-level multimodal evaluation. Its design decisions &mdash; domain-expert curation, heterogeneous images, interleaved inputs, three-skill decomposition &mdash; shaped how the field measures progress. The limitations are real but well-understood, and successors build on rather than replace it.</p></div>
+
+<!-- Quiz L3 -->
+<div class="quiz" id="quiz-l3">
+<div class="quiz-title">Quiz &mdash; Level 3</div>
+<div class="q"><div class="q-text">1. Why does micro-averaged accuracy potentially misrepresent balanced performance?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',0,true)">Subjects with more questions dominate &mdash; Tech &amp; Eng (2,784) counts ~3&times; more than Humanities (947)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">It averages per-subject scores first, giving equal weight to each</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">It only counts MCQ questions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">It penalizes models that abstain</button></li>
+</ul><div class="q-explain" id="ex-l3-0">Under micro-averaging, each question counts equally. A model could bomb Humanities but ace Tech &amp; Engineering and still look decent because the larger subject contributes ~3&times; more to the overall score.</div></div>
+
+<div class="q"><div class="q-text">2. Why does interleaved image placement create an architectural challenge?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">It forces higher-resolution image processing</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,true)">Models must track cross-modal references between text mentions and specific images at varying positions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">It requires models to generate images</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">It prevents attention mechanisms from working</button></li>
+</ul><div class="q-explain" id="ex-l3-1">Q-Former architectures compress images separately and merge later, potentially losing cross-image relationships. Direct projection models preserve positional relationships but at higher compute cost.</div></div>
+
+<div class="q"><div class="q-text">3. What is the key limitation of MMMU's difficulty labels?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">Assigned automatically by GPT-4</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">Calibrated against human solve rates on the full test set</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,true)">Uncalibrated author judgments &mdash; human expert evaluation only covers 900 validation questions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">Only applied to open-ended questions</button></li>
+</ul><div class="q-explain" id="ex-l3-2">"Hard" according to authors may not align with "hard" as measured by actual human solve rates. The 10,500 test set labels remain uncalibrated.</div></div>
+
+<div class="q"><div class="q-text">4. Why does the static, fixed nature of MMMU become a growing concern?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">The questions get easier as models improve</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,true)">Fixed questions on public repos risk indirect contamination as models train on web data containing them</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">Image formats become outdated</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">The human baseline needs annual re-evaluation</button></li>
+</ul><div class="q-explain" id="ex-l3-3">With 11,500 questions on HuggingFace, GitHub, and arXiv &mdash; and test answers released in Feb 2026 &mdash; the probability of training data contamination increases continuously with no refresh mechanism.</div></div>
+
+<div class="q"><div class="q-text">5. What does the OCR/caption experiment prove about MMMU's design?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">OCR tools are too unreliable for academic content</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,true)">MMMU genuinely requires joint multimodal understanding &mdash; text proxies for visual information are fundamentally insufficient</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">Captions are only useful for natural photographs</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">Context length limits prevent using OCR output</button></li>
+</ul><div class="q-explain" id="ex-l3-4">Adding OCR/captions to GPT-4 (text) improved it from 33.8% to only 34.9%. This validates MMMU's core design claim: these questions demand genuine vision-language integration, not text extraction.</div></div>
+
+<div class="score" id="score-l3"></div>
+<button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button>
+</div>
+</div></div>
+
+<!-- ============ PHASE 4 ============ -->
+<div class="level l4" id="level4">
+<div class="level-header" onclick="toggle('level4')">
+  <div class="level-dot"></div>
+  <h2>Phase 4 &mdash; Frontier</h2>
+  <span class="chevron">&#9660;</span>
+</div>
+<div class="level-body">
+
+<p>Six improvement vectors for MMMU, mapped against recent work (as of April 2026).</p>
+
+<h3>1. Shortcut exploitation and MCQ ceiling</h3>
+<span class="tag-addressed">Addressed</span>
+<p>MMMU's 4-option MCQ format (94%) sets a 25% floor and allows elimination. Models can exploit text-option correlations without visual understanding.</p>
+<div class="card"><div class="card-label blue">Recent work</div>
+<p><strong>MMMU-Pro (Sep 2024, ACL 2025)</strong> &mdash; Same team. Three-step hardening: filter text-answerable questions, expand to 10 options (floor drops to 10%), add vision-only setting where questions are embedded within images. Performance dropped 17&ndash;27% across all models. The single most important successor.</p></div>
+
+<h3>2. Contamination resistance</h3>
+<span class="tag-explore">Area to explore</span>
+<p>11,500 fixed questions on public HuggingFace, GitHub, and arXiv. Test answers released Feb 2026. Models like GPT-5 and Gemini explicitly cite MMMU as a primary benchmark. No contamination analysis, no dynamic refresh, no held-out rotation. This is the widest unresolved gap in the MMMU family.</p>
+
+<h3>3. Saturation on original MMMU</h3>
+<span class="tag-partial">Partially addressed</span>
+<p>Top models (o4 Mini High, GPT-5) now score ~79% &mdash; within the human expert range (76&ndash;89%). Models have surpassed the worst human experts. Progress appears asymptotic.</p>
+<div class="card"><div class="card-label blue">Recent work</div>
+<p>MMMU-Pro restores headroom: top scores ~81% (GPT-5.4, Gemini 3 Pro) with room to the ceiling. But the original MMMU is nearing its useful life as a discriminating benchmark for frontier models.</p></div>
+
+<h3>4. Video and temporal extension</h3>
+<span class="tag-addressed">Addressed</span>
+<p>MMMU tests static images only. Real expert work often involves video.</p>
+<div class="card"><div class="card-label blue">Recent work</div>
+<p><strong>Video-MMMU (Jan 2025)</strong> &mdash; Same 6 disciplines, 30 subjects, but with 300 educational videos and 900 questions. Introduces &Delta;knowledge metric measuring learning gain from watching videos. Best model (GPT-4o) achieved only 15.6% knowledge gain vs. 33.1% for humans.</p>
+<p><strong>Uni-MMMU (Oct 2025)</strong> &mdash; Unifies understanding and generation evaluation across the same domains with bidirectional tasks.</p></div>
+
+<h3>5. Open-ended and generation evaluation</h3>
+<span class="tag-partial">Partially addressed</span>
+<p>94% of MMMU is MCQ. Real expert work involves generating explanations, proofs, and diagrams.</p>
+<div class="card"><div class="card-label blue">Recent work</div>
+<p><strong>Uni-MMMU (Oct 2025)</strong> &mdash; Bidirectional tasks coupling generation and understanding. Models must generate visual outputs to demonstrate comprehension, and use generation as a reasoning scaffold. Strongest move toward open-ended evaluation in the MMMU family.</p></div>
+
+<h3>6. Multilingual coverage</h3>
+<span class="tag-explore">Area to explore</span>
+<p>All questions are English-only. Expert knowledge is practiced globally with varying notation conventions, diagram styles, and domain terminology. No multilingual version of MMMU or MMMU-Pro exists. Creating equivalent expert-level questions in other languages would require new domain-expert annotators per language &mdash; a significant effort no one has undertaken.</p>
+
+<h3>Scorecard</h3>
+<table>
+<thead><tr><th>Improvement vector</th><th>Status</th><th>Key work</th></tr></thead>
+<tbody>
+<tr><td>Shortcut exploitation / MCQ ceiling</td><td><span class="tag-addressed">Addressed</span></td><td>MMMU-Pro (4&rarr;10 options, vision-only)</td></tr>
+<tr><td>Contamination resistance</td><td><span class="tag-explore">Area to explore</span></td><td>No dynamic refresh; test answers public</td></tr>
+<tr><td>Saturation on original MMMU</td><td><span class="tag-partial">Partially addressed</span></td><td>MMMU-Pro restores headroom</td></tr>
+<tr><td>Video / temporal extension</td><td><span class="tag-addressed">Addressed</span></td><td>Video-MMMU, Uni-MMMU</td></tr>
+<tr><td>Open-ended / generation eval</td><td><span class="tag-partial">Partially addressed</span></td><td>Uni-MMMU (bidirectional)</td></tr>
+<tr><td>Multilingual coverage</td><td><span class="tag-explore">Area to explore</span></td><td>No multilingual version exists</td></tr>
+</tbody>
+</table>
+
+<div class="takeaway"><div class="takeaway-label">Bottom line</div>
+<p>MMMU catalyzed a family of successors. The original is nearing saturation, but MMMU-Pro has taken over as the active benchmark. The biggest unresolved gaps are contamination resistance and multilingual coverage. The frontier is moving fastest on video extension and unified understand+generate evaluation.</p></div>
+
+</div></div>
+
+<a class="back" href="../index.html" style="margin-top:2rem">&larr; Back to all papers</a>
+
+</div>
+
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('open')}
+var S={};
+function ans(btn,qid,qi,ok){
+  if(!S[qid])S[qid]={a:[],t:document.querySelectorAll('#quiz-'+qid+' .q').length};
+  var s=S[qid];if(s.a[qi]!=null)return;
+  s.a[qi]=ok;
+  btn.parentElement.querySelectorAll('.q-btn').forEach(function(b){
+    b.disabled=true;
+    if(b===btn)b.classList.add(ok?'correct':'incorrect');
+    if(!ok&&b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(',true)')>-1)b.classList.add('reveal');
+  });
+  var ex=document.getElementById('ex-'+qid+'-'+qi);
+  if(ex)ex.classList.add('show');
+  var done=s.a.filter(function(x){return x!=null}).length;
+  if(done===s.t){
+    var c=s.a.filter(function(x){return x===true}).length;
+    var el=document.getElementById('score-'+qid);
+    var pass=c>=4;
+    el.className='score show '+(pass?'pass':'fail');
+    el.textContent=c+'/'+s.t+(c===s.t?' \u2014 Perfect score!':pass?' \u2014 Great job! Level passed.':' \u2014 Review the material and try again.');
+    if(!pass)document.getElementById('reset-'+qid).classList.add('show');
+  }
+}
+function resetQuiz(qid){
+  S[qid]=null;
+  var container=document.getElementById('quiz-'+qid);
+  container.querySelectorAll('.q-btn').forEach(function(b){b.disabled=false;b.classList.remove('correct','incorrect','reveal')});
+  container.querySelectorAll('.q-explain').forEach(function(e){e.classList.remove('show')});
+  document.getElementById('score-'+qid).className='score';
+  document.getElementById('reset-'+qid).classList.remove('show');
+}
+</script>
+</body>
+</html>

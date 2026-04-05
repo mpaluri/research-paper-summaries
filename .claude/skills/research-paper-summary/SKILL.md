@@ -55,12 +55,23 @@ Quickly understand new research papers through a structured three-level learning
 ### Quizzes
 - 5 multiple choice questions per level
 - 4 options each, one correct
-- **Always deliver as inline visualizer widgets (show_widget)**
-- **One question at a time, tracking score across turns**
 - Show "why this answer" explanations on ALL questions — correct AND wrong
 - Questions should test understanding, not memorization
 - Passing threshold: 4/5
-- **Never use plain text, standalone HTML file artifacts, or ask_user_input for quizzes**
+
+**Quiz delivery — two modes (user preference):**
+1. **Inline visualizer widgets** — one question at a time, score tracked across turns
+2. **Plain text in chat** — all 5 questions listed, user answers by letter, Claude gives feedback
+
+**If using widgets, use the minimal pattern:**
+- Named button IDs (a/b/c/d), addEventListener loop in script block
+- No inline onclick attributes
+- No sendPrompt in quiz widgets — user types next prompt manually
+- Script at the very end, after all HTML, outside the content div
+- Add `var done=false;` guard to prevent double-clicks
+- This pattern prevents the widget from hanging after rendering
+
+**If widgets cause rendering issues, fall back to plain text immediately.** Don't fight the tooling — the learning matters more than the format.
 
 ### Phase 4 — Frontier
 - Brainstorm improvement vectors for the paper
@@ -93,6 +104,7 @@ Quickly understand new research papers through a structured three-level learning
       ├── claudini.html   ← Paper #1
       ├── adaptation-agentic-ai.html  ← Paper #2
       ├── video-mme.html  ← Paper #3
+      ├── mmmu.html        ← Paper #4
       └── <next>.html     ← Future papers
   ```
 
@@ -131,7 +143,6 @@ After generating artifacts, Claude must automatically:
 - Go straight to self-contained HTML (Jekyll markdown was attempted and broke)
 - Don't generate the output page before completing all three levels + Phase 4
 - The beginner analogies matter most — they anchor understanding for everything after
-- Quiz format: inline visualizer widgets only, one question at a time, score tracked across turns
 - Show quiz explanations on BOTH correct and wrong answers
 - Level 3 should use "Go deeper →" buttons so user can tap-to-explore any section
 - Use plain ASCII for math in chat; save Unicode/formatted math for the final HTML output
@@ -139,3 +150,6 @@ After generating artifacts, Claude must automatically:
 - Newest papers go first in index.html and README table
 - After Phase 4 output generation, auto-reflect and update skill file + memory
 - **Always read existing index.html and README.md before generating updates — don't regenerate from scratch, or you'll drop existing papers**
+- **Quiz widget rendering issues:** The minimal pattern (named IDs, addEventListener, no onclick, script after HTML, done-guard) works reliably. If widgets still hang, fall back to plain text quiz immediately — don't iterate on widget fixes mid-session, it wastes the user's time.
+- **Plain text quizzes work well for L3+:** When the questions are complex and answers are longer, plain text is often smoother than widgets. Let the user choose.
+- **For benchmark papers**, the three-skill decomposition (perception/knowledge/reasoning in MMMU, temporal/sampling/context in Video-MME) is the most valuable analytical insight — prioritize explaining it clearly.
