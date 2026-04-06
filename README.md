@@ -8,6 +8,7 @@ Three-level explainers (Beginner → Intermediate → Expert) for quickly unders
 
 | # | Paper | Topic | Published | Created |
 |:--|:------|:------|:----------|:--------|
+| 7 | [Chameleon](papers/chameleon.html) | Multimodal, early fusion, discrete tokens, VQ-VAE, ICLR 2025 | 05/16/24 | 04/05/26 |
 | 6 | [Transfusion](papers/transfusion.html) | Unified multimodal generation, diffusion, ICLR 2025 Oral | 08/20/24 | 04/05/26 |
 | 5 | [MMMU-Pro](papers/mmmu-pro.html) | Multimodal benchmarks, robustness, shortcuts | 09/04/24 | 04/05/26 |
 | 4 | [MMMU](papers/mmmu.html) | Multimodal benchmarks, expert reasoning | 11/27/23 | 04/05/26 |

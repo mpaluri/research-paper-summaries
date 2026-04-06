@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chameleon &mdash; Mixed-Modal Early-Fusion Foundation Models</title>
+<meta name="description" content="Four-level explainer: Chameleon early-fusion token-based mixed-modal model from Meta FAIR">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0;--purple:#8250df;--purple-bg:#fbefff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129;--purple:#bc8cff;--purple-bg:#2a1a3a}}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem}.back{display:inline-block;font-size:.875rem;color:var(--accent);text-decoration:none;margin-bottom:1.5rem}.back:hover{text-decoration:underline}h1{font-size:1.6rem;font-weight:700;line-height:1.3;margin-bottom:.75rem}.paper-info{font-size:.875rem;color:var(--text2);margin-bottom:.5rem}.paper-info a{color:var(--accent);text-decoration:none}.paper-info a:hover{text-decoration:underline}.tldr{font-size:.9rem;color:var(--text2);padding:1rem 1.25rem;background:var(--bg2);border-radius:8px;margin-bottom:2rem;border-left:3px solid var(--accent)}.level{margin-bottom:2.5rem;border:1px solid var(--border);border-radius:10px;overflow:hidden}.level-header{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;cursor:pointer;background:var(--bg2);user-select:none;border-bottom:1px solid var(--border)}.level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.l1 .level-dot{background:#2da44e}.l2 .level-dot{background:#bf8700}.l3 .level-dot{background:#cf222e}.l4 .level-dot{background:var(--purple)}.level-header h2{font-size:1rem;font-weight:600;margin:0;flex:1}.chevron{font-size:.8rem;color:var(--text3);transition:transform .2s}.level.open .chevron{transform:rotate(180deg)}.level-body{display:none;padding:1.5rem 1.25rem}.level.open .level-body{display:block}h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}.level-body>h3:first-child{margin-top:0}p{margin-bottom:.75rem}ul,ol{margin:0 0 .75rem 1.25rem}li{margin-bottom:.25rem}strong{font-weight:600}em{font-style:italic}code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--code-bg);padding:1px 5px;border-radius:3px}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;margin:.75rem 0;font-size:.8rem;line-height:1.5}pre code{background:none;padding:0}table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.875rem}th{text-align:left;font-weight:600;padding:.5rem .75rem;border-bottom:2px solid var(--border);font-size:.8rem}td{padding:.5rem .75rem;border-bottom:1px solid var(--border)}tr:last-child td{border-bottom:none}.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0}.card-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}.card-label.green{color:var(--green)}.card-label.amber{color:#bf8700}.card-label.red{color:var(--red)}.card-label.blue{color:var(--accent)}.card-label.purple{color:var(--purple)}.card p:last-child{margin-bottom:0}.takeaway{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0}.takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.35rem}.takeaway p:last-child{margin-bottom:0}.result-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:.75rem 0}.result-box{text-align:center;padding:1rem;border-radius:8px}.result-box.green-bg{background:var(--green-bg);border:1px solid var(--green)}.result-box.amber-bg{background:#fff8c5;border:1px solid #bf8700}.result-box.red-bg{background:var(--red-bg);border:1px solid var(--red)}@media(prefers-color-scheme:dark){.result-box.amber-bg{background:#2a2000;border-color:#bf8700}}.result-number{font-size:1.75rem;font-weight:700;line-height:1}.result-box.green-bg .result-number{color:var(--green)}.result-box.amber-bg .result-number{color:#bf8700}.result-box.red-bg .result-number{color:var(--red)}.result-label{font-size:.75rem;color:var(--text2);margin-top:.25rem}.tag-explore{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--purple-bg);color:var(--purple);margin:.25rem 0}.tag-addressed{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--green-bg);color:var(--green);margin:.25rem 0}.tag-partial{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:#fff8c5;color:#bf8700;margin:.25rem 0}@media(prefers-color-scheme:dark){.tag-partial{background:#2a2000}}.quiz{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1.5rem}.quiz-title{font-weight:600;font-size:.9rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}.q{margin-bottom:1.25rem}.q:last-of-type{margin-bottom:.5rem}.q-text{font-weight:500;font-size:.9rem;margin-bottom:.5rem}.q-options{list-style:none;padding:0;margin:0}.q-btn{display:block;width:100%;text-align:left;padding:.5rem .85rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);transition:border-color .12s,background .12s}.q-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg)}.q-btn:disabled{cursor:default}.q-btn:disabled:hover{border-color:inherit;background:inherit}.q-btn.correct{border-color:var(--green)!important;background:var(--green-bg)!important}.q-btn.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;opacity:.7}.q-btn.reveal{border-color:var(--green)!important;background:var(--green-bg)!important}.q-explain{display:none;font-size:.8rem;color:var(--text2);margin:.4rem 0 0;padding:.5rem .85rem;border-left:2px solid var(--border)}.q-explain.show{display:block}.score{display:none;padding:.85rem 1rem;border-radius:6px;font-weight:600;font-size:.9rem;margin-top:.75rem}.score.show{display:block}.score.pass{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}.score.fail{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}.reset-btn{display:none;margin-top:.5rem;padding:.4rem 1rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.8rem;font-family:inherit;color:var(--text)}.reset-btn.show{display:inline-block}.reset-btn:hover{border-color:var(--accent);background:var(--accent-bg)}@media(max-width:600px){.result-row{grid-template-columns:1fr}.container{padding:1.5rem 1rem 4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back" href="../index.html">&larr; Back to all papers</a>
+<h1>Chameleon: Mixed-Modal Early-Fusion Foundation Models</h1>
+<p class="paper-info">Chameleon Team (Meta FAIR) &mdash; May 2024 (ICLR 2025)</p>
+<p class="paper-info"><a href="https://arxiv.org/abs/2405.09818">&#128196; arXiv:2405.09818</a> &nbsp;&middot;&nbsp; <a href="https://arxiv.org/pdf/2405.09818">&#128229; PDF</a></p>
+<div class="tldr"><strong>TL;DR:</strong> Meta&rsquo;s early-fusion model that tokenizes <em>everything</em> &mdash; images, text, and code &mdash; into discrete tokens (~73,828 unified vocabulary), trains one autoregressive transformer with a single cross-entropy loss. 7B and 34B models trained on ~10 trillion tokens. Beats GPT-4V on mixed-modal tasks. Key engineering contribution: QK-Norm for training stability. The architecture that Transfusion argues against &mdash; elegant in its simplicity, but lossy in its image representation.</div>
+<!-- L1 -->
+<div class="level l1 open" id="level1"><div class="level-header" onclick="toggle('level1')"><div class="level-dot"></div><h2>Level 1 &mdash; Beginner</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+<h3>The big idea</h3>
+<p>Most AI models are <strong>specialists</strong>. GPT writes text. DALL-E makes images. They can&rsquo;t truly work together. What if you wanted an AI that could write a travel guide <em>with</em> photos, weaving them naturally?</p>
+<p><strong>Chameleon says: turn everything into tokens.</strong> Text is already tokens (words broken into pieces). Images? Chop them into 1,024 discrete tokens too via a VQ-VAE. Then one transformer processes the whole thing &mdash; text, images, code &mdash; as a single stream.</p>
+<h3>The universal language analogy</h3>
+<div class="card"><div class="card-label blue">Core idea</div><p>Imagine a United Nations where every delegate speaks a different language. The old approach: hire specialized translators. Chameleon&rsquo;s approach: teach <em>everyone</em> Esperanto. Every image is translated into the same &ldquo;language&rdquo; as text &mdash; discrete numbered tokens. One brain processes it all, no translators needed. The tradeoff? Some nuance is lost in translation.</p></div>
+<h3>How does it work? (3 steps)</h3>
+<ol>
+<li><strong>Tokenize everything.</strong> Text &rarr; BPE tokens (standard). Images &rarr; 1,024 discrete tokens per image via a VQ-VAE with a codebook of 8,192 entries. Combined vocabulary: ~73,828 tokens.</li>
+<li><strong>One transformer, one loss.</strong> Standard next-token prediction (cross-entropy) over the entire mixed sequence &mdash; text tokens and image tokens in one stream.</li>
+<li><strong>Train on everything.</strong> ~10 trillion tokens of interleaved text, images, and code. Two model sizes: 7B and 34B parameters.</li>
+</ol>
+<h3>How is this different from Transfusion?</h3>
+<div class="card"><div class="card-label amber">Key contrast</div><p>Transfusion keeps images as <strong>continuous patches</strong> and uses <strong>diffusion</strong> to generate them. Chameleon takes the <strong>opposite bet</strong>: convert images to <strong>discrete tokens</strong> (like text) and use <strong>next-token prediction</strong> for everything. Simpler architecture, one unified loss &mdash; but the image-to-token conversion is lossy, and you need 1,024 tokens per image instead of 256 patches.</p></div>
+<h3>Key results</h3>
+<div class="result-row">
+<div class="result-box green-bg"><div class="result-number">60.4%</div><div class="result-label">Human preference<br>vs Gemini-Pro</div></div>
+<div class="result-box green-bg"><div class="result-number">51.6%</div><div class="result-label">Human preference<br>vs GPT-4V</div></div>
+<div class="result-box amber-bg"><div class="result-number">34B</div><div class="result-label">Parameters<br>trained on ~10T tokens</div></div>
+</div>
+<h3>Two surprising findings</h3>
+<p><strong>Training mixed-modal models is unstable.</strong> Chameleon&rsquo;s biggest contribution might not be the architecture itself, but figuring out <em>how to train it without it blowing up</em>. They invented QK-Norm and reordered layer norms to prevent divergence. Without these tricks, training collapses ~20% in.</p>
+<p><strong>Interleaved generation actually works.</strong> One of the first models where you can prompt &ldquo;show me cool birds and tell me about them&rdquo; and get a coherent response weaving text and generated images naturally.</p>
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>Chameleon proves that the &ldquo;tokenize everything&rdquo; approach can produce a genuinely unified multimodal model that beats GPT-4V on mixed-modal tasks. The cost: image quality is capped by the VQ-VAE tokenizer, and generation requires 4&times; more tokens per image than Transfusion.</p></div>
+<div class="quiz" id="quiz-l1"><div class="quiz-title">Quiz &mdash; Level 1</div>
+<div class="q"><div class="q-text">1. What is Chameleon&rsquo;s core approach to handling multiple modalities?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l1',0,false)">Use separate specialized models for each modality and combine their outputs</button></li><li><button class="q-btn" onclick="ans(this,'l1',0,true)">Convert everything into discrete tokens and process them with a single transformer using next-token prediction</button></li><li><button class="q-btn" onclick="ans(this,'l1',0,false)">Use continuous representations with diffusion for images and autoregressive for text</button></li><li><button class="q-btn" onclick="ans(this,'l1',0,false)">Train on text first, then fine-tune on images</button></li></ul><div class="q-explain" id="ex-l1-0">Chameleon converts images into 1,024 discrete tokens via VQ-VAE, combines them with text tokens into a unified vocabulary, and trains one transformer with a single cross-entropy loss.</div></div>
+<div class="q"><div class="q-text">2. How many discrete tokens does Chameleon use to represent a single image?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l1',1,false)">16</button></li><li><button class="q-btn" onclick="ans(this,'l1',1,false)">256</button></li><li><button class="q-btn" onclick="ans(this,'l1',1,true)">1,024</button></li><li><button class="q-btn" onclick="ans(this,'l1',1,false)">8,192</button></li></ul><div class="q-explain" id="ex-l1-1">The VQ-VAE encodes a 512&times;512 image into a 32&times;32 grid = 1,024 discrete tokens from a codebook of 8,192 entries.</div></div>
+<div class="q"><div class="q-text">3. Compared to Transfusion, Chameleon&rsquo;s biggest architectural advantage is:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l1',2,false)">Better image quality</button></li><li><button class="q-btn" onclick="ans(this,'l1',2,false)">Lower compute cost per image</button></li><li><button class="q-btn" onclick="ans(this,'l1',2,true)">Simplicity &mdash; one unified loss function (cross-entropy) for all modalities, no diffusion needed</button></li><li><button class="q-btn" onclick="ans(this,'l1',2,false)">Smaller vocabulary size</button></li></ul><div class="q-explain" id="ex-l1-2">Chameleon uses the same cross-entropy next-token prediction for both text and images. No dual losses, no noise scheduling, no iterative denoising at inference.</div></div>
+<div class="q"><div class="q-text">4. What was one of the biggest engineering challenges the Chameleon team had to solve?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l1',3,false)">Images were too large to fit in GPU memory</button></li><li><button class="q-btn" onclick="ans(this,'l1',3,true)">Training instability &mdash; the model would diverge without tricks like QK-Norm</button></li><li><button class="q-btn" onclick="ans(this,'l1',3,false)">The VQ-VAE codebook couldn&rsquo;t encode text</button></li><li><button class="q-btn" onclick="ans(this,'l1',3,false)">The model could only generate images, not text</button></li></ul><div class="q-explain" id="ex-l1-3">Mixed-modal training causes Q/K norms to grow unboundedly, leading to softmax saturation and gradient collapse. QK-Norm and revised layer norm placement were essential fixes.</div></div>
+<div class="q"><div class="q-text">5. On mixed-modal tasks (generating interleaved text and images), Chameleon achieved:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l1',4,false)">Lower performance than all dedicated image models</button></li><li><button class="q-btn" onclick="ans(this,'l1',4,true)">60.4% human preference vs Gemini-Pro and 51.6% vs GPT-4V</button></li><li><button class="q-btn" onclick="ans(this,'l1',4,false)">Results only on text benchmarks, not image generation</button></li><li><button class="q-btn" onclick="ans(this,'l1',4,false)">Performance requiring 10&times; more compute than competing approaches</button></li></ul><div class="q-explain" id="ex-l1-4">Humans preferred Chameleon&rsquo;s mixed-modal outputs over GPT-4V and Gemini-Pro &mdash; the first time a unified model beat these dedicated systems on mixed-modal generation.</div></div>
+<div class="score" id="score-l1"></div><button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button></div>
+</div></div>
+<!-- L2 -->
+<div class="level l2" id="level2"><div class="level-header" onclick="toggle('level2')"><div class="level-dot"></div><h2>Level 2 &mdash; Intermediate</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+<h3>The training recipe &mdash; 10 trillion tokens</h3>
+<table><thead><tr><th>Data type</th><th>Description</th><th>Scale</th></tr></thead><tbody>
+<tr><td>Text</td><td>Web text, books, code (similar to LLaMA)</td><td>~4.5T text tokens</td></tr>
+<tr><td>Image-text pairs</td><td>Image + caption datasets</td><td>~1.4B pairs</td></tr>
+<tr><td>Interleaved documents</td><td>Web pages with images and text naturally mixed</td><td>~400B tokens</td></tr>
+</tbody></table>
+<p>Total: <strong>~10 trillion tokens</strong> &mdash; 5&times; more data than Transfusion&rsquo;s 2T. The interleaved data is crucial: this teaches the model to naturally weave text and images. Most prior work only trained on paired data (one image, one caption).</p>
+<h3>Two model sizes</h3>
+<table><thead><tr><th></th><th>Chameleon-7B</th><th>Chameleon-34B</th></tr></thead><tbody>
+<tr><td>Parameters</td><td>7B</td><td>34B</td></tr>
+<tr><td>Layers</td><td>32</td><td>48</td></tr>
+<tr><td>Hidden dim</td><td>4,096</td><td>8,192</td></tr>
+<tr><td>Attention heads</td><td>32</td><td>64</td></tr>
+<tr><td>Training tokens</td><td>~4.4T</td><td>~9.2T</td></tr>
+</tbody></table>
+<h3>The unified vocabulary</h3>
+<table><thead><tr><th>Component</th><th>Tokens</th><th>Notes</th></tr></thead><tbody>
+<tr><td>BPE text vocabulary</td><td>65,536</td><td>Standard text tokens</td></tr>
+<tr><td>Image codebook</td><td>8,192</td><td>Discrete image tokens from VQ-VAE</td></tr>
+<tr><td>Special tokens</td><td>~100</td><td><code>&lt;image_start&gt;</code>, <code>&lt;image_end&gt;</code>, etc.</td></tr>
+<tr><td><strong>Total vocabulary</strong></td><td><strong>~73,828</strong></td><td>One unified softmax</td></tr>
+</tbody></table>
+<p>Text and image tokens live in the <strong>same embedding space</strong>. The model doesn&rsquo;t know it&rsquo;s switching modalities &mdash; it just predicts the next token from a ~73K vocabulary.</p>
+<h3>VQ-VAE image tokenizer (Make-A-Scene heritage)</h3>
+<p>Chameleon uses a VQ-VAE derived from Meta&rsquo;s Make-A-Scene image tokenizer:</p>
+<pre><code>Encoding:
+  Input image (512&times;512&times;3)
+    &darr; Encoder CNN
+  Latent grid (32&times;32&times;256)
+    &darr; Quantize each position &rarr; nearest of 8,192 codebook entries
+  Token grid (32&times;32) = 1,024 discrete tokens
+    &darr; Flatten row-by-row
+  Token sequence [t_1, t_2, ..., t_1024]
+
+Decoding:
+  Token sequence &rarr; codebook lookup &rarr; latent grid &rarr; Decoder CNN &rarr; image</code></pre>
+<p>The VQ-VAE is <strong>frozen</strong> during Chameleon training. Its reconstruction quality caps the model&rsquo;s generation quality:</p>
+<table><thead><tr><th>Metric</th><th>Chameleon&rsquo;s VQ-VAE</th><th>Stable Diffusion&rsquo;s VAE</th></tr></thead><tbody>
+<tr><td>rFID (reconstruction)</td><td>~1.5&ndash;2.0</td><td>~0.5&ndash;1.0</td></tr>
+<tr><td>Resolution</td><td>512&times;512</td><td>512&times;512+</td></tr>
+<tr><td>Representation</td><td>1,024 discrete tokens</td><td>4,096 continuous floats</td></tr>
+</tbody></table>
+<h3>Training stability &mdash; the hardest problem</h3>
+<p>This is arguably Chameleon&rsquo;s <strong>most important contribution</strong>. Standard transformer training diverges ~20% into mixed-modal training.</p>
+<p><strong>Problem 1: Softmax attention explodes.</strong> When training on mixed modalities, the norms of Q and K vectors grow unboundedly. Image tokens and text tokens produce very different activation magnitudes. Once norms get large enough, softmax saturates (one weight &rarr; 1.0, all others &rarr; 0.0) and gradients vanish. Training collapses.</p>
+<div class="card"><div class="card-label green">Fix: QK-Norm</div><p>Normalize Q and K to unit vectors before computing attention, with a learnable temperature &tau; per head. This bounds attention logits to a fixed range regardless of input magnitudes. Without QK-Norm, training diverges at ~500B tokens. With it, stable through 10T+.</p></div>
+<p><strong>Problem 2: Layer norm placement.</strong> Standard Pre-Norm isn&rsquo;t enough. Chameleon uses a <strong>revised Pre-Norm</strong> with QK-Norm applied after the query/key projections. The combination of Pre-Norm + QK-Norm prevents gradient explosions.</p>
+<p><strong>Problem 3: Image-text loss ratio instabilities.</strong> During training, image loss and text loss oscillate in anti-correlation &mdash; when image loss drops, text loss spikes, and vice versa. The modalities compete for model capacity. Fix: careful data scheduling with changing ratios during training (more text early, more interleaved later).</p>
+<h3>Inference: generating mixed documents</h3>
+<p><strong>Text generation:</strong> Identical to any language model &mdash; autoregressive next-token prediction.</p>
+<p><strong>Image generation:</strong> When the model predicts <code>&lt;image_start&gt;</code>, it generates 1,024 image tokens autoregressively &mdash; each sampled from the 8,192-entry image vocabulary using the same softmax as text. <strong>No diffusion, no iterative denoising.</strong> Just next-token prediction, 1,024 times. Then the tokens are decoded through the VQ-VAE decoder into pixels.</p>
+<p><strong>Interleaved generation:</strong> The model decides <em>when</em> to insert images based on context, generates them inline, then continues text conditioned on everything before.</p>
+<table><thead><tr><th></th><th>Chameleon</th><th>Transfusion</th></tr></thead><tbody>
+<tr><td>Forward passes per image</td><td>1,024 (one per token, sequential)</td><td>250 &times; 1 (denoising steps, patches in parallel)</td></tr>
+<tr><td>Parallelizable?</td><td>No (autoregressive)</td><td>Yes (all patches denoised simultaneously per step)</td></tr>
+</tbody></table>
+<h3>Head-to-head: Chameleon vs Transfusion</h3>
+<table><thead><tr><th>Dimension</th><th>Chameleon</th><th>Transfusion</th><th>Winner</th></tr></thead><tbody>
+<tr><td>Architecture simplicity</td><td>One loss, one vocabulary</td><td>Two losses, two representations</td><td>&#127942; Chameleon</td></tr>
+<tr><td>Image quality (FID)</td><td>Higher (worse)</td><td>Lower (better) at same compute</td><td>&#127942; Transfusion</td></tr>
+<tr><td>Compute efficiency</td><td>1,024 tokens &times; quadratic attention</td><td>256 patches &times; cheaper attention</td><td>&#127942; Transfusion</td></tr>
+<tr><td>Text quality</td><td>Competitive with LLaMA-2</td><td>Competitive with LLaMA-1</td><td>&#127942; Chameleon</td></tr>
+<tr><td>Mixed-modal generation</td><td>&#10004; Native, demonstrated</td><td>&#10004; Possible, not benchmarked</td><td>&#127942; Chameleon</td></tr>
+<tr><td>Training stability</td><td>Hard &mdash; needed QK-Norm innovations</td><td>Easier &mdash; diffusion loss is smoother</td><td>&#127942; Transfusion</td></tr>
+<tr><td>Scalability</td><td>Proven at 34B</td><td>Only tested to 7B</td><td>&#127942; Chameleon</td></tr>
+<tr><td>Information preservation</td><td>&#10008; VQ-VAE quantization loss</td><td>&#10004; Continuous, no quantization</td><td>&#127942; Transfusion</td></tr>
+<tr><td>Inference flexibility</td><td>Fixed: 1,024 tokens always</td><td>Tunable: 16&ndash;256 patches, adjustable steps</td><td>&#127942; Transfusion</td></tr>
+</tbody></table>
+<h3>Benchmarks deep dive</h3>
+<p><strong>Text benchmarks (Chameleon-34B):</strong></p>
+<table><thead><tr><th>Benchmark</th><th>Chameleon-34B</th><th>Mixtral 8x7B</th><th>Gemini-Pro</th><th>LLaMA-2 70B</th></tr></thead><tbody>
+<tr><td>MMLU</td><td>62.0</td><td>70.6</td><td>71.8</td><td>69.8</td></tr>
+<tr><td>ARC-Challenge</td><td>78.1</td><td>81.4</td><td>&mdash;</td><td>78.3</td></tr>
+<tr><td>HellaSwag</td><td>83.9</td><td>86.5</td><td>&mdash;</td><td>85.3</td></tr>
+<tr><td>WinoGrande</td><td>77.0</td><td>81.2</td><td>&mdash;</td><td>80.2</td></tr>
+</tbody></table>
+<p>Competitive but doesn&rsquo;t beat text-only specialists. Small &ldquo;multimodal tax&rdquo; &mdash; image training doesn&rsquo;t destroy text capability, but doesn&rsquo;t help either.</p>
+<p><strong>Image captioning (where Chameleon shines):</strong></p>
+<table><thead><tr><th>Benchmark</th><th>Chameleon-34B</th><th>LLaVA-1.5</th></tr></thead><tbody>
+<tr><td>COCO CIDEr</td><td><strong>141.1</strong></td><td>137.2</td></tr>
+<tr><td>NoCaps CIDEr</td><td><strong>124.8</strong></td><td>117.5</td></tr>
+<tr><td>Flickr30K CIDEr</td><td><strong>106.3</strong></td><td>97.8</td></tr>
+</tbody></table>
+<p><strong>State-of-the-art</strong> on image captioning &mdash; early fusion helps the model deeply understand images.</p>
+<p><strong>Mixed-modal human evaluation:</strong></p>
+<table><thead><tr><th></th><th>Chameleon preferred</th><th>Tie</th><th>Other preferred</th></tr></thead><tbody>
+<tr><td>vs GPT-4V</td><td><strong>51.6%</strong></td><td>8.2%</td><td>40.2%</td></tr>
+<tr><td>vs Gemini-Pro</td><td><strong>60.4%</strong></td><td>6.1%</td><td>33.5%</td></tr>
+</tbody></table>
+<h3>Limitations</h3>
+<table><thead><tr><th>Limitation</th><th>Detail</th></tr></thead><tbody>
+<tr><td>Image quality</td><td>Generated images decent but not competitive with SDXL/DALL-E 3 &mdash; capped by VQ-VAE</td></tr>
+<tr><td>Training cost</td><td>10T tokens at 34B params = enormous compute budget</td></tr>
+<tr><td>Safety gating</td><td>7B released with image generation disabled; 34B restricted access</td></tr>
+<tr><td>No video</td><td>Text + images only</td></tr>
+<tr><td>Self-created benchmark</td><td>Mixed-modal human eval designed by the authors &mdash; no independent validation</td></tr>
+</tbody></table>
+<div class="quiz" id="quiz-l2"><div class="quiz-title">Quiz &mdash; Level 2</div>
+<div class="q"><div class="q-text">1. Chameleon&rsquo;s unified vocabulary combines ~65K text tokens with 8,192 image codebook tokens. What does this enable?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l2',0,false)">The model needs two separate softmax heads &mdash; one for text, one for images</button></li><li><button class="q-btn" onclick="ans(this,'l2',0,true)">Text and image tokens are predicted by the same softmax over a single ~73K vocabulary, using identical cross-entropy loss</button></li><li><button class="q-btn" onclick="ans(this,'l2',0,false)">Image tokens are predicted using diffusion, text tokens using cross-entropy</button></li><li><button class="q-btn" onclick="ans(this,'l2',0,false)">The vocabulary is split at inference time depending on the task</button></li></ul><div class="q-explain" id="ex-l2-0">The entire point of Chameleon&rsquo;s design: one vocabulary, one softmax, one loss function for everything.</div></div>
+<div class="q"><div class="q-text">2. QK-Norm was introduced to solve a specific instability. What was the root cause?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l2',1,false)">The learning rate was too high for mixed-modal data</button></li><li><button class="q-btn" onclick="ans(this,'l2',1,false)">Image tokens had more parameters than text tokens</button></li><li><button class="q-btn" onclick="ans(this,'l2',1,true)">Query and key vector norms grew unboundedly, causing softmax to saturate and gradients to vanish</button></li><li><button class="q-btn" onclick="ans(this,'l2',1,false)">The VQ-VAE codebook collapsed during joint training</button></li></ul><div class="q-explain" id="ex-l2-1">Different modalities produce different activation magnitudes. Unbounded Q/K norms cause softmax saturation &rarr; one-hot attention &rarr; gradient vanishing &rarr; training collapse.</div></div>
+<div class="q"><div class="q-text">3. During image generation, Chameleon produces 1,024 tokens. How does this compare to Transfusion?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l2',2,false)">Both generate tokens one at a time autoregressively</button></li><li><button class="q-btn" onclick="ans(this,'l2',2,true)">Chameleon generates 1,024 tokens sequentially (non-parallelizable); Transfusion denoises all 256 patches simultaneously per step</button></li><li><button class="q-btn" onclick="ans(this,'l2',2,false)">Transfusion is always slower because it needs 250 denoising steps</button></li><li><button class="q-btn" onclick="ans(this,'l2',2,false)">Chameleon uses diffusion for the last 512 tokens</button></li></ul><div class="q-explain" id="ex-l2-2">Chameleon&rsquo;s generation is sequential (must generate token 1 before token 2). Transfusion&rsquo;s is parallel within each denoising step (all 256 patches processed simultaneously).</div></div>
+<div class="q"><div class="q-text">4. The human eval shows Chameleon-34B preferred over GPT-4V 51.6% of the time. What makes this both impressive and hard to trust?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l2',3,false)">GPT-4V is a much smaller model</button></li><li><button class="q-btn" onclick="ans(this,'l2',3,true)">The benchmark was created by the Chameleon team themselves &mdash; no independent validation exists</button></li><li><button class="q-btn" onclick="ans(this,'l2',3,false)">Human evaluators were Meta employees</button></li><li><button class="q-btn" onclick="ans(this,'l2',3,false)">GPT-4V wasn&rsquo;t given access to images during the evaluation</button></li></ul><div class="q-explain" id="ex-l2-3">The authors designed the prompts, chose the criteria, and ran the annotation. 51.6% is also barely above a 50/50 coin flip. No independent replication.</div></div>
+<div class="q"><div class="q-text">5. Chameleon-34B achieves SOTA on captioning but trails text-only models on MMLU. What does this suggest?</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l2',4,false)">Multi-modal training destroys text ability entirely</button></li><li><button class="q-btn" onclick="ans(this,'l2',4,false)">The image data replaces text data, so the model sees less text</button></li><li><button class="q-btn" onclick="ans(this,'l2',4,true)">Small but real &ldquo;multimodal tax&rdquo; &mdash; doesn&rsquo;t match text-only specialists, but cross-modal understanding (captioning) is a genuine gain</button></li><li><button class="q-btn" onclick="ans(this,'l2',4,false)">MMLU is not a valid benchmark for multi-modal models</button></li></ul><div class="q-explain" id="ex-l2-4">There&rsquo;s a small capacity cost: shared weights serve both modalities, slightly hurting pure text tasks. But the cross-modal capability (SOTA captioning) is a real, measured gain.</div></div>
+<div class="score" id="score-l2"></div><button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button></div>
+</div></div>
+<!-- L3 -->
+<div class="level l3" id="level3"><div class="level-header" onclick="toggle('level3')"><div class="level-dot"></div><h2>Level 3 &mdash; Expert</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+<h3>Mathematical formulations</h3>
+<p><strong>The unified objective.</strong> Chameleon&rsquo;s beauty is its simplicity &mdash; one loss for everything:</p>
+<pre><code>L = -&Sigma;_{i=1}^{N} log P_&theta;(x_i | x_{&lt;i})</code></pre>
+<p>Where x_i can be a text token OR an image token. Same cross-entropy, same softmax, same backpropagation path. Compare to Transfusion&rsquo;s dual loss: L_LM + &lambda; &middot; L_DDPM. No balancing hyperparameter &lambda;, no noise scheduling, no timestep conditioning.</p>
+<h3>VQ-VAE quantization &mdash; the full math</h3>
+<p>Given encoder output z_e and codebook E = {e_k} with K = 8,192 entries:</p>
+<pre><code>Quantization (forward):
+  z_q(i,j) = e_{k*}  where  k* = argmin_k ||z_e(i,j) - e_k||_2
+
+Straight-through estimator (gradient hack):
+  z_q = z_e + sg(z_q - z_e)
+
+  Forward: equals z_q
+  Backward: gradient flows through z_e only (pretend quantization didn't happen)</code></pre>
+<p>The argmin is non-differentiable. The straight-through estimator (STE) copies the gradient from z_q directly to z_e &mdash; mathematically unjustified but empirically works.</p>
+<p><strong>VQ-VAE training loss (3 terms):</strong></p>
+<pre><code>L_VQ-VAE = ||x - D(z_q)||^2       // reconstruction: make output look like input
+         + ||sg[z_e] - z_q||^2     // codebook: move codebook entries toward encoder outputs
+         + &beta;||z_e - sg[z_q]||^2   // commitment: prevent encoder from drifting from codebook</code></pre>
+<table><thead><tr><th>Term</th><th>Gradient flows to</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>Reconstruction</td><td>Encoder + Decoder (via STE)</td><td>Make reconstructions look good</td></tr>
+<tr><td>Codebook</td><td>Codebook vectors only</td><td>Move codebook entries toward encoder outputs</td></tr>
+<tr><td>Commitment</td><td>Encoder only</td><td>Prevent encoder from &ldquo;running away&rdquo; from codebook</td></tr>
+</tbody></table>
+<p>In practice, Chameleon uses <strong>EMA codebook updates</strong> instead of the gradient-based codebook loss:</p>
+<pre><code>e_k &larr; &gamma; &middot; e_k + (1 - &gamma;) &middot; mean(z_e mapped to k)    (&gamma; = 0.99)</code></pre>
+<h3>Codebook utilization and collapse</h3>
+<p>With K = 8,192 entries, typical utilization is only <strong>40&ndash;70%</strong>. Thousands of entries go unused due to:</p>
+<ul>
+<li><strong>Rich-get-richer dynamics:</strong> Popular codes attract more encoder outputs &rarr; get updated more &rarr; become even more popular</li>
+<li><strong>Dead codes:</strong> Entries initialized far from data never get selected</li>
+<li><strong>Redundant codes:</strong> Multiple entries converge to similar vectors</li>
+</ul>
+<p>Mitigations: code reset (replace dead codes with sampled encoder outputs), EMA decay, entropy regularization. Even with mitigations, the effective information capacity per position is <strong>less than</strong> the theoretical log<sub>2</sub>(8192) = 13 bits.</p>
+<h3>QK-Norm &mdash; the full formulation</h3>
+<p>Standard multi-head attention computes:</p>
+<pre><code>attn_logits = Q &middot; K^T / &radic;(d_h)</code></pre>
+<p>When ||Q|| and ||K|| grow large (which happens with mixed modalities), logits explode &rarr; softmax saturates &rarr; one-hot attention &rarr; gradient vanishing.</p>
+<p><strong>Chameleon&rsquo;s fix:</strong></p>
+<pre><code>Q_hat = Q / ||Q||_2      // normalize to unit vector
+K_hat = K / ||K||_2      // normalize to unit vector
+
+attn_logits = &tau;_h &middot; Q_hat &middot; K_hat^T / &radic;(d_h)
+
+where &tau;_h is a learnable temperature per head</code></pre>
+<p>Now dot products are bounded to [-1, 1], and &tau;_h controls sharpness: higher &tau; = sharper focus on specific positions, lower &tau; = broader attention.</p>
+<table><thead><tr><th>Configuration</th><th>Training status</th></tr></thead><tbody>
+<tr><td>Standard attention, no QK-Norm</td><td><strong>Diverges at ~500B tokens</strong></td></tr>
+<tr><td>QK-Norm, standard LayerNorm</td><td>Diverges at ~2T tokens</td></tr>
+<tr><td>QK-Norm + revised Pre-Norm</td><td><strong>Stable through 10T+ tokens</strong> &#10004;</td></tr>
+</tbody></table>
+<p>QK-Norm appeared in ViT-22B and nGPT, but Chameleon&rsquo;s contribution is proving it&rsquo;s <strong>essential</strong> for mixed-modal early fusion at scale &mdash; make-or-break, not nice-to-have.</p>
+<h3>Training dynamics &mdash; the modality tug-of-war</h3>
+<p>Text loss and image loss exhibit <strong>anti-correlated oscillations</strong>. When gradient updates optimize for image prediction, shared weights shift toward image-favorable representations &mdash; text prediction temporarily suffers, and vice versa.</p>
+<p>Management: data ratio scheduling (more text early, more interleaved later), gradient norm monitoring, and a two-stage training process (pre-training on all modalities, then alignment with curated safety-filtered data).</p>
+<h3>Pseudocode: training step</h3>
+<pre><code>def chameleon_train_step(batch, model, vqvae, optimizer):
+    total_loss = 0
+    for document in batch:
+        token_sequence = []
+        for element in document:
+            if element.type == "text":
+                tokens = bpe_tokenize(element.text)
+                token_sequence.extend(tokens)
+            elif element.type == "image":
+                with torch.no_grad():  # VQ-VAE is frozen
+                    z_e = vqvae.encoder(element.pixels)
+                    indices = vqvae.quantize(z_e)  # [32,32] ints
+                    img_tokens = indices.flatten().tolist()
+                img_tokens = [t + TEXT_VOCAB_SIZE for t in img_tokens]
+                token_sequence.append(IMAGE_START)
+                token_sequence.extend(img_tokens)
+                token_sequence.append(IMAGE_END)
+
+        # Standard causal LM - no special attention mask needed
+        input_ids  = token_sequence[:-1]
+        target_ids = token_sequence[1:]
+        logits = model(input_ids)  # [seq_len, 73828]
+
+        # ONE cross-entropy loss over ALL positions
+        loss = cross_entropy(logits, target_ids)
+        total_loss += loss
+
+    total_loss.backward()
+    clip_grad_norm_(model.parameters(), max_norm=1.0)
+    optimizer.step()</code></pre>
+<p>Note the simplicity compared to Transfusion&rsquo;s training step: no noise sampling, no timestep conditioning, no dual losses.</p>
+<h3>Pseudocode: QK-Norm attention</h3>
+<pre><code>class QKNormAttention(nn.Module):
+    def __init__(self, d_model, n_heads):
+        self.d_h = d_model // n_heads
+        self.W_Q = nn.Linear(d_model, d_model, bias=False)
+        self.W_K = nn.Linear(d_model, d_model, bias=False)
+        self.W_V = nn.Linear(d_model, d_model, bias=False)
+        self.W_O = nn.Linear(d_model, d_model, bias=False)
+        self.tau = nn.Parameter(torch.ones(n_heads, 1, 1))
+
+    def forward(self, x, causal_mask):
+        Q = self.W_Q(x)  # project
+        K = self.W_K(x)
+        V = self.W_V(x)
+        # Reshape to [B, heads, S, d_h] ...
+        Q = F.normalize(Q, dim=-1)  # unit vectors
+        K = F.normalize(K, dim=-1)
+        logits = self.tau * (Q @ K.T) / sqrt(self.d_h)
+        logits = logits.masked_fill(~causal_mask, -inf)
+        weights = softmax(logits, dim=-1)
+        return self.W_O(weights @ V)</code></pre>
+<h3>Pseudocode: image generation at inference</h3>
+<pre><code>def generate_image(model, text_context, vqvae, temp=0.9, top_p=0.95):
+    tokens = tokenize(text_context) + [IMAGE_START]
+    for i in range(1024):
+        logits = model(tokens)[-1]
+        # Mask out text tokens - only sample from image vocab
+        logits[:TEXT_VOCAB_SIZE] = -inf
+        probs = softmax(logits / temp, dim=-1)
+        # Nucleus (top-p) sampling
+        sorted_p, sorted_idx = sort(probs, descending=True)
+        cumsum = cumulative_sum(sorted_p)
+        mask = (cumsum - sorted_p) > top_p
+        sorted_p[mask] = 0
+        sorted_p /= sorted_p.sum()
+        next_token = sorted_idx[multinomial(sorted_p, 1)]
+        tokens.append(next_token)
+    tokens.append(IMAGE_END)
+
+    # Decode via VQ-VAE
+    img_indices = [t - TEXT_VOCAB_SIZE for t in tokens[-1025:-1]]
+    indices = tensor(img_indices).reshape(32, 32)
+    with torch.no_grad():
+        z_q = vqvae.codebook_lookup(indices)
+        image = vqvae.decoder(z_q)
+    return image</code></pre>
+<h3>Critical analysis</h3>
+<div class="card"><div class="card-label green">What&rsquo;s genuinely novel</div>
+<table><thead><tr><th>Contribution</th><th>Novelty</th><th>Notes</th></tr></thead><tbody>
+<tr><td>Early fusion at 34B scale</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td><td>First to prove tokenize-everything works at this scale for generation</td></tr>
+<tr><td>QK-Norm for mixed-modal stability</td><td>&#11088;&#11088;&#11088;&#11088; 4/5</td><td>QK-Norm existed, but proving it&rsquo;s essential for mixed-modal is new</td></tr>
+<tr><td>Interleaved generation</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td><td>First model to convincingly generate naturally interleaved text-image documents</td></tr>
+<tr><td>Alignment for multimodal</td><td>&#11088;&#11088;&#11088; 3/5</td><td>RLHF-style alignment applied to multimodal &mdash; needed to be done</td></tr>
+<tr><td>Architecture itself</td><td>&#11088;&#11088; 2/5</td><td>Standard transformer + VQ-VAE &mdash; innovation is in training, not architecture</td></tr>
+</tbody></table></div>
+<div class="card"><div class="card-label red">Weakest claims</div>
+<p><strong>No FID reported.</strong> The paper never reports FID on a standard benchmark. The VQ-VAE bottleneck makes FID uncompetitive with SDXL/DALL-E 2 &mdash; this is a strategic omission. They focus on mixed-modal evaluation where they&rsquo;re stronger.</p>
+<p><strong>Self-created human eval.</strong> The &ldquo;beats GPT-4V 51.6%&rdquo; headline comes from a benchmark the authors designed, with prompts they chose, criteria they set, and annotation they ran. 51.6% is barely above a coin flip. No independent replication.</p>
+<p><strong>Missing compute comparisons.</strong> No total training FLOPs, no GPU-hours, no inference latency. We can&rsquo;t tell if the multimodal capability is &ldquo;free&rdquo; or expensive relative to text-only.</p>
+<p><strong>Safety gating tells a story.</strong> Meta released the 7B model with image generation <strong>disabled</strong> and safety-gated the 34B. This means: Meta is confident in understanding capabilities (released openly), but NOT confident they&rsquo;ve solved safety for generation (restricted access). The alignment stage likely reduced but didn&rsquo;t eliminate harmful image generation.</p>
+</div>
+<h3>Expert verdict: Chameleon vs Transfusion</h3>
+<table><thead><tr><th></th><th>Chameleon</th><th>Transfusion</th></tr></thead><tbody>
+<tr><td>Core thesis</td><td>Simplicity wins &mdash; one loss, one vocabulary</td><td>Quality wins &mdash; continuous is worth the complexity</td></tr>
+<tr><td>Strongest evidence</td><td>Mixed-modal generation works; scales to 34B; human eval</td><td>Better FID at lower compute; explicit scaling curves</td></tr>
+<tr><td>Weakest evidence</td><td>No FID; self-created benchmark; compute not reported</td><td>Never tested interleaved generation; only 7B</td></tr>
+<tr><td>Real-world readiness</td><td>Closer &mdash; actually generates documents</td><td>Image quality too low without upsampler</td></tr>
+<tr><td>What it needs</td><td>Better VQ-VAE (or switch to continuous)</td><td>Scale to 34B+; test interleaved; add resolution</td></tr>
+</tbody></table>
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>These papers are <strong>complementary, not competitive</strong>. Chameleon proved the training recipe and the product concept. Transfusion proved the representation and efficiency. The model that wins in production will combine both &mdash; Chameleon&rsquo;s training stability and interleaved capability with Transfusion&rsquo;s continuous image representation.</p></div>
+<div class="quiz" id="quiz-l3"><div class="quiz-title">Quiz &mdash; Level 3</div>
+<div class="q"><div class="q-text">1. In the VQ-VAE training loss, the commitment loss &beta;||z_e - sg[z_q]||&sup2; sends gradients to:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l3',0,false)">The codebook vectors only</button></li><li><button class="q-btn" onclick="ans(this,'l3',0,false)">The decoder only</button></li><li><button class="q-btn" onclick="ans(this,'l3',0,true)">The encoder only &mdash; preventing its outputs from drifting far from codebook entries</button></li><li><button class="q-btn" onclick="ans(this,'l3',0,false)">Both the encoder and codebook simultaneously</button></li></ul><div class="q-explain" id="ex-l3-0">sg[z_q] stops gradient flow to the codebook. Only the encoder receives the commitment gradient, keeping its outputs close to codebook entries.</div></div>
+<div class="q"><div class="q-text">2. The straight-through estimator handles the non-differentiable argmin by:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l3',1,false)">Replacing argmin with a differentiable softmax approximation</button></li><li><button class="q-btn" onclick="ans(this,'l3',1,true)">Copying the gradient from z_q directly to z_e, pretending quantization didn&rsquo;t happen</button></li><li><button class="q-btn" onclick="ans(this,'l3',1,false)">Using reinforcement learning to learn discrete selections</button></li><li><button class="q-btn" onclick="ans(this,'l3',1,false)">Training the codebook with a separate optimizer</button></li></ul><div class="q-explain" id="ex-l3-1">z_q = z_e + sg(z_q - z_e). During forward pass this equals z_q; during backward pass the gradient flows through z_e only.</div></div>
+<div class="q"><div class="q-text">3. The learnable temperature &tau;_h in QK-Norm controls:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l3',2,false)">The learning rate for that head&rsquo;s parameters</button></li><li><button class="q-btn" onclick="ans(this,'l3',2,false)">How many tokens the head can attend to</button></li><li><button class="q-btn" onclick="ans(this,'l3',2,true)">Sharpness of attention &mdash; higher &tau; allows sharper focus, lower &tau; spreads attention broadly</button></li><li><button class="q-btn" onclick="ans(this,'l3',2,false)">Whether the head processes text or image tokens</button></li></ul><div class="q-explain" id="ex-l3-2">Each head learns its own sharpness. Heads needing precise focus (one position) learn high &tau;; heads needing broad context learn low &tau;.</div></div>
+<div class="q"><div class="q-text">4. The paper never reports FID on a standard benchmark. The most likely reason:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l3',3,false)">FID wasn&rsquo;t computed because it&rsquo;s too expensive</button></li><li><button class="q-btn" onclick="ans(this,'l3',3,true)">The VQ-VAE bottleneck makes FID uncompetitive &mdash; strategic omission to avoid undermining the narrative</button></li><li><button class="q-btn" onclick="ans(this,'l3',3,false)">FID is not recognized in the multimodal community</button></li><li><button class="q-btn" onclick="ans(this,'l3',3,false)">The 34B FID was good but the 7B wasn&rsquo;t</button></li></ul><div class="q-explain" id="ex-l3-3">The paper&rsquo;s strength is mixed-modal generation, so they evaluated on that. Reporting FID would show image quality below dedicated models, weakening the story.</div></div>
+<div class="q"><div class="q-text">5. Codebook collapse means effective utilization is 40&ndash;70%. The practical consequence:</div><ul class="q-options"><li><button class="q-btn" onclick="ans(this,'l3',4,false)">The model generates images faster because fewer codes are checked</button></li><li><button class="q-btn" onclick="ans(this,'l3',4,true)">Effective information capacity per position is less than the theoretical 13 bits, tightening the bottleneck</button></li><li><button class="q-btn" onclick="ans(this,'l3',4,false)">The model compensates by using more tokens per image</button></li><li><button class="q-btn" onclick="ans(this,'l3',4,false)">Collapsed codes cause training divergence</button></li></ul><div class="q-explain" id="ex-l3-4">With 8,192 codes but only 40&ndash;70% active, the effective codebook is ~3,200&ndash;5,700 entries. Each position carries less than log2(8192)=13 bits of information.</div></div>
+<div class="score" id="score-l3"></div><button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button></div>
+</div></div>
+<!-- Phase 4 -->
+<div class="level l4" id="level4"><div class="level-header" onclick="toggle('level4')"><div class="level-dot"></div><h2>Phase 4 &mdash; Frontier</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+<p>Chameleon, alongside Transfusion, kicked off a wave of unified multimodal models. Here&rsquo;s what it sparked and what comes next.</p>
+<h3>What happened since May 2024</h3>
+<table><thead><tr><th>Paper</th><th>Date</th><th>Approach</th><th>Key result</th></tr></thead><tbody>
+<tr><td><strong>Emu3</strong> (BAAI &rarr; Nature)</td><td>Sep 2024</td><td>Tokenize everything, but much better visual tokenizer (SBER-MoVQGAN, 32K codebook)</td><td>Proves Chameleon&rsquo;s thesis: bottleneck was VQ-VAE quality, not the approach. Matches SDXL on FID.</td></tr>
+<tr><td><strong>Janus-Pro</strong> (DeepSeek)</td><td>Jan 2025</td><td>Separate vision encoders for understanding vs generation</td><td>Key insight: what makes good visual representation for understanding &ne; generation</td></tr>
+<tr><td><strong>JanusFlow</strong> (DeepSeek)</td><td>Jan 2025</td><td>Janus&rsquo;s decoupled encoders + rectified flow (continuous)</td><td>Bridges Chameleon vs Transfusion &mdash; unified training + continuous generation</td></tr>
+<tr><td><strong>Discrete Diffusion Timestep Tokens</strong></td><td>Apr 2025</td><td>Discrete tokens + diffusion scheduling hybrid</td><td>Gets best of both: Chameleon&rsquo;s simplicity + diffusion&rsquo;s iterative refinement</td></tr>
+<tr><td><strong>Show-o</strong></td><td>2024</td><td>Discrete diffusion for images (masking/unmasking)</td><td>Another hybrid: Chameleon&rsquo;s vocabulary + diffusion-like generation</td></tr>
+</tbody></table>
+<div class="card"><div class="card-label blue">The Emu3 vindication</div><p>Emu3 deserves special attention: same approach (tokenize everything, single next-token prediction loss), but with a <strong>much better visual tokenizer</strong>. Published in <strong>Nature</strong> &mdash; rare for an ML paper. Matches SDXL on FID while also being a strong language model. <strong>This proves Chameleon&rsquo;s core claim was right.</strong> The bottleneck wasn&rsquo;t the discrete approach &mdash; it was the VQ-VAE quality.</p></div>
+<div class="card"><div class="card-label purple">The Janus insight</div><p>Janus-Pro&rsquo;s key finding: <strong>what makes a good visual representation for understanding (semantic, abstract) is different from what makes a good representation for generation (pixel-precise, detailed).</strong> Use SigLIP/CLIP for understanding, VQ-VAE/VAE for generation, share the transformer backbone. The cost of two vision encoders is minimal compared to the transformer.</p></div>
+<h3>The evolving landscape</h3>
+<pre><code>May 2024: Chameleon               Aug 2024: Transfusion
+   |  "Tokenize everything"          |  "Continuous + diffusion"
+   v                                  v
+Sep 2024: Emu3                    Jan 2025: JanusFlow
+"Better tokenizer fixes it"       "Decoupled encoders + flow"
+   |                                  |
+   +----------------+-----------------+
+                    |
+                    v
+             2025-2026: Convergence
+
+   Emerging consensus:
+   1. Separate encoders for understanding vs generation
+   2. Better tokenizers (continuous OR high-quality discrete)
+   3. Unified transformer backbone
+   4. Training stability tricks (QK-Norm) are essential</code></pre>
+<h3>Improvement vectors</h3>
+<h3>1. Fix the tokenizer</h3><span class="tag-addressed">Addressed by Emu3</span>
+<p>Chameleon&rsquo;s 8,192-entry VQ-VAE with 40&ndash;70% utilization is the biggest bottleneck. Paths: larger codebook (32K&ndash;64K), SBER-MoVQGAN (Emu3&rsquo;s approach), Finite Scalar Quantization (FSQ &mdash; eliminates codebook collapse by construction), or Lookup-Free Quantization (LFQ &mdash; exponential codebook without explicit entries).</p>
+<h3>2. Decouple understanding and generation encoders</h3><span class="tag-addressed">Addressed by Janus</span>
+<p>One VQ-VAE serving double duty is a forced compromise. Use SigLIP/CLIP for understanding (optimized for semantics), VQ-VAE/VAE for generation (optimized for pixel reconstruction), share the transformer. Janus-Pro proved this works.</p>
+<h3>3. Reduce tokens per image</h3><span class="tag-explore">Area to explore</span>
+<p>1,024 tokens per image is expensive (quadratic attention, sequential generation). Paths: higher compression VQ-VAE (256 tokens), hierarchical coarse-to-fine (64 + 256), variable-length tokenization (simple images get fewer tokens), or multi-scale with upsampler. Dropping to 256 tokens would make Chameleon compute-competitive with Transfusion.</p>
+<h3>4. Video generation</h3><span class="tag-explore">Area to explore</span>
+<p>At 1,024 tokens per frame and 24 fps: 1 second = 24,576 tokens, 10 seconds = 245,760 tokens. <strong>Computationally intractable</strong> with current sequence lengths. Needs: temporal compression (1 token-set per keyframe), 3D VQ-VAE for video volumes, sparse attention across frames.</p>
+<h3>5. Scale to 70B+</h3><span class="tag-explore">Area to explore</span>
+<p>Does the multimodal tax shrink at larger scale? Hypothesis: yes &mdash; at 70B+, the transformer has enough capacity that text and image objectives stop competing. Only a handful of labs can attempt this.</p>
+<h3>Scorecard</h3>
+<table><thead><tr><th>Dimension</th><th>Rating</th><th>Notes</th></tr></thead><tbody>
+<tr><td>Novelty</td><td>&#11088;&#11088;&#11088;&#11088; 4/5</td><td>Early fusion with discrete tokens at scale for generation + understanding. QK-Norm contribution is real.</td></tr>
+<tr><td>Rigor</td><td>&#11088;&#11088;&#11088; 3/5</td><td>Good breadth but key metrics missing (FID, compute). Self-created benchmark. Safety gating limits repro.</td></tr>
+<tr><td>Impact</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td><td>ICLR 2025. Spawned Emu3 (Nature), Janus-Pro, and the entire &ldquo;tokenize everything&rdquo; direction.</td></tr>
+<tr><td>Clarity</td><td>&#11088;&#11088;&#11088;&#11088; 4/5</td><td>Well-written but some key details vague (training data ratios, alignment recipe). Stability section is excellent.</td></tr>
+<tr><td>Relevance</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td><td>Closest existence proof to a media gen agent product. Proves interleaved generation is viable.</td></tr>
+<tr><td><strong>Overall</strong></td><td><strong>&#11088;&#11088;&#11088;&#11088; 4.2/5</strong></td><td></td></tr>
+</tbody></table>
+<h3>Compared to Transfusion</h3>
+<table><thead><tr><th></th><th>Chameleon</th><th>Transfusion</th></tr></thead><tbody>
+<tr><td>Novelty</td><td>&#11088;&#11088;&#11088;&#11088; 4/5</td><td>&#11088;&#11088;&#11088;&#11088; 4/5</td></tr>
+<tr><td>Rigor</td><td>&#11088;&#11088;&#11088; 3/5</td><td>&#11088;&#11088;&#11088;&#11088; 4/5</td></tr>
+<tr><td>Impact</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td></tr>
+<tr><td>Clarity</td><td>&#11088;&#11088;&#11088;&#11088; 4/5</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td></tr>
+<tr><td>Relevance</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td></tr>
+</tbody></table>
+<div class="takeaway"><div class="takeaway-label">Bottom line</div><p><strong>Together, Chameleon and Transfusion define the design space.</strong> Chameleon is the &ldquo;simplicity&rdquo; pole, Transfusion is the &ldquo;quality&rdquo; pole. Every model since sits somewhere on the spectrum. For your media gen agent: start with Chameleon&rsquo;s training recipe (QK-Norm, interleaved data), use a better tokenizer (Emu3&rsquo;s or continuous), consider Janus&rsquo;s decoupled encoders. Multi-image consistency is still unsolved &mdash; that&rsquo;s your product&rsquo;s biggest technical risk.</p></div>
+<table><thead><tr><th>Improvement vector</th><th>Status</th><th>Key work</th></tr></thead><tbody>
+<tr><td>Fix tokenizer</td><td><span class="tag-addressed">Addressed by Emu3</span></td><td>SBER-MoVQGAN, FSQ, LFQ</td></tr>
+<tr><td>Decouple encoders</td><td><span class="tag-addressed">Addressed by Janus</span></td><td>Separate understanding vs generation</td></tr>
+<tr><td>Reduce tokens/image</td><td><span class="tag-explore">Area to explore</span></td><td>Higher compression, variable-length</td></tr>
+<tr><td>Video generation</td><td><span class="tag-explore">Area to explore</span></td><td>Temporal compression, 3D VQ-VAE</td></tr>
+<tr><td>Scale to 70B+</td><td><span class="tag-explore">Area to explore</span></td><td>Multimodal tax at larger scale</td></tr>
+</tbody></table>
+</div></div>
+<a class="back" href="../index.html" style="margin-top:2rem">&larr; Back to all papers</a>
+</div>
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('open')}
+var S={};
+function ans(btn,qid,qi,ok){if(!S[qid])S[qid]={a:[],t:document.querySelectorAll('#quiz-'+qid+' .q').length};var s=S[qid];if(s.a[qi]!=null)return;s.a[qi]=ok;btn.parentElement.querySelectorAll('.q-btn').forEach(function(b){b.disabled=true;if(b===btn)b.classList.add(ok?'correct':'incorrect');if(!ok&&b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(',true)')>-1)b.classList.add('reveal')});var ex=document.getElementById('ex-'+qid+'-'+qi);if(ex)ex.classList.add('show');var done=s.a.filter(function(x){return x!=null}).length;if(done===s.t){var c=s.a.filter(function(x){return x===true}).length;var el=document.getElementById('score-'+qid);var pass=c>=4;el.className='score show '+(pass?'pass':'fail');el.textContent=c+'/'+s.t+(c===s.t?' \u2014 Perfect score!':pass?' \u2014 Great job! Level passed.':' \u2014 Review the material and try again.');if(!pass)document.getElementById('reset-'+qid).classList.add('show')}}
+function resetQuiz(qid){S[qid]=null;var container=document.getElementById('quiz-'+qid);container.querySelectorAll('.q-btn').forEach(function(b){b.disabled=false;b.classList.remove('correct','incorrect','reveal')});container.querySelectorAll('.q-explain').forEach(function(e){e.classList.remove('show')});document.getElementById('score-'+qid).className='score';document.getElementById('reset-'+qid).classList.remove('show')}
+</script>
+</body>
+</html>
