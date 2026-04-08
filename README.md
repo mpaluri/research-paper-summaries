@@ -8,6 +8,7 @@ Three-level explainers (Beginner → Intermediate → Expert) for quickly unders
 
 | # | Paper | Topic | Published | Created |
 |:--|:------|:------|:----------|:--------|
+| 8 | [DALL-E 3](papers/dalle3.html) | Image generation, data-centric AI, recaptioning, diffusion | 10/01/23 | 04/07/26 |
 | 7 | [Chameleon](papers/chameleon.html) | Multimodal, early fusion, discrete tokens, VQ-VAE, ICLR 2025 | 05/16/24 | 04/05/26 |
 | 6 | [Transfusion](papers/transfusion.html) | Unified multimodal generation, diffusion, ICLR 2025 Oral | 08/20/24 | 04/05/26 |
 | 5 | [MMMU-Pro](papers/mmmu-pro.html) | Multimodal benchmarks, robustness, shortcuts | 09/04/24 | 04/05/26 |

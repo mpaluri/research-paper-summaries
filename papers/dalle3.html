@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DALL-E 3 &mdash; Improving Image Generation with Better Captions</title>
+<meta name="description" content="Four-level explainer: DALL-E 3's synthetic recaptioning pipeline — how fixing training data captions matters more than model architecture">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0;--purple:#8250df;--purple-bg:#fbefff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129;--purple:#bc8cff;--purple-bg:#2a1a3a}}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem}.back{display:inline-block;font-size:.875rem;color:var(--accent);text-decoration:none;margin-bottom:1.5rem}.back:hover{text-decoration:underline}h1{font-size:1.6rem;font-weight:700;line-height:1.3;margin-bottom:.75rem}.paper-info{font-size:.875rem;color:var(--text2);margin-bottom:.5rem}.paper-info a{color:var(--accent);text-decoration:none}.paper-info a:hover{text-decoration:underline}.tldr{font-size:.9rem;color:var(--text2);padding:1rem 1.25rem;background:var(--bg2);border-radius:8px;margin-bottom:2rem;border-left:3px solid var(--accent)}.level{margin-bottom:2.5rem;border:1px solid var(--border);border-radius:10px;overflow:hidden}.level-header{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;cursor:pointer;background:var(--bg2);user-select:none;border-bottom:1px solid var(--border)}.level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.l1 .level-dot{background:#2da44e}.l2 .level-dot{background:#bf8700}.l3 .level-dot{background:#cf222e}.l4 .level-dot{background:var(--purple)}.level-header h2{font-size:1rem;font-weight:600;margin:0;flex:1}.chevron{font-size:.8rem;color:var(--text3);transition:transform .2s}.level.open .chevron{transform:rotate(180deg)}.level-body{display:none;padding:1.5rem 1.25rem}.level.open .level-body{display:block}h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}.level-body>h3:first-child{margin-top:0}p{margin-bottom:.75rem}ul,ol{margin:0 0 .75rem 1.25rem}li{margin-bottom:.25rem}strong{font-weight:600}em{font-style:italic}code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--code-bg);padding:1px 5px;border-radius:3px}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;margin:.75rem 0;font-size:.8rem;line-height:1.5}pre code{background:none;padding:0}table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.875rem}th{text-align:left;font-weight:600;padding:.5rem .75rem;border-bottom:2px solid var(--border);font-size:.8rem}td{padding:.5rem .75rem;border-bottom:1px solid var(--border)}tr:last-child td{border-bottom:none}.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0}.card-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}.card-label.green{color:var(--green)}.card-label.amber{color:#bf8700}.card-label.red{color:var(--red)}.card-label.blue{color:var(--accent)}.card-label.purple{color:var(--purple)}.card p:last-child{margin-bottom:0}.takeaway{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0}.takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.35rem}.takeaway p:last-child{margin-bottom:0}.result-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:.75rem 0}.result-box{text-align:center;padding:1rem;border-radius:8px}.result-box.green-bg{background:var(--green-bg);border:1px solid var(--green)}.result-box.amber-bg{background:#fff8c5;border:1px solid #bf8700}.result-box.red-bg{background:var(--red-bg);border:1px solid var(--red)}@media(prefers-color-scheme:dark){.result-box.amber-bg{background:#2a2000;border-color:#bf8700}}.result-number{font-size:1.75rem;font-weight:700;line-height:1}.result-box.green-bg .result-number{color:var(--green)}.result-box.amber-bg .result-number{color:#bf8700}.result-box.red-bg .result-number{color:var(--red)}.result-label{font-size:.75rem;color:var(--text2);margin-top:.25rem}.tag-explore{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--purple-bg);color:var(--purple);margin:.25rem 0}.tag-addressed{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--green-bg);color:var(--green);margin:.25rem 0}.tag-partial{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:#fff8c5;color:#bf8700;margin:.25rem 0}@media(prefers-color-scheme:dark){.tag-partial{background:#2a2000}}.quiz{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1.5rem}.quiz-title{font-weight:600;font-size:.9rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}.q{margin-bottom:1.25rem}.q:last-of-type{margin-bottom:.5rem}.q-text{font-weight:500;font-size:.9rem;margin-bottom:.5rem}.q-options{list-style:none;padding:0;margin:0}.q-btn{display:block;width:100%;text-align:left;padding:.5rem .85rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);transition:border-color .12s,background .12s}.q-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg)}.q-btn:disabled{cursor:default}.q-btn:disabled:hover{border-color:inherit;background:inherit}.q-btn.correct{border-color:var(--green)!important;background:var(--green-bg)!important}.q-btn.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;opacity:.7}.q-btn.reveal{border-color:var(--green)!important;background:var(--green-bg)!important}.q-explain{display:none;font-size:.8rem;color:var(--text2);margin:.4rem 0 0;padding:.5rem .85rem;border-left:2px solid var(--border)}.q-explain.show{display:block}.score{display:none;padding:.85rem 1rem;border-radius:6px;font-weight:600;font-size:.9rem;margin-top:.75rem}.score.show{display:block}.score.pass{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}.score.fail{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}.reset-btn{display:none;margin-top:.5rem;padding:.4rem 1rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.8rem;font-family:inherit;color:var(--text)}.reset-btn.show{display:inline-block}.reset-btn:hover{border-color:var(--accent);background:var(--accent-bg)}@media(max-width:600px){.result-row{grid-template-columns:1fr}.container{padding:1.5rem 1rem 4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back" href="../index.html">&larr; Back to all papers</a>
+<h1>DALL-E 3: Improving Image Generation with Better Captions</h1>
+<p class="paper-info">OpenAI &mdash; October 2023</p>
+<p class="paper-info"><a href="https://cdn.openai.com/papers/dall-e-3.pdf">&#128196; Paper PDF</a></p>
+<div class="tldr"><strong>TL;DR:</strong> DALL-E 3&rsquo;s breakthrough isn&rsquo;t a new model architecture &mdash; it&rsquo;s a <em>data engineering</em> innovation. They trained a custom image captioner (CoCa-style) to re-describe every training image with rich, detailed captions, then retrained a standard diffusion model on these synthetic captions. The result: 71.7% human preference over SDXL, dramatically better prompt following, and readable text in generated images. A field-defining paper that proved <strong>data quality trumps model complexity</strong>.</div>
+<!-- L1 -->
+<div class="level l1 open" id="level1"><div class="level-header" onclick="toggle('level1')"><div class="level-dot"></div><h2>Level 1 &mdash; Beginner</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+<h3>The big idea</h3>
+<p>Every image generation model has a dirty secret: <strong>the training data captions are terrible.</strong> A photo of a golden retriever playing fetch on a beach at sunset gets labeled &ldquo;dog.&rdquo; A complex scene with three people, specific clothing, and spatial relationships gets a two-word alt-text.</p>
+<p>DALL-E 3&rsquo;s core insight: <strong>don&rsquo;t build a better model &mdash; build better training data.</strong> They trained a custom image captioner that writes detailed, accurate descriptions of every image in the training set, then retrained the image generator on these synthetic captions. The quality jump was massive.</p>
+
+<h3>The caption problem</h3>
+<p>Real-world image-text datasets (LAION, etc.) are scraped from the web. The &ldquo;captions&rdquo; are actually:</p>
+<table><thead><tr><th>Source</th><th>Example Caption</th><th>What&rsquo;s Actually in the Image</th></tr></thead><tbody>
+<tr><td>Alt text</td><td>&ldquo;IMG_2847.jpg&rdquo;</td><td>A family of four at a lake</td></tr>
+<tr><td>Product listing</td><td>&ldquo;Buy now!&rdquo;</td><td>A red sneaker on white background</td></tr>
+<tr><td>Social media</td><td>&ldquo;vibes &#128293;&rdquo;</td><td>Sunset over Manhattan skyline</td></tr>
+<tr><td>News article</td><td>&ldquo;CEO announces merger&rdquo;</td><td>Person at podium with specific background</td></tr>
+</tbody></table>
+<p><strong>The model learns from what you tell it.</strong> If you train on garbage captions, the model learns a loose, noisy mapping between text and images. It can generate &ldquo;a dog&rdquo; but struggles with &ldquo;a golden retriever wearing a blue bandana sitting to the LEFT of a tabby cat on a red couch.&rdquo;</p>
+
+<h3>The fix &mdash; a three-step pipeline</h3>
+<div class="card"><div class="card-label blue">The recaptioning pipeline</div>
+<p><strong>Step 1: Train a captioner.</strong> Take a vision-language model and fine-tune it to write extremely detailed image descriptions. Not &ldquo;a dog&rdquo; but &ldquo;A golden retriever with a wet coat stands on a sandy beach, mouth open, catching a red tennis ball mid-air. The sun is setting behind, casting an orange glow on the wet sand.&rdquo;</p>
+<p><strong>Step 2: Re-caption everything.</strong> Run this captioner over the entire training dataset. Every image now has a rich, detailed, accurate description instead of garbage alt-text.</p>
+<p><strong>Step 3: Retrain the generator.</strong> Same model architecture, same compute &mdash; but dramatically better training signal. The model can now learn fine-grained associations: spatial relationships, object counts, colors, textures, styles, text rendering.</p>
+</div>
+
+<h3>Why this matters</h3>
+<p>This paper flipped the conventional wisdom. The AI field was obsessed with <strong>model architecture</strong> &mdash; bigger transformers, better diffusion schedulers, more parameters. DALL-E 3 proved that <strong>data quality trumps model complexity.</strong></p>
+<p>A mediocre model trained on excellent captions beats an excellent model trained on mediocre captions.</p>
+
+<h3>Key results</h3>
+<div class="result-row">
+<div class="result-box green-bg"><div class="result-number">71.7%</div><div class="result-label">Human preference<br>vs SDXL</div></div>
+<div class="result-box green-bg"><div class="result-number">SOTA</div><div class="result-label">T2I-CompBench<br>prompt following</div></div>
+<div class="result-box amber-bg"><div class="result-number">95/5</div><div class="result-label">Synthetic/ground truth<br>training mix</div></div>
+</div>
+
+<h3>The prompt rewriting trick</h3>
+<p>DALL-E 3 also uses GPT-4 at inference time to <strong>rewrite user prompts</strong> before generating. When you type &ldquo;a cat,&rdquo; GPT-4 expands it to a detailed scene description. This bridges the gap between how humans write prompts (short, vague) and how the model was trained (long, detailed captions).</p>
+
+<h3>Connection to other papers</h3>
+<div class="card"><div class="card-label amber">Key contrast</div>
+<p>Remember the Transfusion vs Chameleon debate? Both papers fought over <strong>model architecture</strong> (continuous vs. discrete). DALL-E 3 says: &ldquo;You&rsquo;re both missing the point &mdash; fix the data first, and the architecture matters less.&rdquo; The data-centric insight is architecture-agnostic and benefits any generation approach.</p>
+</div>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>DALL-E 3 is a <strong>data engineering paper disguised as a generation paper.</strong> The model is a standard diffusion model. The breakthrough is the synthetic recaptioning pipeline &mdash; proving that a custom-trained captioner can fix the fundamental data quality problem that limits all image generators.</p></div>
+
+<div class="quiz" id="quiz-l1"><div class="quiz-title">Quiz &mdash; Level 1</div>
+<div class="q"><div class="q-text">1. What is DALL-E 3&rsquo;s core breakthrough compared to previous image generation models?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">A fundamentally new diffusion architecture that generates images significantly faster than prior models</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,true)">Training a custom captioner to re-describe training images with detailed captions, then retraining the generator</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">Using GPT-4 as the image generation backbone instead of a separate diffusion-based model</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">Scaling to 100 billion parameters and training on a dataset ten times larger than prior work</button></li>
+</ul><div class="q-explain" id="ex-l1-0">The model architecture is standard diffusion. The innovation is entirely in the training data: better captions &rarr; better generation quality.</div></div>
+
+<div class="q"><div class="q-text">2. Why are web-scraped image captions problematic for training image generators?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">They contain too many languages, making multilingual training difficult and computationally expensive</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">They are overly detailed and verbose, which overwhelms the model&rsquo;s cross-attention capacity</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,true)">They are noisy, vague, and often unrelated to image content, so the model learns imprecise mappings</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">They are copyrighted material that cannot be legally used for training generative AI models</button></li>
+</ul><div class="q-explain" id="ex-l1-1">Alt-text like &ldquo;IMG_2847.jpg&rdquo; and social media captions like &ldquo;vibes &#128293;&rdquo; teach the model a loose, inaccurate text-to-image mapping.</div></div>
+
+<div class="q"><div class="q-text">3. DALL-E 3 uses GPT-4 at inference time to:</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">Generate the actual image pixels directly using GPT-4&rsquo;s built-in visual generation capability</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">Evaluate and score image quality after the diffusion model has finished generating an image</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">Select which diffusion model variant to route each prompt to based on content analysis</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,true)">Rewrite short user prompts into detailed scene descriptions that match the model&rsquo;s training data</button></li>
+</ul><div class="q-explain" id="ex-l1-2">The model was trained on long, detailed captions. GPT-4 bridges the gap between short user prompts and the model&rsquo;s expected input distribution.</div></div>
+
+<div class="q"><div class="q-text">4. DALL-E 3&rsquo;s approach challenges the conventional AI wisdom by showing:</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">Smaller models always beat larger ones when given the same training compute budget</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,true)">Data quality (better captions) can matter more than model architecture for image generation quality</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">Diffusion models are strictly better than autoregressive models for all image generation tasks</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">Pre-training is unnecessary when you have a sufficiently powerful language model at inference</button></li>
+</ul><div class="q-explain" id="ex-l1-3">While the field focused on architecture innovations, DALL-E 3 proved that fixing the training data (captions) yields larger quality improvements.</div></div>
+
+<div class="q"><div class="q-text">5. In human preference evaluations against SDXL (Stable Diffusion XL), DALL-E 3 was preferred:</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">51% of the time, barely winning in a near-statistical tie with significant error margins</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,true)">71.7% of the time, a decisive margin driven by better prompt following and text rendering</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">Over 90% of the time, making it the undisputed best image generator across all categories</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">Results were roughly equal, with neither model showing a statistically significant advantage</button></li>
+</ul><div class="q-explain" id="ex-l1-4">71.7% is a decisive margin in human preference studies, driven primarily by DALL-E 3&rsquo;s superior prompt following from the recaptioning pipeline.</div></div>
+<div class="score" id="score-l1"></div><button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button></div>
+</div></div>
+<!-- L2 -->
+<div class="level l2" id="level2"><div class="level-header" onclick="toggle('level2')"><div class="level-dot"></div><h2>Level 2 &mdash; Intermediate</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+<h3>The captioner &mdash; building the foundation</h3>
+<p>DALL-E 3&rsquo;s captioner is built on a <strong>CoCa-style</strong> (Contrastive Captioner) architecture &mdash; a vision-language model that combines two training objectives: contrastive learning (CLIP-style image-text matching) and autoregressive captioning (generating text descriptions token by token).</p>
+<pre><code>Image &rarr; Vision Encoder (ViT) &rarr; Cross-attention &rarr; Language Decoder &rarr; Caption</code></pre>
+<p>They took a pre-trained CoCa model and fine-tuned it on a curated dataset of high-quality, human-written image descriptions &mdash; not web-scraped alt-text, but detailed descriptions specifically collected for this purpose.</p>
+
+<h3>Two caption types</h3>
+<table><thead><tr><th>Caption Type</th><th>Purpose</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>Short</strong></td><td>Quick identification (~5&ndash;10 words)</td><td>&ldquo;A golden retriever on a beach at sunset&rdquo;</td></tr>
+<tr><td><strong>Descriptive</strong></td><td>Exhaustive detail (~50&ndash;150 words)</td><td>&ldquo;A golden retriever with a wet, dark-gold coat stands on packed sand near the waterline. Its mouth is open mid-pant, tongue hanging left. Behind the dog, gentle waves break with white foam. The sky is a gradient from deep orange at the horizon to pale blue above&hellip;&rdquo;</td></tr>
+</tbody></table>
+<p>The descriptive captions capture: <strong>objects and attributes</strong> (wet coat, dark-gold), <strong>spatial relationships</strong> (stands on, behind the dog), <strong>counts</strong> (no other people or animals), <strong>style</strong> (low angle, eye level), and <strong>negatives</strong> (what&rsquo;s NOT in the image).</p>
+
+<h3>Caption quality matters more than quantity</h3>
+<p>The captioner was trained on a <strong>relatively small</strong> curated dataset (hundreds of thousands, not billions). But because each example was a high-quality, detailed description, the captioner learned to generalize this level of detail to any image. <strong>Quality of supervision &gt; quantity of supervision.</strong></p>
+
+<h3>The three caption types in training</h3>
+<table><thead><tr><th>Type</th><th>Length</th><th>Content</th></tr></thead><tbody>
+<tr><td><strong>Ground truth</strong></td><td>Variable</td><td>Original web-scraped alt-text, preserved as-is</td></tr>
+<tr><td><strong>Short synthetic</strong></td><td>~20 tokens</td><td>Brief accurate description generated by the captioner</td></tr>
+<tr><td><strong>Long synthetic</strong></td><td>~100&ndash;200 tokens</td><td>Exhaustive descriptive caption from the captioner</td></tr>
+</tbody></table>
+
+<h3>The training mix</h3>
+<p>They <strong>blend</strong> synthetic and original captions:</p>
+<pre><code>Training batch composition:
+&boxur;&boxh; 95% synthetic captions (long descriptive)
+&boxur;&boxh;  5% ground truth (original web captions)</code></pre>
+<p><strong>Why keep 5% ground truth?</strong> Two reasons:</p>
+<ol>
+<li><strong>Distribution matching.</strong> Users write short, casual prompts. Training only on long captions makes the model over-reliant on verbose descriptions and poor on short prompts.</li>
+<li><strong>Diversity signal.</strong> Web captions, despite being noisy, contain cultural context and conceptual associations that synthetic captions miss.</li>
+</ol>
+
+<div class="card"><div class="card-label green">Ablation results</div>
+<table><thead><tr><th>Training Mix</th><th>Human Preference</th><th>Prompt Following</th></tr></thead><tbody>
+<tr><td>100% ground truth (baseline)</td><td>48%</td><td>Low</td></tr>
+<tr><td>100% synthetic long</td><td>65%</td><td>High for detailed, poor for short</td></tr>
+<tr><td>95% synthetic + 5% ground truth</td><td><strong>71.7%</strong></td><td>High across both</td></tr>
+</tbody></table>
+<p>The 95/5 blend outperforms both extremes. Pure synthetic loses distribution matching; pure ground truth has the noisy caption problem.</p>
+</div>
+
+<h3>What the captioner learns</h3>
+<pre><code>Spatial awareness:
+  Web caption:   &ldquo;family photo&rdquo;
+  Synthetic:     &ldquo;Three adults stand in a row. A woman in a blue
+                  dress is on the left, a tall man in a gray suit
+                  is in the center...&rdquo;
+
+Counting:
+  Web caption:   &ldquo;flowers&rdquo;
+  Synthetic:     &ldquo;Seven sunflowers in a clear glass vase. Five
+                  are fully bloomed, two are still partially closed.&rdquo;
+
+Text recognition:
+  Web caption:   &ldquo;street scene&rdquo;
+  Synthetic:     &ldquo;A busy city street with a red stop sign
+                  reading &lsquo;STOP&rsquo;. Behind it, a green street
+                  sign reads &lsquo;BROADWAY&rsquo;.&rdquo;</code></pre>
+
+<h3>Prompt upsampling &mdash; GPT-4 at inference</h3>
+<pre><code>User prompt: &ldquo;a cat&rdquo;
+       &darr;
+   GPT-4 rewrite
+       &darr;
+Expanded: &ldquo;A fluffy orange tabby cat sits on a windowsill,
+looking out at a rainy day. Soft natural light illuminates
+its fur. The window frame is white-painted wood...&rdquo;
+       &darr;
+   DALL-E 3 diffusion model
+       &darr;
+   Generated image</code></pre>
+<p>GPT-4 is instructed to: <strong>preserve user intent</strong>, <strong>add plausible details</strong>, <strong>be specific</strong>, and <strong>vary outputs</strong>. Users can opt out and see the rewritten prompt. This bridges the distribution gap between how users write and how the model was trained.</p>
+
+<h3>Evaluation framework</h3>
+<p><strong>T2I-CompBench</strong> (automated) tests compositional generation:</p>
+<table><thead><tr><th>Category</th><th>What It Tests</th><th>Example</th></tr></thead><tbody>
+<tr><td>Attribute binding</td><td>Correct color/texture on correct object</td><td>&ldquo;A red cube and a blue sphere&rdquo;</td></tr>
+<tr><td>Spatial relationships</td><td>Objects in correct positions</td><td>&ldquo;A cat sitting on top of a piano&rdquo;</td></tr>
+<tr><td>Object count</td><td>Correct number of objects</td><td>&ldquo;Three apples on a wooden table&rdquo;</td></tr>
+</tbody></table>
+<p><strong>Human preference studies:</strong> Side-by-side comparisons with SDXL, rated by human evaluators for quality and prompt following. DALL-E 3 achieved 71.7% preference.</p>
+<p><strong>De-emphasis of FID:</strong> FID measures distributional similarity to real images, not prompt following. A model can have great FID but still generate the wrong objects and colors. DALL-E 3 prioritized compositional accuracy and human preference over FID.</p>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>The 95/5 training mix is the paper&rsquo;s most practical contribution. It shows that synthetic data alone isn&rsquo;t enough &mdash; you need a small amount of real-world signal to maintain distribution matching. This principle applies to any synthetic data pipeline.</p></div>
+
+<div class="quiz" id="quiz-l2"><div class="quiz-title">Quiz &mdash; Level 2</div>
+<div class="q"><div class="q-text">1. The DALL-E 3 training mix uses 95% synthetic captions and 5% original web captions. What happens if you use 100% synthetic captions instead?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">Performance improves further since synthetic captions are strictly higher quality than web-scraped ones</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,true)">The model performs well on detailed prompts but poorly on short, casual prompts &mdash; losing distribution matching</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">Training becomes numerically unstable due to the uniformity of the synthetic caption distribution</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">The model produces higher quality images but takes significantly longer to converge during training</button></li>
+</ul><div class="q-explain" id="ex-l2-0">At inference time, users write short casual prompts. A model trained only on long descriptive captions can&rsquo;t handle terse input well &mdash; the 5% ground truth preserves this ability.</div></div>
+
+<div class="q"><div class="q-text">2. The captioner generates multiple caption types per image. Which of the following is NOT one of them?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Short synthetic captions (~20 tokens) providing brief but accurate image descriptions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Long synthetic captions (~100&ndash;200 tokens) providing exhaustive descriptive detail</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,true)">Adversarial synthetic captions with intentionally misleading descriptions for training robustness</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Ground truth captions (original web-scraped alt-text preserved from the source dataset)</button></li>
+</ul><div class="q-explain" id="ex-l2-1">The three types are: ground truth (original), short synthetic, and long synthetic. No adversarial captions are used in the pipeline.</div></div>
+
+<div class="q"><div class="q-text">3. DALL-E 3 notably de-emphasizes FID as an evaluation metric. Why?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">FID is computationally too expensive to run on datasets of the size DALL-E 3 was evaluated on</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">FID requires Inception-v3 features which are incompatible with the DALL-E 3 image decoder</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,true)">FID measures distributional similarity, not prompt following &mdash; a model can have great FID but still render wrong content</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">FID scores were actually poor for DALL-E 3 so they were strategically omitted from the paper</button></li>
+</ul><div class="q-explain" id="ex-l2-2">FID captures whether generated images look realistic as a population, but completely ignores whether each image matches its specific prompt. DALL-E 3 prioritizes compositional accuracy.</div></div>
+
+<div class="q"><div class="q-text">4. GPT-4 rewrites user prompts at inference time. Consider these claims:<br>I. It bridges the distribution gap between short user prompts and the model&rsquo;s long-caption training data<br>II. It always improves output quality regardless of the original prompt<br>III. Users can opt out of prompt rewriting<br>IV. The rewritten prompt is hidden from the user to maintain the illusion of magic</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',3,true)">I and III only &mdash; it bridges the gap and is optional, but doesn&rsquo;t always help and isn&rsquo;t hidden</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">I, II, and III &mdash; it bridges the gap, always helps, and is optional for users</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">All of I, II, III, and IV &mdash; all four claims correctly describe the prompt rewriting system</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">I only &mdash; the system bridges the distribution gap but users cannot opt out</button></li>
+</ul><div class="q-explain" id="ex-l2-3">II is false: rewriting can hurt when users already wrote detailed prompts. IV is false: OpenAI shows the rewritten prompt to maintain transparency.</div></div>
+
+<div class="q"><div class="q-text">5. A colleague argues: &ldquo;DALL-E 3&rsquo;s recaptioning is just data augmentation &mdash; no different from flipping images or adding noise.&rdquo; What&rsquo;s the strongest counterargument?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">The colleague is correct &mdash; recaptioning is a form of data augmentation and there is no meaningful difference</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">Recaptioning is more computationally expensive than standard augmentation, which is the only real difference</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,true)">Data augmentation preserves the original label; recaptioning changes the supervision signal entirely &mdash; it corrects noisy labels</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">None of the above &mdash; the colleague is essentially correct, recaptioning is an augmentation technique</button></li>
+</ul><div class="q-explain" id="ex-l2-4">Augmentation transforms the input while keeping the label. Recaptioning replaces a bad label with a good one &mdash; it&rsquo;s label correction, not data augmentation.</div></div>
+<div class="score" id="score-l2"></div><button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button></div>
+</div></div>
+<!-- L3 -->
+<div class="level l3" id="level3"><div class="level-header" onclick="toggle('level3')"><div class="level-dot"></div><h2>Level 3 &mdash; Expert</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+<h3>Captioner base model selection</h3>
+<p>The captioner isn&rsquo;t trained from scratch. OpenAI starts with a pre-trained CoCa model and fine-tunes it:</p>
+<table><thead><tr><th>Starting Point</th><th>Caption Quality</th><th>Why</th></tr></thead><tbody>
+<tr><td>CLIP encoder + random decoder</td><td>Mediocre</td><td>Good vision, no generation ability yet</td></tr>
+<tr><td><strong>CoCa (contrastive + captioning)</strong></td><td><strong>Best</strong></td><td>Both vision understanding AND text generation warm-started</td></tr>
+<tr><td>Pure captioning model (no contrastive)</td><td>Good but less robust</td><td>Generates fluently but misidentifies objects more often</td></tr>
+</tbody></table>
+<p>The contrastive pretraining gives the vision encoder <strong>discriminative features</strong> &mdash; it knows the difference between a golden retriever and a labrador. Without it, the captioner writes fluent but less precise descriptions.</p>
+
+<h3>Annotation guidelines</h3>
+<div class="card"><div class="card-label blue">What annotators describe</div>
+<ol>
+<li>Main subject(s) &mdash; appearance, pose, expression</li>
+<li>Spatial layout &mdash; where things are relative to each other</li>
+<li>Background &mdash; setting, environment, secondary elements</li>
+<li>Style &mdash; photography type, artistic medium, lighting</li>
+<li>Text &mdash; any visible text, signs, labels (exact transcription)</li>
+<li>Absences &mdash; notable things NOT present</li>
+<li>Quantities &mdash; exact counts where possible</li>
+</ol>
+</div>
+<div class="card"><div class="card-label red">What annotators must NOT do</div>
+<ol>
+<li>Interpret emotions or intent</li>
+<li>Speculate about what&rsquo;s outside the frame</li>
+<li>Use subjective quality judgments (&ldquo;beautiful&rdquo;, &ldquo;ugly&rdquo;)</li>
+<li>Reference external knowledge (&ldquo;this is the Eiffel Tower&rdquo;) &mdash; instead describe visual properties (&ldquo;a tall iron lattice tower with a tapered shape&rdquo;)</li>
+</ol>
+<p>The last point is crucial: the captioner should describe <strong>what it sees</strong>, not <strong>what it knows</strong>. This teaches the generator to render visual properties, not pattern-match labels.</p>
+</div>
+
+<h3>Decoding strategy</h3>
+<p>At recaptioning time, the captioner uses <strong>nucleus sampling</strong> (top-p = 0.9) with temperature &tau; = 0.7, rather than beam search:</p>
+<table><thead><tr><th>Method</th><th>Behavior</th><th>Tradeoff</th></tr></thead><tbody>
+<tr><td><strong>Beam search</strong></td><td>Deterministic, picks highest-probability sequence</td><td>Repetitive, generic &mdash; converges to safe, bland descriptions</td></tr>
+<tr><td><strong>Nucleus sampling</strong></td><td>Samples randomly from top-p probability mass</td><td>Diverse but occasionally inconsistent &mdash; same image gets different captions</td></tr>
+</tbody></table>
+<p>Nucleus sampling&rsquo;s <strong>adaptive nucleus size</strong> is key: when the model is confident, the nucleus shrinks (near-deterministic). When uncertain, it expands (more creative). Diversity in captions &rarr; diversity in what the generator learns.</p>
+
+<h3>The diffusion model</h3>
+<p>The paper is deliberately vague about the generator (proprietary), but the architecture is a <strong>U-Net with text cross-attention</strong>:</p>
+<pre><code>Noisy latent z_t
+     &darr;
+&boxdr;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxdl;
+&boxv;         U-Net                  &boxv;
+&boxv;  Down: [Conv &rarr; ResBlock &rarr; Attn] &boxv;
+&boxv;  Bottleneck                     &boxv;
+&boxv;  Up:   [Conv &rarr; ResBlock &rarr; Attn] &boxv;  &larr; Cross-attention to
+&boxv;                                 &boxv;    text embeddings
+&boxur;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxh;&boxul;
+        Predicted noise &epsilon;_&theta;</code></pre>
+<p><strong>Training objective:</strong> Standard DDPM noise prediction:</p>
+<pre><code>L_diffusion = E[||&epsilon; - &epsilon;_&theta;(z_t, t, c)||&sup2;]
+
+Where:
+  z_0 = clean latent (image encoded by VAE)
+  z_t = noisy latent at timestep t
+  &epsilon;  = actual noise added
+  c   = text conditioning (caption embedding)</code></pre>
+<p><strong>The only change from DALL-E 2 is <code>c</code>.</strong> Same architecture, same loss, same noise schedule &mdash; but <code>c</code> went from garbage alt-text embeddings to rich descriptive caption embeddings. That&rsquo;s the entire paper&rsquo;s contribution to the diffusion model itself.</p>
+
+<h3>Classifier-Free Guidance (CFG)</h3>
+<p>At inference, DALL-E 3 uses CFG to amplify text conditioning:</p>
+<pre><code>&epsilon;&#770;_&theta; = &epsilon;_&theta;(z_t, t, &empty;) + s &middot; [&epsilon;_&theta;(z_t, t, c) - &epsilon;_&theta;(z_t, t, &empty;)]</code></pre>
+<p>Run the model twice &mdash; once with the caption, once without. The difference is the &ldquo;direction&rdquo; the caption pushes the image. Scale <code>s</code> amplifies that direction (typically 7&ndash;15). Higher <code>s</code> = more faithful to the prompt but less diverse. During training, captions are randomly dropped ~10% of the time to enable this.</p>
+
+<h3>Recaptioning at scale</h3>
+<table><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody>
+<tr><td>Dataset size</td><td>~600M+ images</td></tr>
+<tr><td>Caption types per image</td><td>2 (short + long)</td></tr>
+<tr><td>Total captions generated</td><td>~1.2B+</td></tr>
+<tr><td>Compute cost</td><td>Thousands of GPU-hours</td></tr>
+</tbody></table>
+<p><strong>Quality filtering:</strong> Length filter (10&ndash;300 tokens), repetition filter, hallucination detection via CLIP alignment scores. Captions with alignment below a threshold are regenerated or replaced with the original ground truth.</p>
+
+<h3>Ablation studies</h3>
+<div class="card"><div class="card-label green">Caption length sweet spot</div>
+<table><thead><tr><th>Avg Caption Length</th><th>Human Preference</th></tr></thead><tbody>
+<tr><td>~10 tokens (short only)</td><td>58%</td></tr>
+<tr><td>~50 tokens (medium)</td><td>66%</td></tr>
+<tr><td>~120 tokens (long descriptive)</td><td><strong>71%</strong></td></tr>
+<tr><td>~200+ tokens (extremely verbose)</td><td>69%</td></tr>
+</tbody></table>
+<p>There&rsquo;s a sweet spot. Too short = insufficient detail. Too long = noise and redundancy creep in.</p>
+</div>
+
+<div class="card"><div class="card-label green">Captioner quality vs generator quality</div>
+<table><thead><tr><th>Captioner CIDEr</th><th>Generator Human Pref</th></tr></thead><tbody>
+<tr><td>95 (weak)</td><td>59%</td></tr>
+<tr><td>115 (medium)</td><td>65%</td></tr>
+<tr><td>135 (strong)</td><td><strong>71.7%</strong></td></tr>
+</tbody></table>
+<p><strong>Near-linear relationship.</strong> Better captioner &rarr; better generator. The pipeline hasn&rsquo;t saturated &mdash; an even better captioner would likely produce an even better generator.</p>
+</div>
+
+<h3>The generator&ndash;captioner flywheel</h3>
+<p>A better generator enables a better captioner through synthetic training pairs:</p>
+<pre><code>Step 1: Use generator to create images from detailed prompts
+  Prompt &rarr; Generator &rarr; [perfectly-aligned image]
+  
+Step 2: Use (prompt, generated_image) pairs to fine-tune captioner
+  Captioner learns precise descriptions from perfectly-aligned data
+
+The cycle:
+  Weak captioner &rarr; OK generator
+  OK generator &rarr; better training pairs &rarr; better captioner
+  Better captioner &rarr; better generator &rarr; ...</code></pre>
+<p><strong>Catch:</strong> The flywheel can amplify errors. Real images in the mix (that 5% ground truth) keep the loop grounded in reality.</p>
+
+<h3>Safety measures</h3>
+<p>T2I safety classifier filters both prompts and generated images. Provenance metadata (C2PA) embedded in outputs. Prompt-level filtering prevents generation of public figures and harmful content.</p>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>The diffusion model is essentially unchanged from DALL-E 2. The only variable that changed is the conditioning signal <code>c</code>. This is the purest possible demonstration that <strong>better data &gt; better architecture</strong> for image generation.</p></div>
+
+<div class="quiz" id="quiz-l3"><div class="quiz-title">Quiz &mdash; Level 3</div>
+<div class="q"><div class="q-text">1. The captioner&rsquo;s annotation guidelines instruct humans NOT to write &ldquo;This is the Eiffel Tower&rdquo; and instead describe &ldquo;a tall iron lattice tower with a tapered shape.&rdquo; Why?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">Named entities cause numerical instability in the diffusion model&rsquo;s cross-attention mechanism</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">To avoid potential copyright and trademark issues with named landmarks in generated images</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,true)">The generator needs to learn visual properties, not label-matching &mdash; describing what&rsquo;s visible teaches it to render features</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">Both A and B are correct &mdash; it&rsquo;s both a stability and a legal concern for the training pipeline</button></li>
+</ul><div class="q-explain" id="ex-l3-0">Describing visual properties teaches the model to actually render those features. A name just teaches pattern matching without understanding the visual structure.</div></div>
+
+<div class="q"><div class="q-text">2. DALL-E 3 uses nucleus sampling (top-p=0.9, &tau;=0.7) instead of beam search for recaptioning. If they switched to beam search, what would happen?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',1,true)">Caption accuracy would improve slightly but diversity would collapse &mdash; similar images get near-identical captions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">Caption quality would improve across the board with no meaningful downsides for the downstream generator</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">The recaptioning pipeline would run faster since beam search requires fewer forward passes per caption</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">None of the above &mdash; beam search and nucleus sampling produce equivalent downstream generator quality</button></li>
+</ul><div class="q-explain" id="ex-l3-1">Beam search optimizes for the single most probable sequence, producing repetitive, template-like captions. The generator would learn rigid patterns instead of diverse associations.</div></div>
+
+<div class="q"><div class="q-text">3. Captioner CIDEr scores of 95, 115, and 135 map to generator human preferences of 59%, 65%, and 71.7%. What does the near-linear relationship suggest?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">The approach has saturated &mdash; further captioner improvements will yield diminishing generator quality gains</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">CIDEr is a flawed metric and the apparent linear correlation with human preference is coincidental</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,true)">The approach has NOT saturated &mdash; an even better captioner would likely produce an even better generator</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">All three captioners are essentially equivalent in practice since the differences are within noise margins</button></li>
+</ul><div class="q-explain" id="ex-l3-2">A non-saturating, near-linear curve means captioner quality is a key optimization lever with room to improve.</div></div>
+
+<div class="q"><div class="q-text">4. Classifier-Free Guidance (CFG) runs the model twice per denoising step. Which correctly describes the tradeoff of increasing guidance scale <code>s</code>?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">Higher <code>s</code> increases both prompt fidelity and image diversity simultaneously with no downsides</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">Higher <code>s</code> reduces both prompt fidelity and diversity, producing more generic-looking outputs</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">The guidance scale <code>s</code> only affects inference speed and latency, not the quality of generated images</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,true)">Higher <code>s</code> increases prompt fidelity but reduces diversity &mdash; images become more literal at the cost of variation</button></li>
+</ul><div class="q-explain" id="ex-l3-3">CFG amplifies the text conditioning signal. More amplification = more faithful to the prompt but more constrained outputs with less creative variation.</div></div>
+
+<div class="q"><div class="q-text">5. A researcher wants to reproduce DALL-E 3&rsquo;s results. Which statement is most accurate?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">Full reproduction is straightforward since the paper provides complete architecture details and training data</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">Reproduction is impossible because the recaptioning technique itself is patented and cannot be legally used</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">The results are fully reproducible using only the open-source tools and models mentioned in the paper</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,true)">The core idea is reproducible, but specific results can&rsquo;t be verified &mdash; captioner, data, and GPT-4 upsampling are proprietary</button></li>
+</ul><div class="q-explain" id="ex-l3-4">The recaptioning idea has been independently replicated (SD3, FLUX). But DALL-E 3&rsquo;s specific numbers can&rsquo;t be verified since the captioner, fine-tuning data, and generator are all proprietary.</div></div>
+<div class="score" id="score-l3"></div><button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button></div>
+</div></div>
+<!-- L4 -->
+<div class="level l4" id="level4"><div class="level-header" onclick="toggle('level4')"><div class="level-dot"></div><h2>Phase 4 &mdash; Frontier</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+<p>DALL-E 3 triggered a paradigm shift. Every major lab adopted recaptioning within months. Here&rsquo;s what it sparked and what comes next.</p>
+
+<h3>Failure modes &mdash; what DALL-E 3 still gets wrong</h3>
+<div class="card"><div class="card-label red">Compositionality ceiling</div>
+<p>Prompts with 4+ objects and complex spatial relationships degrade. Colors bleed, attributes bind to wrong objects. Better captions help but don&rsquo;t solve the diffusion model&rsquo;s fundamental <strong>attribute binding problem</strong> &mdash; &ldquo;red&rdquo; needs to attach to &ldquo;cube&rdquo; not &ldquo;sphere,&rdquo; and cross-attention&rsquo;s capacity for this scales poorly.</p>
+</div>
+<div class="card"><div class="card-label red">Counting beyond ~4</div>
+<p>Diffusion models lack an explicit counting mechanism. The model learns statistical associations (&ldquo;7 apples&rdquo; correlates with &ldquo;many apples&rdquo;), not discrete counting. The captioner correctly writes &ldquo;7&rdquo; but the generator can&rsquo;t enforce it.</p>
+</div>
+<div class="card"><div class="card-label red">Text rendering limits</div>
+<p>DALL-E 3 renders &ldquo;STOP&rdquo; and &ldquo;OPEN&rdquo; correctly (short, common words memorized as visual patterns), but novel strings &gt;~10 characters get garbled. The model learned text as visual textures, not as a compositional character-level system.</p>
+</div>
+<div class="card"><div class="card-label amber">The homogeneity problem</div>
+<p>Despite nucleus sampling, the captioner describes all images in the same clinical &ldquo;museum placard&rdquo; style. Slang, humor, technical jargon, and cultural context from original web captions get flattened. The generator loses some ability to produce diverse visual styles from informal prompts.</p>
+</div>
+
+<h3>The recaptioning wave</h3>
+<p>DALL-E 3 established recaptioning as standard practice. Every subsequent SOTA model adopted it:</p>
+<table><thead><tr><th>Model</th><th>Date</th><th>Captioner Used</th><th>Key Difference</th></tr></thead><tbody>
+<tr><td><strong>DALL-E 3</strong></td><td>Oct 2023</td><td>Custom CoCa fine-tune</td><td>First to prove the approach</td></tr>
+<tr><td><strong>Stable Diffusion 3</strong></td><td>Feb 2024</td><td>CogVLM</td><td>Added rectified flow + MM-DiT</td></tr>
+<tr><td><strong>Imagen 3</strong> (Google)</td><td>Mid 2024</td><td>Gemini-based captioner</td><td>Leveraged stronger vision model</td></tr>
+<tr><td><strong>FLUX</strong> (Black Forest Labs)</td><td>Aug 2024</td><td>T5-based + recaptioning</td><td>Open-weights, flow matching</td></tr>
+<tr><td><strong>Ideogram 2</strong></td><td>Late 2024</td><td>Proprietary</td><td>Best-in-class text rendering</td></tr>
+</tbody></table>
+
+<h3>Architecture evolution post-DALL-E 3</h3>
+<h3>U-Net &rarr; DiT (Diffusion Transformer)</h3>
+<pre><code>DALL-E 3 era:
+  Text encoder &rarr; U-Net with cross-attention &rarr; Image
+  (Convolutional backbone, attention at select layers)
+
+Post-DALL-E 3:
+  Text encoder &rarr; Pure transformer (DiT) &rarr; Image
+  (No convolutions, attention everywhere, scales better)</code></pre>
+<p>DiT replaces the U-Net with a pure transformer, scaling more predictably. SD3 and FLUX adopted this. DiT + recaptioning pushed quality beyond DALL-E 3.</p>
+
+<h3>DDPM &rarr; Flow Matching</h3>
+<pre><code>DDPM (DALL-E 3):
+  Forward: add noise gradually over 1000 steps
+  Reverse: predict and remove noise over 1000 steps
+  Path: curved, complex noise schedule
+
+Flow Matching (SD3, FLUX):
+  Forward: linear interpolation from data to noise
+  Reverse: follow straight path back
+  Path: straight lines, simpler, faster</code></pre>
+<p>Flow matching achieves comparable quality with fewer denoising steps (20&ndash;30 vs 50&ndash;100), making generation faster.</p>
+
+<h3>Single &rarr; Triple text encoders</h3>
+<pre><code>DALL-E 3:     [Single text encoder] &rarr; cross-attention &rarr; U-Net
+
+SD3 / FLUX:   [CLIP-L] &boxh;&boxh;&boxh;&boxdl;
+              [CLIP-G] &boxh;&boxh;&boxh;&boxn;&rarr; concatenate &rarr; cross-attention &rarr; DiT
+              [T5-XXL] &boxh;&boxh;&boxh;&boxul;
+
+Each captures different aspects:
+  CLIP-L:  visual concepts, style
+  CLIP-G:  scene composition, global semantics
+  T5-XXL:  language understanding, long prompts</code></pre>
+
+<h3>Open research frontiers</h3>
+
+<h3>1. Autoregressive image generation</h3><span class="tag-explore">Area to explore</span>
+<p>The hottest shift post-DALL-E 3 is moving away from diffusion entirely. Autoregressive models (Transfusion, Chameleon) generate image tokens left-to-right, like writing text. They naturally unify text + image generation with variable resolution. <strong>Both approaches still benefit from recaptioning</strong> &mdash; the data insight is architecture-agnostic.</p>
+
+<h3>2. The captioner becomes the model</h3><span class="tag-explore">Area to explore</span>
+<p>DALL-E 3 treated the captioner as a preprocessing step. The frontier is <strong>making the captioner and generator the same model</strong> &mdash; a single unified model that can both understand and generate images (Gemini, GPT-4o, Transfusion). No separate pipeline, no distribution mismatch.</p>
+
+<h3>3. Video recaptioning</h3><span class="tag-explore">Area to explore</span>
+<p>The same principle applies to video, but captions must describe <strong>temporal dynamics</strong>: actions, transitions, cause-and-effect, camera motion. A 10-second clip needs a caption covering what happens over time, not just a static description.</p>
+
+<h3>4. Compositional generation without cross-attention</h3><span class="tag-partial">Partially explored</span>
+<table><thead><tr><th>Approach</th><th>Idea</th><th>Status</th></tr></thead><tbody>
+<tr><td>Layout-guided generation</td><td>Specify bounding boxes for each object</td><td>Works but requires extra input</td></tr>
+<tr><td>Attention manipulation</td><td>Directly edit cross-attention maps</td><td>Promising (Attend-and-Excite)</td></tr>
+<tr><td>LLM-planned generation</td><td>LLM decomposes scene, generates each object separately</td><td>Emerging</td></tr>
+<tr><td>Autoregressive</td><td>Sequential token generation naturally handles binding</td><td>Most promising long-term</td></tr>
+</tbody></table>
+
+<h3>5. Evaluation beyond human preference</h3><span class="tag-explore">Area to explore</span>
+<table><thead><tr><th>Metric</th><th>Measures</th><th>Limitation</th></tr></thead><tbody>
+<tr><td>FID</td><td>Distribution similarity</td><td>Ignores prompt following</td></tr>
+<tr><td>CLIP Score</td><td>Text-image alignment</td><td>Coarse &mdash; misses fine-grained errors</td></tr>
+<tr><td>T2I-CompBench</td><td>Compositional accuracy</td><td>Limited prompt categories</td></tr>
+<tr><td><strong>GenAI-Bench</strong> (2024)</td><td>Holistic generation quality</td><td>Newer, less validated</td></tr>
+<tr><td><strong>DPG-Bench</strong> (2024)</td><td>Dense prompt following</td><td>Promising, tests long prompts</td></tr>
+</tbody></table>
+<p>No single metric captures &ldquo;is this a good image for this prompt?&rdquo; The field still relies on human evals for serious comparisons.</p>
+
+<h3>The DALL-E 3 legacy</h3>
+<div class="card"><div class="card-label purple">Before DALL-E 3</div>
+<pre><code>&ldquo;How do we make image generation better?&rdquo;
+  &rarr; Bigger model
+  &rarr; Better architecture
+  &rarr; More training compute
+  &rarr; Better noise schedule</code></pre>
+</div>
+<div class="card"><div class="card-label green">After DALL-E 3</div>
+<pre><code>&ldquo;How do we make image generation better?&rdquo;
+  &rarr; Better training data descriptions  &larr; new top priority
+  &rarr; Then bigger model
+  &rarr; Then better architecture</code></pre>
+</div>
+<p>This mirrors the broader <strong>data-centric AI</strong> movement: for mature architectures, improving data quality yields more than improving the model. DALL-E 3 is the most dramatic demonstration in generative AI.</p>
+
+<h3>Lasting contributions (ranked)</h3>
+<ol>
+<li><strong>Synthetic recaptioning as standard practice</strong> &mdash; now universal across all image/video generation</li>
+<li><strong>Data quality &gt; model architecture</strong> &mdash; a clear, reproducible demonstration</li>
+<li><strong>Caption-generator flywheel</strong> &mdash; the virtuous cycle of using generators to improve captioners</li>
+<li><strong>Prompt upsampling via LLM</strong> &mdash; GPT-4 rewriting at inference, adopted by Midjourney, Ideogram, and others</li>
+<li><strong>Evaluation framework shift</strong> &mdash; de-emphasizing FID in favor of human preference and compositional benchmarks</li>
+</ol>
+
+<h3>Scorecard</h3>
+<table><thead><tr><th>Dimension</th><th>Rating</th><th>Notes</th></tr></thead><tbody>
+<tr><td>Novelty</td><td>&#11088;&#11088;&#11088;&#11088; 4/5</td><td>Core idea (fix the data) is simple but the execution and proof are novel. Not a new architecture.</td></tr>
+<tr><td>Impact</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td><td>Changed standard practice for the entire field within months.</td></tr>
+<tr><td>Reproducibility</td><td>&#11088;&#11088; 2/5</td><td>Key components are proprietary (captioner, GPT-4 upsampling, training data).</td></tr>
+<tr><td>Technical depth</td><td>&#11088;&#11088;&#11088; 3/5</td><td>Deliberate simplicity &mdash; the contribution is the pipeline, not complex math.</td></tr>
+<tr><td>Writing quality</td><td>&#11088;&#11088;&#11088;&#11088; 4/5</td><td>Clear, well-structured, honest about limitations.</td></tr>
+<tr><td>Longevity</td><td>&#11088;&#11088;&#11088;&#11088;&#11088; 5/5</td><td>The data-centric insight will outlast every specific architecture.</td></tr>
+</tbody></table>
+
+<div class="takeaway"><div class="takeaway-label">Bottom line</div><p><strong>A field-defining paper that won by asking a different question.</strong> While everyone competed on model architecture, OpenAI asked &ldquo;what if the training labels are just bad?&rdquo; and proved the answer mattered more than anyone expected. Every image generator released since &mdash; SD3, FLUX, Imagen 3, Ideogram &mdash; uses synthetic recaptioning. The data-centric insight is DALL-E 3&rsquo;s most lasting contribution, and it transfers to video, 3D, and any future modality.</p></div>
+
+<table><thead><tr><th>Improvement vector</th><th>Status</th><th>Key work</th></tr></thead><tbody>
+<tr><td>Better architectures (DiT, flow matching)</td><td><span class="tag-addressed">Addressed by SD3/FLUX</span></td><td>Complementary to recaptioning, not replacement</td></tr>
+<tr><td>Triple text encoders</td><td><span class="tag-addressed">Addressed by SD3/FLUX</span></td><td>Richer conditioning signal</td></tr>
+<tr><td>Autoregressive generation</td><td><span class="tag-explore">Area to explore</span></td><td>Transfusion, Chameleon &mdash; still benefits from recaptioning</td></tr>
+<tr><td>Unified captioner-generator</td><td><span class="tag-explore">Area to explore</span></td><td>Gemini, GPT-4o &mdash; no separate pipeline</td></tr>
+<tr><td>Video recaptioning</td><td><span class="tag-explore">Area to explore</span></td><td>Temporal descriptions, camera motion</td></tr>
+<tr><td>Compositional generation</td><td><span class="tag-partial">Partially explored</span></td><td>Layout-guided, attention manipulation, LLM-planned</td></tr>
+</tbody></table>
+
+<div class="quiz" id="quiz-l4"><div class="quiz-title">Quiz &mdash; Phase 4</div>
+<div class="q"><div class="q-text">1. DALL-E 3&rsquo;s recaptioning causes a &ldquo;homogeneity problem.&rdquo; A researcher proposes fixing it by training multiple captioners with different &ldquo;voices&rdquo; (casual, technical, artistic). What is the most likely outcome?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">The generator learns richer style associations, completely solving the homogeneity problem</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,true)">Caption diversity improves but inconsistent quality across voices makes training noisier with unclear gains</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">Multiple captioners are computationally prohibitive and produce no measurable quality improvements</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">This is exactly what OpenAI did &mdash; the paper describes three distinct captioner personas in the pipeline</button></li>
+</ul><div class="q-explain" id="ex-l4-0">Multiple voices add diversity but introduce new problems: inconsistent quality and the generator may learn to associate description styles with visual styles rather than treating them as interchangeable.</div></div>
+
+<div class="q"><div class="q-text">2. Post-DALL-E 3 models like SD3 and FLUX stack three text encoders (CLIP-L, CLIP-G, T5-XXL). Consider:<br>I. Each encoder captures different semantic aspects<br>II. Triple encoders eliminate the need for recaptioning through redundancy<br>III. Concatenated embeddings give cross-attention a richer conditioning signal<br>IV. This approach trades inference speed for prompt-following quality</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',1,true)">I, III, and IV only &mdash; triple encoders complement recaptioning, they don&rsquo;t replace it</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">All of I, II, III, and IV &mdash; all four claims correctly describe the triple encoder approach</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">I and III only &mdash; there is no inference speed penalty from using multiple text encoders</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">II and IV only &mdash; the key benefit is eliminating recaptioning through encoder redundancy</button></li>
+</ul><div class="q-explain" id="ex-l4-1">II is false: SD3 and FLUX all still use recaptioned training data. Triple encoders are complementary to recaptioning, not a replacement.</div></div>
+
+<div class="q"><div class="q-text">3. DALL-E 3 renders &ldquo;STOP&rdquo; on a sign but fails on novel strings like &ldquo;Manohar Paluri&rdquo; on a nameplate. Why?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">The diffusion model has a hard-coded dictionary of common words that it can render as visual textures</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,true)">The model learned text as visual patterns from training data &mdash; &ldquo;STOP&rdquo; is memorized, novel strings need compositional rendering</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">The text encoder truncates uncommon names before they reach the diffusion model&rsquo;s conditioning layer</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">None of the above &mdash; DALL-E 3 renders both equally well in the latest version of the model</button></li>
+</ul><div class="q-explain" id="ex-l4-2">&ldquo;STOP&rdquo; appears thousands of times in training photos and is memorized as a visual texture pattern. Novel strings require compositional character-level rendering that diffusion models don&rsquo;t support.</div></div>
+
+<div class="q"><div class="q-text">4. Applying DALL-E 3&rsquo;s recaptioning to video generation faces unique challenges. Which are specific to video?<br>I. Temporal descriptions &mdash; capturing actions, transitions, and cause-effect over time<br>II. Camera motion &mdash; describing pans, zooms, and cuts<br>III. Spatial relationships between objects in a single frame<br>IV. Caption length explosion &mdash; a 10-second clip may need 500+ tokens</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">III only &mdash; spatial relationships are the core unsolved problem specific to video captioning</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,true)">I, II, and IV only &mdash; spatial relationships (III) already exist in image captioning, not unique to video</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">All of I, II, III, and IV &mdash; all four challenges are uniquely introduced by video recaptioning</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">I and II only &mdash; caption length is not a meaningful concern for modern transformer-based captioners</button></li>
+</ul><div class="q-explain" id="ex-l4-3">Spatial relationships (III) are already a challenge for image captioning. Temporal dynamics (I), camera motion (II), and caption length (IV) are uniquely introduced by video.</div></div>
+
+<div class="q"><div class="q-text">5. A colleague claims: &ldquo;DALL-E 3 is obsolete &mdash; DiT + flow matching + triple text encoders have made recaptioning irrelevant.&rdquo; What&rsquo;s the strongest rebuttal?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">DALL-E 3 is not obsolete because it still holds the highest human preference scores of any model</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,true)">The claim confuses complementary advances &mdash; DiT, flow matching, and triple encoders all still use recaptioned data</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">Architecture improvements and data improvements are fully interchangeable &mdash; either alone reaches the same ceiling</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">The colleague is essentially correct &mdash; architectural advances have made data quality a secondary concern</button></li>
+</ul><div class="q-explain" id="ex-l4-4">Every post-DALL-E 3 model (SD3, FLUX, Imagen 3) uses recaptioned training data. Removing recaptioning from any of them would significantly degrade quality. Architecture and data improvements are complementary.</div></div>
+<div class="score" id="score-l4"></div><button class="reset-btn" id="reset-l4" onclick="resetQuiz('l4')">Try again</button></div>
+</div></div>
+
+<a class="back" href="../index.html" style="margin-top:2rem">&larr; Back to all papers</a>
+</div>
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('open')}
+var S={};
+function ans(btn,qid,qi,ok){if(!S[qid])S[qid]={a:[],t:document.querySelectorAll('#quiz-'+qid+' .q').length};var s=S[qid];if(s.a[qi]!=null)return;s.a[qi]=ok;btn.parentElement.querySelectorAll('.q-btn').forEach(function(b){b.disabled=true;if(b===btn)b.classList.add(ok?'correct':'incorrect');if(!ok&&b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(',true)')>-1)b.classList.add('reveal')});var ex=document.getElementById('ex-'+qid+'-'+qi);if(ex)ex.classList.add('show');var done=s.a.filter(function(x){return x!=null}).length;if(done===s.t){var c=s.a.filter(function(x){return x===true}).length;var el=document.getElementById('score-'+qid);var pass=c>=4;el.className='score show '+(pass?'pass':'fail');el.textContent=c+'/'+s.t+(c===s.t?' \u2014 Perfect score!':pass?' \u2014 Great job! Level passed.':' \u2014 Review the material and try again.');if(!pass)document.getElementById('reset-'+qid).classList.add('show')}}
+function resetQuiz(qid){S[qid]=null;var container=document.getElementById('quiz-'+qid);container.querySelectorAll('.q-btn').forEach(function(b){b.disabled=false;b.classList.remove('correct','incorrect','reveal')});container.querySelectorAll('.q-explain').forEach(function(e){e.classList.remove('show')});document.getElementById('score-'+qid).className='score';document.getElementById('reset-'+qid).classList.remove('show')}
+</script>
+</body>
+</html>
