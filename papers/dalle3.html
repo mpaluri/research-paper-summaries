@@ -432,13 +432,17 @@ Flow Matching (SD3, FLUX):
 <h3>Single &rarr; Triple text encoders</h3>
 <pre><code>DALL-E 3:     [Single text encoder] &rarr; cross-attention &rarr; U-Net
 
-SD3 / FLUX:   [CLIP-L] &boxh;&boxh;&boxh;&boxdl;
-              [CLIP-G] &boxh;&boxh;&boxh;&boxn;&rarr; concatenate &rarr; cross-attention &rarr; DiT
-              [T5-XXL] &boxh;&boxh;&boxh;&boxul;
+SD3:    [CLIP-L] &boxh;&boxh;&boxh;&boxdl;
+        [CLIP-G] &boxh;&boxh;&boxh;&boxn;&rarr; concatenate &rarr; cross-attention &rarr; DiT
+        [T5-XXL] &boxh;&boxh;&boxh;&boxul;
 
+FLUX:   [CLIP-L] &boxh;&boxh;&boxh;&boxdl;
+        [T5-XXL] &boxh;&boxh;&boxh;&boxul;&rarr; concatenate &rarr; cross-attention &rarr; DiT
+
+SD3 uses three encoders; FLUX uses two (dropping CLIP-G).
 Each captures different aspects:
   CLIP-L:  visual concepts, style
-  CLIP-G:  scene composition, global semantics
+  CLIP-G:  scene composition, global semantics (SD3 only)
   T5-XXL:  language understanding, long prompts</code></pre>
 
 <h3>Open research frontiers</h3>
@@ -524,12 +528,12 @@ Each captures different aspects:
 <li><button class="q-btn" onclick="ans(this,'l4',0,false)">This is exactly what OpenAI did &mdash; the paper describes three distinct captioner personas in the pipeline</button></li>
 </ul><div class="q-explain" id="ex-l4-0">Multiple voices add diversity but introduce new problems: inconsistent quality and the generator may learn to associate description styles with visual styles rather than treating them as interchangeable.</div></div>
 
-<div class="q"><div class="q-text">2. Post-DALL-E 3 models like SD3 and FLUX stack three text encoders (CLIP-L, CLIP-G, T5-XXL). Consider:<br>I. Each encoder captures different semantic aspects<br>II. Triple encoders eliminate the need for recaptioning through redundancy<br>III. Concatenated embeddings give cross-attention a richer conditioning signal<br>IV. This approach trades inference speed for prompt-following quality</div><ul class="q-options">
+<div class="q"><div class="q-text">2. Post-DALL-E 3, SD3 stacks three text encoders (CLIP-L, CLIP-G, T5-XXL) while FLUX uses two (CLIP-L, T5-XXL). Consider:<br>I. Each encoder captures different semantic aspects<br>II. Multiple encoders eliminate the need for recaptioning through redundancy<br>III. Concatenated embeddings give cross-attention a richer conditioning signal<br>IV. This approach trades inference speed for prompt-following quality</div><ul class="q-options">
 <li><button class="q-btn" onclick="ans(this,'l4',1,true)">I, III, and IV only &mdash; triple encoders complement recaptioning, they don&rsquo;t replace it</button></li>
 <li><button class="q-btn" onclick="ans(this,'l4',1,false)">All of I, II, III, and IV &mdash; all four claims correctly describe the triple encoder approach</button></li>
 <li><button class="q-btn" onclick="ans(this,'l4',1,false)">I and III only &mdash; there is no inference speed penalty from using multiple text encoders</button></li>
 <li><button class="q-btn" onclick="ans(this,'l4',1,false)">II and IV only &mdash; the key benefit is eliminating recaptioning through encoder redundancy</button></li>
-</ul><div class="q-explain" id="ex-l4-1">II is false: SD3 and FLUX all still use recaptioned training data. Triple encoders are complementary to recaptioning, not a replacement.</div></div>
+</ul><div class="q-explain" id="ex-l4-1">II is false: SD3, FLUX, and other post-DALL-E 3 models all still use recaptioned training data. Multiple text encoders are complementary to recaptioning, not a replacement.</div></div>
 
 <div class="q"><div class="q-text">3. DALL-E 3 renders &ldquo;STOP&rdquo; on a sign but fails on novel strings like &ldquo;Manohar Paluri&rdquo; on a nameplate. Why?</div><ul class="q-options">
 <li><button class="q-btn" onclick="ans(this,'l4',2,false)">The diffusion model has a hard-coded dictionary of common words that it can render as visual textures</button></li>
