@@ -126,8 +126,8 @@ Phase 4: Combine everything
 
 <div class="q"><div class="q-text">5. AlphaGo&rsquo;s Move 37 in Game 2 against Lee Sedol was initially called a mistake. What does this reveal?</div><ul class="q-options">
 <li><button class="q-btn" onclick="ans(this,'l1',4,false)">The move was indeed a mistake that AlphaGo recovered from through superior endgame calculation</button></li>
-<li><button class="q-btn" onclick="ans(this,'l1',4,false)">The move was a known joseki pattern that commentators failed to recognize under time pressure</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',4,true)">RL self-play discovered strategies outside human expert knowledge &mdash; maximizing win probability over conventional intuition</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">The move was a known joseki pattern that commentators failed to recognize under time pressure</button></li>
 <li><button class="q-btn" onclick="ans(this,'l1',4,false)">Commentators immediately recognized it as brilliant but called it a &ldquo;mistake&rdquo; for dramatic effect</button></li>
 </ul><div class="q-explain" id="ex-l1-4">Move 37 emerged from RL self-play, not human imitation. The policy network learned a novel strategy no human had discovered, and MCTS confirmed its value. It violated conventional wisdom but maximized winning probability.</div></div>
 <div class="score" id="score-l1"></div><button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button></div>
@@ -243,3 +243,211 @@ N(s,a) = visit count (more visits = less exploration bonus)</code></pre>
 </ul><div class="q-explain" id="ex-l2-4">Learned pattern recognition captures positional understanding that random play misses. But rollouts aren&rsquo;t useless &mdash; the full system (both combined) still scores higher at Elo 3,739.</div></div>
 <div class="score" id="score-l2"></div><button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button></div>
 </div></div>
+
+<!-- L3 -->
+<div class="level l3" id="level3"><div class="level-header" onclick="toggle('level3')"><div class="level-dot"></div><h2>Level 3 &mdash; Expert</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>Why REINFORCE?</h3>
+<p>REINFORCE is the simplest policy gradient algorithm &mdash; and notoriously high-variance. Why not PPO or A2C?</p>
+<ul>
+<li><strong>PPO didn&rsquo;t exist yet</strong> (published 2017)</li>
+<li>The policy was warm-started from SL &mdash; RL only needs to fine-tune, reducing variance concerns</li>
+<li>Binary win/loss rewards eliminate the need for complex reward shaping</li>
+</ul>
+<p>The REINFORCE update with baseline: &Delta;&theta; = &alpha; &middot; &Sigma;<sub>t</sub> (z<sub>t</sub> &minus; v&#773;) &middot; &nabla;&theta; log &pi;&theta;(a<sub>t</sub>|s<sub>t</sub>)</p>
+<p>The baseline v&#773; (typically the value function estimate) reduces variance by crediting moves that performed <em>better than expected</em>, rather than all moves in winning games.</p>
+
+<h3>Opponent pool &mdash; implicit population-based training</h3>
+<p>The RL policy maintains a pool of past checkpoints. Each game is played against a random past version, not the current self. Without this:</p>
+<ul>
+<li>The policy develops a narrow strategy exploiting its own weaknesses</li>
+<li>It never learns to handle diverse play styles</li>
+<li>A human playing an unexpected opening could exploit the gap</li>
+</ul>
+<p>The pool forces robustness against diverse opponents &mdash; an implicit form of population-based training.</p>
+
+<h3>Value network overfitting &mdash; the full experiment</h3>
+<table><thead><tr><th>Experiment</th><th>Train MSE</th><th>Test MSE</th><th>Verdict</th></tr></thead><tbody>
+<tr><td>Human games, all positions</td><td>0.19</td><td>0.37</td><td>Memorizes trajectories</td></tr>
+<tr><td>Human games, held-out games</td><td>0.19</td><td>0.34</td><td>Still bad &mdash; similar positions across games</td></tr>
+<tr><td><strong>Self-play, 1 position/game</strong></td><td><strong>0.226</strong></td><td><strong>0.234</strong></td><td><strong>Generalizes &mdash; no overfitting</strong></td></tr>
+</tbody></table>
+<p><strong>General principle:</strong> When training examples are temporally correlated (adjacent timesteps, consecutive frames, nearby sentences), the network can memorize sequential patterns rather than learning the underlying function. Breaking correlation forces genuine learning. This applies to video understanding, RL, and any sequential prediction task.</p>
+
+<h3>Virtual losses in distributed MCTS</h3>
+<p>The distributed version runs many MCTS threads in parallel. Problem: without coordination, multiple threads explore the same promising branch simultaneously.</p>
+<pre><code>Thread 1 starts exploring move A:
+  Q(s, A) temporarily decreased
+  N(s, A) temporarily increased
+  &rarr; Other threads see move A as less attractive
+  &rarr; They explore moves B, C, D instead
+  &rarr; Thread 1 finishes, removes virtual loss, updates real value</code></pre>
+<p>This spreads threads across different parts of the tree without explicit communication &mdash; an elegant lock-free parallelism technique.</p>
+
+<h3>Time management</h3>
+<p>AlphaGo uses adaptive time allocation based on position complexity:</p>
+<ul>
+<li><strong>Simple positions</strong> (policy confidence &gt;90%): fewer simulations, move quickly</li>
+<li><strong>Complex positions</strong> (high policy entropy): more simulations, think carefully</li>
+<li><strong>Critical positions</strong> (search instability &mdash; best move keeps changing): extend time up to 4&times; normal</li>
+</ul>
+
+<h3>The symmetry trick</h3>
+<p>Go boards have 8-fold symmetry (4 rotations &times; 2 reflections). Each network evaluation randomly selects one of 8 transformations, effectively averaging over symmetries without extra compute. During training, all 8 symmetries are used for data augmentation.</p>
+
+<h3>Distributed architecture</h3>
+<pre><code>Master (search control)
+  &boxur; 1,920 CPUs: rollouts, tree traversal
+  &boxur; 280 GPUs: policy + value network evaluation
+  Asynchronous pipeline keeps both fully utilized</code></pre>
+<table><thead><tr><th>Version</th><th>Hardware</th><th>Elo</th></tr></thead><tbody>
+<tr><td>Single machine</td><td>48 CPUs, 8 GPUs</td><td>2,890</td></tr>
+<tr><td><strong>Distributed</strong></td><td><strong>1,920 CPUs, 280 GPUs</strong></td><td><strong>3,739</strong></td></tr>
+</tbody></table>
+<p>~850 Elo improvement from distribution alone &mdash; same networks, more search. Equivalent to 2&ndash;3 professional ranks.</p>
+
+<h3>Historical convergence</h3>
+<p>AlphaGo required the convergence of several advances: deep CNNs (2012&ndash;2015), GPU computing maturity, MCTS (Coulom, 2006), the UCT formula (Kocsis &amp; Szepesv&aacute;ri, 2006), move prediction from CNNs (Clark &amp; Storkey, 2014), and batch normalization (2015). Without any single one, AlphaGo couldn&rsquo;t have been built.</p>
+
+<div class="quiz" id="quiz-l3"><div class="quiz-title">Quiz &mdash; Level 3</div>
+<div class="q"><div class="q-text">1. The value network overfitting experiment shows train MSE 0.19 but test MSE 0.37 on human games. Switching to self-play with one position per game yields 0.226/0.234. What&rsquo;s the key insight?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">Self-play games are inherently easier to evaluate than human games due to simpler strategies</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,true)">Breaking temporal correlation eliminates trajectory memorization and forces genuine position evaluation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">The 0.226 vs 0.234 gap proves the value network is still significantly overfitting on self-play</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">Human games contain more complex positions that fundamentally exceed any neural network&rsquo;s capacity</button></li>
+</ul><div class="q-explain" id="ex-l3-0">The self-play version has slightly worse train accuracy but dramatically better generalization. Breaking temporal correlation between training examples forces the network to learn position evaluation rather than memorize game trajectories.</div></div>
+
+<div class="q"><div class="q-text">2. Virtual losses in distributed MCTS serve which purpose?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">Penalizing the neural network for incorrect evaluations so it improves during gameplay</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">Tracking cumulative losses at each node to permanently avoid weak branches in future games</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,true)">Temporarily worsening a branch&rsquo;s stats so other threads explore different branches &mdash; achieving parallelism without locks</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">Simulating opponent moves by adding virtual losses to the current player&rsquo;s evaluation scores</button></li>
+</ul><div class="q-explain" id="ex-l3-1">When a thread starts exploring a branch, its statistics are temporarily worsened. Other threads naturally pick different branches, spreading exploration across the tree without explicit coordination.</div></div>
+
+<div class="q"><div class="q-text">3. AlphaGo uses REINFORCE instead of more modern RL algorithms. Consider these justifications:<br>I.&nbsp;PPO didn&rsquo;t exist yet in 2016<br>II.&nbsp;Strong SL initialization means RL only fine-tunes, reducing variance concerns<br>III.&nbsp;Binary win/loss rewards eliminate the need for complex reward shaping<br>IV.&nbsp;REINFORCE consistently outperforms PPO in discrete action spaces</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',2,true)">I, II, and III only &mdash; IV is false; PPO generally dominates REINFORCE in most settings</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">All of I, II, III, and IV &mdash; REINFORCE is the superior algorithm for discrete game-playing</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">I only &mdash; the other factors are irrelevant to the algorithm choice for policy gradient methods</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">II and III only &mdash; PPO existed but was rejected after empirical comparison with REINFORCE</button></li>
+</ul><div class="q-explain" id="ex-l3-2">IV is false. PPO dominates REINFORCE in nearly every setting. AlphaGo used REINFORCE because PPO didn&rsquo;t exist yet, and the strong SL initialization plus binary rewards made the simpler algorithm practical.</div></div>
+
+<div class="q"><div class="q-text">4. Distributed AlphaGo (1,920 CPUs, 280 GPUs) gains ~850 Elo over single-machine (48 CPUs, 8 GPUs) using identical networks. What does this imply?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">The neural networks are the bottleneck &mdash; larger networks would eliminate the need for extra hardware</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">The improvement comes entirely from GPU parallelism in neural network evaluation, not from more search</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,true)">Same knowledge explored more thoroughly produces substantially stronger play &mdash; search amplifies learned knowledge</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">850 Elo is within normal measurement noise and not a statistically significant difference</button></li>
+</ul><div class="q-explain" id="ex-l3-3">More search with the same networks = stronger play. This suggests the networks hadn&rsquo;t saturated the information available through search &mdash; there was still room to improve by exploring more.</div></div>
+
+<div class="q"><div class="q-text">5. A single value network forward pass (~3ms) matches ~10,000 rollouts (~20 seconds) in accuracy. A skeptic argues rollouts are obsolete. Using AlphaGo&rsquo;s own data, what&rsquo;s the counter?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">The skeptic is correct &mdash; removing rollouts would make the full AlphaGo system even stronger</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,true)">Full AlphaGo (value + rollouts, Elo 3,739) outperforms value-only (Elo 3,492) &mdash; the blend captures complementary information</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">Rollouts are kept only as a fallback when GPU evaluation fails during tournament play conditions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">The 3ms vs 20-second comparison is misleading because value networks require GPUs while rollouts run on CPUs</button></li>
+</ul><div class="q-explain" id="ex-l3-4">The ablation proves the blend outperforms either alone. Value and rollouts have different error profiles that complement each other. The 247 Elo gap (3,739 vs 3,492) is significant.</div></div>
+<div class="score" id="score-l3"></div><button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button></div>
+</div></div>
+
+<!-- L4 -->
+<div class="level l4" id="level4"><div class="level-header" onclick="toggle('level4')"><div class="level-dot"></div><h2>Level 4 &mdash; Frontier</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>What AlphaGo got wrong</h3>
+<p><strong>Human data dependency:</strong> The pipeline starts with 30M human expert games, creating a ceiling effect (inherits human blind spots), domain specificity (48 hand-crafted features don&rsquo;t transfer to chess), limited data availability, and a bootstrap problem (needs human experts to exist first).</p>
+<p><strong>Rollout weakness:</strong> The fast rollout policy (24.2% accuracy) is most unreliable in tactically sharp positions where one wrong move changes the outcome &mdash; precisely when evaluation matters most. AlphaGo Zero later dropped rollouts entirely, and performance improved.</p>
+<p><strong>Compute:</strong> The Lee Sedol match system used 1,920 CPUs + 280 GPUs, estimated at over $1M total. A research demonstration, not a scalable product.</p>
+
+<h3>The AlphaGo family tree</h3>
+<pre><code>AlphaGo (2016, Nature)
+  Human data + hand-crafted features + rollouts + value + policy
+  &boxur;&rarr; AlphaGo Zero (2017, Nature)
+  &boxv;     NO human data, NO features, NO rollouts. Beat AlphaGo 100-0.
+  &boxur;&rarr; AlphaZero (2017/2018, Science)
+  &boxv;     Generalized to chess + shogi. Same algorithm, three games.
+  &boxur;&rarr; MuZero (2019/2020, Nature)
+        Doesn&rsquo;t know the rules. Learns world model from interaction.</code></pre>
+<p>Each step removed a dependency: human data &rarr; game specificity &rarr; game rules. AlphaGo Zero surpassed the Lee Sedol version after approximately <strong>3 days (~72 hours)</strong> of pure self-play training, proving the human data was not just unnecessary &mdash; it was a <strong>bottleneck</strong>.</p>
+
+<h3>Beyond games &mdash; the template</h3>
+<p>AlphaGo&rsquo;s architecture (neural network evaluation + tree search) became a blueprint for diverse domains:</p>
+<table><thead><tr><th>Domain</th><th>Descendant</th><th>What It Does</th></tr></thead><tbody>
+<tr><td>Protein folding</td><td>AlphaFold</td><td>Predicts 3D protein structures from amino acid sequences</td></tr>
+<tr><td>Chip design</td><td>Google TPU layout</td><td>Optimizes component placement for wire length and power</td></tr>
+<tr><td>Theorem proving</td><td>AlphaGeometry</td><td>Solves International Math Olympiad geometry problems</td></tr>
+<tr><td>Matrix multiplication</td><td>AlphaTensor</td><td>Discovers faster algorithms for matrix operations</td></tr>
+<tr><td>Code generation</td><td>AlphaCode</td><td>Generates competitive programming solutions</td></tr>
+</tbody></table>
+<p>The insight: <strong>any problem frameable as sequential decisions over evaluable states</strong> can benefit from the AlphaGo paradigm.</p>
+
+<h3>The creativity question &mdash; Move 37</h3>
+<p>AlphaGo&rsquo;s Move 37 in Game 2 &mdash; estimated by the policy network at <strong>1-in-10,000 probability</strong> of being played by a human &mdash; sparked debate about machine creativity. It emerged from RL self-play, not human imitation. Professional commentators called it a mistake before realizing it was brilliant.</p>
+
+<h3>Lee Sedol&rsquo;s counter-punch &mdash; Move 78</h3>
+<p>In Game 4, Lee Sedol played <strong>Move 78</strong> &mdash; a wedge that the policy network also estimated at <strong>1-in-10,000 probability</strong>. It exploited AlphaGo&rsquo;s coverage problem: moves with near-zero policy priors are never explored deeply by MCTS, even if they&rsquo;re brilliant. AlphaGo&rsquo;s response was erratic. Lee Sedol won decisively.</p>
+
+<h3>The search-learning tradeoff</h3>
+<pre><code>Pure learning (no search):  Fast but limited by network capacity. Strong amateur.
+Pure search (no learning):  Slow but theoretically optimal. Intermediate.
+Learning + Search:          Search amplifies learned knowledge. Superhuman.</code></pre>
+<p><strong>Neural networks provide fast, approximate intuition. Search provides slow, precise verification. The combination is greater than either alone.</strong> This principle carries through to AlphaFold, AlphaTensor, AlphaGeometry, and beyond.</p>
+
+<h3>Historical significance</h3>
+<p>The Lee Sedol match (March 2016) generated <strong>200 million Weibo pageviews</strong> and tens of millions of live stream viewers. Lee Sedol retired from professional Go in November 2019, citing AI&rsquo;s dominance. The Ke Jie match (May 2017) saw AlphaGo win 3&ndash;0 against the world #1.</p>
+
+<h3>Final scorecard</h3>
+<table><thead><tr><th>Dimension</th><th>Rating</th><th>Notes</th></tr></thead><tbody>
+<tr><td>Novelty</td><td>&starf;&starf;&starf;&starf;&starf;</td><td>First superhuman Go AI; combined known techniques in a new way</td></tr>
+<tr><td>Impact</td><td>&starf;&starf;&starf;&starf;&starf;</td><td>Spawned an entire research paradigm; changed public perception of AI</td></tr>
+<tr><td>Reproducibility</td><td>&starf;&starf;&starf;</td><td>Architecture is detailed but compute requirements make reproduction expensive</td></tr>
+<tr><td>Technical depth</td><td>&starf;&starf;&starf;&starf;</td><td>Elegant integration of multiple components, each well-motivated</td></tr>
+<tr><td>Writing quality</td><td>&starf;&starf;&starf;&starf;&starf;</td><td>One of the best-written Nature papers in recent memory</td></tr>
+<tr><td>Longevity</td><td>&starf;&starf;&starf;&starf;&starf;</td><td>Search + learning paradigm is foundation of everything DeepMind has done since</td></tr>
+</tbody></table>
+<div class="takeaway"><div class="takeaway-label">Bottom line</div><p><strong>The paper that made the world take AI seriously.</strong> Not the first superhuman game AI (Deep Blue, 1997), but the first to suggest that AI could develop genuine strategic intuition &mdash; and the first to hint that this intuition might transfer beyond games. The search + learning paradigm it established is now the foundation of DeepMind&rsquo;s work in protein folding, mathematics, chip design, and beyond.</p></div>
+
+<div class="quiz" id="quiz-l4"><div class="quiz-title">Quiz &mdash; Level 4</div>
+<div class="q"><div class="q-text">1. AlphaGo Zero eliminated human data and beat AlphaGo 100-0. What does this imply about AlphaGo&rsquo;s supervised learning phase?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">The SL phase was essential &mdash; AlphaGo Zero secretly uses human data through its architecture design</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,true)">SL was a useful bootstrap, but human biases constrained the RL ceiling &mdash; pure self-play finds stronger strategies</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">SL and pure self-play reach identical performance given enough compute and training time</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">AlphaGo Zero is weaker than the original AlphaGo at professional-level play despite higher self-play ratings</button></li>
+</ul><div class="q-explain" id="ex-l4-0">Human expert biases constrained what RL could discover. Starting from scratch allowed self-play to explore strategies no human had found, ultimately reaching a higher ceiling.</div></div>
+
+<div class="q"><div class="q-text">2. Lee Sedol&rsquo;s Move 78 in Game 4 exploited a specific architectural weakness. Which one?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">The value network couldn&rsquo;t evaluate unusual stone patterns in the center of the board</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">The rollout policy couldn&rsquo;t simulate correctly after Move 78 due to a complex ko fight</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,true)">The policy network assigned near-zero prior to Move 78, so MCTS never explored that branch deeply enough</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">AlphaGo ran out of computation time and couldn&rsquo;t complete enough simulations for that position</button></li>
+</ul><div class="q-explain" id="ex-l4-1">If the policy network gives a move near-zero probability, MCTS effectively never visits it &mdash; even if it&rsquo;s brilliant. This coverage problem is a fundamental limitation of policy-guided search.</div></div>
+
+<div class="q"><div class="q-text">3. AlphaGo&rsquo;s &ldquo;search + learning&rdquo; paradigm has been applied to protein folding, chip design, and theorem proving. What makes a domain suitable?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">The domain must involve a two-player competitive game with perfect information and discrete turns</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">The domain must have large datasets of human expert demonstrations available for supervised pre-training</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">The domain must have fewer than 10<sup>100</sup> possible states to keep tree search computationally tractable</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,true)">The domain must be expressible as sequential decisions over evaluable states with definable actions and rewards</button></li>
+</ul><div class="q-explain" id="ex-l4-2">The paradigm requires: a definable state space, an action space, and a reward signal. It doesn&rsquo;t need to be a game, have human data, or have a small state space &mdash; protein folding has none of these.</div></div>
+
+<div class="q"><div class="q-text">4. The AlphaGo lineage removed dependencies: human data (Zero), game specificity (AlphaZero), game rules (MuZero). Which claim is false?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',3,true)">Domain-specific knowledge always hurts performance &mdash; the lineage proves less knowledge is strictly better</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">Each step broadened the range of problems the approach could solve beyond the original game of Go</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">Each step required more training compute to compensate for the removed prior domain knowledge</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">Removing dependencies revealed that the core algorithm was more general than its initial application</button></li>
+</ul><div class="q-explain" id="ex-l4-3">Domain-specific knowledge doesn&rsquo;t <em>always</em> hurt. It helped AlphaGo train faster &mdash; it just capped the ceiling. Each successor traded faster training for higher generality and ultimately higher peak performance.</div></div>
+
+<div class="q"><div class="q-text">5. A colleague claims AlphaGo is &ldquo;just brute-force search with better heuristics.&rdquo; Using Move 37 as evidence, what&rsquo;s the strongest counter?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">The colleague is correct &mdash; Move 37 was found by evaluating millions of positions, which is brute force</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,true)">Move 37 emerged from RL self-play training, not game-time search &mdash; the network learned a novel concept MCTS merely confirmed</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">Move 37 was a known human strategy that AlphaGo retrieved from its supervised learning training data</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">Creativity requires consciousness, making the question fundamentally unanswerable regardless of any move</button></li>
+</ul><div class="q-explain" id="ex-l4-4">Move 37 wasn&rsquo;t found by brute-force at game time. The RL policy learned a strategic concept no human had discovered in thousands of years. MCTS confirmed its value, but the insight was in the network, not the search.</div></div>
+<div class="score" id="score-l4"></div><button class="reset-btn" id="reset-l4" onclick="resetQuiz('l4')">Try again</button></div>
+</div></div>
+
+<a class="back" href="../index.html" style="margin-top:2rem">&larr; Back to all papers</a>
+</div>
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('open')}
+var S={};
+function ans(btn,qid,qi,ok){if(!S[qid])S[qid]={a:[],t:document.querySelectorAll('#quiz-'+qid+' .q').length};var s=S[qid];if(s.a[qi]!=null)return;s.a[qi]=ok;btn.parentElement.querySelectorAll('.q-btn').forEach(function(b){b.disabled=true;if(b===btn)b.classList.add(ok?'correct':'incorrect');if(!ok&&b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(',true)')>-1)b.classList.add('reveal')});var ex=document.getElementById('ex-'+qid+'-'+qi);if(ex)ex.classList.add('show');var done=s.a.filter(function(x){return x!=null}).length;if(done===s.t){var c=s.a.filter(function(x){return x===true}).length;var el=document.getElementById('score-'+qid);var pass=c>=4;el.className='score show '+(pass?'pass':'fail');el.textContent=c+'/'+s.t+(c===s.t?' \u2014 Perfect score!':pass?' \u2014 Great job! Level passed.':' \u2014 Review the material and try again.');if(!pass)document.getElementById('reset-'+qid).classList.add('show')}}
+function resetQuiz(qid){S[qid]=null;var container=document.getElementById('quiz-'+qid);container.querySelectorAll('.q-btn').forEach(function(b){b.disabled=false;b.classList.remove('correct','incorrect','reveal')});container.querySelectorAll('.q-explain').forEach(function(e){e.classList.remove('show')});document.getElementById('score-'+qid).className='score';document.getElementById('reset-'+qid).classList.remove('show')}
+</script>
+</body>
+</html>
