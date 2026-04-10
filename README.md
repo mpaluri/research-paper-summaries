@@ -2,7 +2,7 @@
 
 Four-level explainers (Beginner → Intermediate → Expert → Frontier) for deeply understanding research papers, with interactive quizzes at each level.
 
-See [METHODOLOGY.md](METHODOLOGY.md) for the full study system design, quiz construction rules, and quality standards.
+See [SKILL.md](SKILL.md) for the full study system design, quiz construction rules, and quality standards.
 
 **Live site:** https://mpaluri.github.io/research-paper-summaries/
 
