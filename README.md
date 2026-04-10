@@ -10,6 +10,7 @@ See [SKILL.md](SKILL.md) for the full study system design, quiz construction rul
 
 | # | Paper | Topic | Published | Created |
 |:--|:------|:------|:----------|:--------|
+| 9 | [AlphaGo](papers/alphago.html) | Reinforcement learning, MCTS, neural networks, game AI | 01/27/16 | 04/09/26 |
 | 8 | [DALL-E 3](papers/dalle3.html) | Image generation, data-centric AI, recaptioning, diffusion | 10/01/23 | 04/07/26 |
 | 7 | [Chameleon](papers/chameleon.html) | Multimodal, early fusion, discrete tokens, VQ-VAE, ICLR 2025 | 05/16/24 | 04/05/26 |
 | 6 | [Transfusion](papers/transfusion.html) | Unified multimodal generation, diffusion, ICLR 2025 Oral | 08/20/24 | 04/05/26 |

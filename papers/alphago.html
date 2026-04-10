@@ -132,3 +132,114 @@ Phase 4: Combine everything
 </ul><div class="q-explain" id="ex-l1-4">Move 37 emerged from RL self-play, not human imitation. The policy network learned a novel strategy no human had discovered, and MCTS confirmed its value. It violated conventional wisdom but maximized winning probability.</div></div>
 <div class="score" id="score-l1"></div><button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button></div>
 </div></div>
+
+<!-- L2 -->
+<div class="level l2" id="level2"><div class="level-header" onclick="toggle('level2')"><div class="level-dot"></div><h2>Level 2 &mdash; Intermediate</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>Policy network architecture</h3>
+<p>A 13-layer convolutional neural network:</p>
+<pre><code>Input: 19&times;19&times;48 tensor
+  &boxur; 19&times;19 board (stone positions)
+  &boxur; 48 feature planes (liberties, ko, recency, color, edge distance)
+
+&rarr; Layer 1: 5&times;5 filters, 192 channels
+&rarr; Layers 2&ndash;12: 3&times;3 filters, 192 channels
+&rarr; Layer 13: 1&times;1 filter &rarr; 1 channel
+&rarr; Softmax over 361 positions
+&rarr; Output: P(a|s) &mdash; probability of playing each intersection</code></pre>
+<p>No pooling layers &mdash; spatial resolution must be preserved because the output is a move on the board. The 48 input features encode domain knowledge: liberties, ladder status, stone recency, ko rules. This is significant manual feature engineering despite the &ldquo;deep learning&rdquo; framing.</p>
+
+<h3>Supervised learning phase</h3>
+<p>Training data: 30 million position-move pairs from 160,000 games on the KGS Go server (6&ndash;9 dan amateur and professional games).</p>
+<table><thead><tr><th>Model</th><th>Prediction Accuracy</th></tr></thead><tbody>
+<tr><td>Previous SOTA (2015)</td><td>44.4%</td></tr>
+<tr><td>AlphaGo SL policy (12 layers)</td><td>55.7%</td></tr>
+<tr><td>AlphaGo SL policy (13 layers)</td><td><strong>57.0%</strong></td></tr>
+</tbody></table>
+<p>57% sounds low, but when expanded to top-5 predictions, accuracy exceeds 85%. Multiple moves are often equally strong at any given position.</p>
+
+<h3>Fast rollout policy</h3>
+<p>A separate lightweight model for fast game simulations during MCTS:</p>
+<table><thead><tr><th></th><th>Main SL Policy</th><th>Rollout Policy</th></tr></thead><tbody>
+<tr><td>Architecture</td><td>13-layer CNN</td><td>Linear softmax over local patterns</td></tr>
+<tr><td>Accuracy</td><td>57%</td><td>24.2%</td></tr>
+<tr><td>Speed</td><td>3ms per move</td><td>2&micro;s per move (1,500&times; faster)</td></tr>
+</tbody></table>
+
+<h3>Reinforcement learning phase</h3>
+<p>Starting from the SL policy, RL fine-tunes by self-play using the REINFORCE algorithm:</p>
+<pre><code>Repeat:
+  1. Select opponent from pool of past RL versions
+     (random selection prevents overfitting to one opponent)
+  2. Play a full game: current RL policy vs. selected opponent
+  3. Reward: z = +1 if won, -1 if lost
+  4. Update: increase probability of moves that led to wins,
+             decrease moves that led to losses</code></pre>
+<p>The opponent pool prevents <strong>policy collapse</strong> &mdash; co-evolving into a narrow strategy that beats only itself.</p>
+
+<h3>Value network</h3>
+<p>Same architecture as the policy network but outputs a single scalar via tanh (&minus;1 to +1). Critically trained on self-play data with <strong>one position per game</strong> to avoid overfitting:</p>
+<table><thead><tr><th>Training Data</th><th>Train MSE</th><th>Test MSE</th></tr></thead><tbody>
+<tr><td>Human games (all positions)</td><td>0.19</td><td>0.37 (memorization!)</td></tr>
+<tr><td>Self-play (1 position/game)</td><td>0.226</td><td><strong>0.234</strong> (generalizes)</td></tr>
+</tbody></table>
+<p>A single forward pass (~3ms) achieves accuracy comparable to averaging ~10,000 rollouts (~20 seconds) &mdash; a <strong>~7,000&times; speedup</strong>.</p>
+
+<h3>MCTS details</h3>
+<p>At each node, the selection formula balances exploitation and exploration (PUCT):</p>
+<pre><code>a = argmax[ Q(s,a) + c &middot; P(s,a) &middot; sqrt(sum_b N(s,b)) / (1 + N(s,a)) ]
+
+Q(s,a) = average value from simulations (exploitation)
+P(s,a) = prior from policy network (guides exploration)
+N(s,a) = visit count (more visits = less exploration bonus)</code></pre>
+<p><strong>Leaf evaluation</strong> blends value network and rollout: V(s) = (1&minus;&lambda;)&middot;v(s) + &lambda;&middot;z, where &lambda;=0.5.</p>
+<p><strong>Subtle detail:</strong> MCTS uses the <strong>SL policy</strong> (not the stronger RL policy) for tree priors. The SL policy models a broader distribution of reasonable human moves, providing better exploration diversity. The RL policy is too peaked toward its own play style.</p>
+
+<h3>Ablation &mdash; what each component contributes</h3>
+<table><thead><tr><th>Configuration</th><th>Elo</th></tr></thead><tbody>
+<tr><td>Raw RL policy (no search)</td><td>2,181</td></tr>
+<tr><td>MCTS + rollouts only</td><td>2,077</td></tr>
+<tr><td>MCTS + SL policy only</td><td>2,890</td></tr>
+<tr><td>MCTS + value network only</td><td>3,062</td></tr>
+<tr><td>MCTS + SL policy + value network</td><td>3,492</td></tr>
+<tr><td><strong>Full AlphaGo (all components)</strong></td><td><strong>3,739</strong></td></tr>
+</tbody></table>
+<p><strong>No single component is sufficient &mdash; the synergy is the breakthrough.</strong></p>
+
+<div class="quiz" id="quiz-l2"><div class="quiz-title">Quiz &mdash; Level 2</div>
+<div class="q"><div class="q-text">1. AlphaGo&rsquo;s input uses 48 hand-crafted feature planes. A purist argues this undermines the &ldquo;deep learning&rdquo; claim. What&rsquo;s the most accurate response?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">The purist is correct &mdash; this is essentially a traditional Go program with neural networks attached</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">All deep learning models require hand-crafted input features to function effectively</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,true)">The features accelerate learning but aren&rsquo;t strictly necessary &mdash; AlphaGo Zero later proved raw stones alone suffice</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">The 48 features are automatically learned during training, not hand-crafted by engineers</button></li>
+</ul><div class="q-explain" id="ex-l2-0">AlphaGo Zero (2017) proved raw stone positions alone are sufficient. The original AlphaGo used hand-crafted features to train efficiently with the data and compute available at the time.</div></div>
+
+<div class="q"><div class="q-text">2. The value network trained on human games achieves 99%+ train accuracy but ~50% test accuracy. Which failure mode is this?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Underfitting &mdash; the model is too simple to capture Go&rsquo;s positional complexity</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Distribution shift &mdash; the network was trained on amateur games but tested on professional games</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Label noise &mdash; human game outcomes are too random for reliable win/loss prediction</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,true)">Temporal overfitting &mdash; consecutive positions share ~99% of their state, so the network memorizes trajectories</button></li>
+</ul><div class="q-explain" id="ex-l2-1">Adjacent positions in a game are near-identical with the same outcome label. The network learns &ldquo;this trajectory leads to a win&rdquo; instead of evaluating positions independently.</div></div>
+
+<div class="q"><div class="q-text">3. MCTS uses the SL policy (not the stronger RL policy) for tree search priors. Why?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">The SL policy runs faster, and speed matters more than quality during MCTS simulations</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,true)">The SL policy models a broader distribution of human moves, providing better exploration diversity for search</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">The RL policy wasn&rsquo;t finished training when the Lee Sedol match was scheduled to begin</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">Both policies produce identical tree priors; the choice has no measurable effect on play strength</button></li>
+</ul><div class="q-explain" id="ex-l2-2">The RL policy is too peaked &mdash; it strongly prefers its own style, narrowing the search tree excessively. The SL policy considers a broader set of reasonable moves, enabling better exploration.</div></div>
+
+<div class="q"><div class="q-text">4. Leaf evaluation blends value network output with a fast rollout result using &lambda;=0.5. Consider:<br>I.&nbsp;The value network provides biased but low-variance estimates<br>II.&nbsp;The rollout result provides unbiased but high-variance estimates<br>III.&nbsp;Blending exploits complementary error profiles from both estimators<br>IV.&nbsp;Setting &lambda;=1.0 (rollouts only) outperforms the blend in AlphaGo&rsquo;s ablations</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',3,true)">I, II, and III only &mdash; the blend outperforms either component alone in ablations</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">All of I, II, III, and IV &mdash; rollouts alone perform better than the blended approach</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">II and IV only &mdash; the value network is unbiased while rollouts are the biased estimator</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">I and III only &mdash; rollouts are also biased due to the weak rollout policy&rsquo;s systematic errors</button></li>
+</ul><div class="q-explain" id="ex-l2-3">IV is false &mdash; the full AlphaGo (blend) achieves Elo 3,739, outperforming any single-estimator version. The value network and rollouts have complementary error profiles that the blend exploits.</div></div>
+
+<div class="q"><div class="q-text">5. The ablation shows MCTS + value network alone (Elo 3,062) beats MCTS + rollouts only (Elo 2,077). What does this ~1,000 Elo gap imply?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">Rollouts are useless and should be completely removed from the AlphaGo system</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">The value network is just a faster way to do rollouts &mdash; they capture identical information</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">This gap exists only because the rollout policy is intentionally weak for speed reasons</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,true)">A single neural network forward pass provides more accurate evaluation than thousands of random simulations</button></li>
+</ul><div class="q-explain" id="ex-l2-4">Learned pattern recognition captures positional understanding that random play misses. But rollouts aren&rsquo;t useless &mdash; the full system (both combined) still scores higher at Elo 3,739.</div></div>
+<div class="score" id="score-l2"></div><button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button></div>
+</div></div>
