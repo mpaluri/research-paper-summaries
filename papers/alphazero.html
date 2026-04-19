@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlphaZero &mdash; Mastering Chess, Shogi, and Go Through Self-Play</title>
+<meta name="description" content="Four-level explainer: AlphaZero — how one algorithm mastered chess, shogi, and Go from scratch through self-play, searching 1000× fewer positions than Stockfish but playing stronger chess">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0;--purple:#8250df;--purple-bg:#fbefff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129;--purple:#bc8cff;--purple-bg:#2a1a3a}}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem}.back{display:inline-block;font-size:.875rem;color:var(--accent);text-decoration:none;margin-bottom:1.5rem}.back:hover{text-decoration:underline}h1{font-size:1.6rem;font-weight:700;line-height:1.3;margin-bottom:.75rem}.paper-info{font-size:.875rem;color:var(--text2);margin-bottom:.5rem}.paper-info a{color:var(--accent);text-decoration:none}.paper-info a:hover{text-decoration:underline}.tldr{font-size:.9rem;color:var(--text2);padding:1rem 1.25rem;background:var(--bg2);border-radius:8px;margin-bottom:2rem;border-left:3px solid var(--accent)}.level{margin-bottom:2.5rem;border:1px solid var(--border);border-radius:10px;overflow:hidden}.level-header{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;cursor:pointer;background:var(--bg2);user-select:none;border-bottom:1px solid var(--border)}.level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.l1 .level-dot{background:#2da44e}.l2 .level-dot{background:#bf8700}.l3 .level-dot{background:#cf222e}.l4 .level-dot{background:var(--purple)}.level-header h2{font-size:1rem;font-weight:600;margin:0;flex:1}.chevron{font-size:.8rem;color:var(--text3);transition:transform .2s}.level.open .chevron{transform:rotate(180deg)}.level-body{display:none;padding:1.5rem 1.25rem}.level.open .level-body{display:block}h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}.level-body>h3:first-child{margin-top:0}p{margin-bottom:.75rem}ul,ol{margin:0 0 .75rem 1.25rem}li{margin-bottom:.25rem}strong{font-weight:600}em{font-style:italic}code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--code-bg);padding:1px 5px;border-radius:3px}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;margin:.75rem 0;font-size:.8rem;line-height:1.5}pre code{background:none;padding:0}table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.875rem}th{text-align:left;font-weight:600;padding:.5rem .75rem;border-bottom:2px solid var(--border);font-size:.8rem}td{padding:.5rem .75rem;border-bottom:1px solid var(--border)}tr:last-child td{border-bottom:none}.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0}.card-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}.card-label.green{color:var(--green)}.card-label.amber{color:#bf8700}.card-label.red{color:var(--red)}.card-label.blue{color:var(--accent)}.card-label.purple{color:var(--purple)}.card p:last-child{margin-bottom:0}.takeaway{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0}.takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.35rem}.takeaway p:last-child{margin-bottom:0}.result-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:.75rem 0}.result-box{text-align:center;padding:1rem;border-radius:8px}.result-box.green-bg{background:var(--green-bg);border:1px solid var(--green)}.result-box.amber-bg{background:#fff8c5;border:1px solid #bf8700}.result-box.red-bg{background:var(--red-bg);border:1px solid var(--red)}@media(prefers-color-scheme:dark){.result-box.amber-bg{background:#2a2000;border-color:#bf8700}}.result-number{font-size:1.75rem;font-weight:700;line-height:1}.result-box.green-bg .result-number{color:var(--green)}.result-box.amber-bg .result-number{color:#bf8700}.result-box.red-bg .result-number{color:var(--red)}.result-label{font-size:.75rem;color:var(--text2);margin-top:.25rem}.quiz{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1.5rem}.quiz-title{font-weight:600;font-size:.9rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}.q{margin-bottom:1.25rem}.q:last-of-type{margin-bottom:.5rem}.q-text{font-weight:500;font-size:.9rem;margin-bottom:.5rem}.q-options{list-style:none;padding:0;margin:0}.q-btn{display:block;width:100%;text-align:left;padding:.5rem .85rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);transition:border-color .12s,background .12s}.q-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg)}.q-btn:disabled{cursor:default}.q-btn:disabled:hover{border-color:inherit;background:inherit}.q-btn.correct{border-color:var(--green)!important;background:var(--green-bg)!important}.q-btn.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;opacity:.7}.q-btn.reveal{border-color:var(--green)!important;background:var(--green-bg)!important}.q-explain{display:none;font-size:.8rem;color:var(--text2);margin:.4rem 0 0;padding:.5rem .85rem;border-left:2px solid var(--border)}.q-explain.show{display:block}.score{display:none;padding:.85rem 1rem;border-radius:6px;font-weight:600;font-size:.9rem;margin-top:.75rem}.score.show{display:block}.score.pass{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}.score.fail{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}.reset-btn{display:none;margin-top:.5rem;padding:.4rem 1rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.8rem;font-family:inherit;color:var(--text)}.reset-btn.show{display:inline-block}.reset-btn:hover{border-color:var(--accent);background:var(--accent-bg)}@media(max-width:600px){.result-row{grid-template-columns:1fr}.container{padding:1.5rem 1rem 4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back" href="../index.html">&larr; Back to all papers</a>
+<h1>AlphaZero: Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm</h1>
+<p class="paper-info">DeepMind &mdash; Science, December 2018</p>
+<p class="paper-info"><a href="https://www.science.org/doi/10.1126/science.aar6404">&#128196; Paper (Science)</a></p>
+<div class="tldr"><strong>TL;DR:</strong> A single algorithm &mdash; with <strong>zero game-specific knowledge</strong> beyond the rules &mdash; mastered chess, shogi, and Go through pure self-play. AlphaZero defeated world-champion engines Stockfish (chess, 28&ndash;0), Elmo (shogi, 90&ndash;8), and the 3-day AlphaGo Zero (Go, 60&ndash;40), while searching <strong>1,000&times; fewer positions</strong>. It proved that the learning algorithm is domain-general, not game-specific.</div>
+
+<!-- L1 -->
+<div class="level l1 open" id="level1"><div class="level-header" onclick="toggle('level1')"><div class="level-dot"></div><h2>Level 1 &mdash; Beginner</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>One algorithm, three games</h3>
+<p>AlphaGo proved neural networks + search = superhuman Go. But AlphaGo was a <strong>Go program</strong> &mdash; every piece of it was designed specifically for Go. AlphaZero asks: can the same approach work for <em>any</em> board game, with zero game-specific engineering?</p>
+<p>The answer is <strong>yes</strong>. AlphaZero plays chess, shogi, and Go using the <strong>exact same algorithm</strong>. No opening books. No endgame databases. No hand-crafted features. Just the rules of the game and self-play.</p>
+
+<h3>Results</h3>
+<div class="result-row">
+<div class="result-box green-bg"><div class="result-number">28&ndash;0</div><div class="result-label">vs Stockfish<br>(chess champion)</div></div>
+<div class="result-box green-bg"><div class="result-number">90&ndash;8</div><div class="result-label">vs Elmo<br>(shogi champion)</div></div>
+<div class="result-box amber-bg"><div class="result-number">60&ndash;40</div><div class="result-label">vs AlphaGo Zero<br>(3-day version)</div></div>
+</div>
+<p><strong>Zero losses to Stockfish in 100 games.</strong> Stockfish searches ~60 million positions per second. AlphaZero searches ~60 thousand. That&rsquo;s 1,000&times; fewer positions &mdash; yet AlphaZero wins because it searches the <em>right</em> positions.</p>
+
+<table><thead><tr><th>Game</th><th>Opponent</th><th>Training Time</th><th>Result</th></tr></thead><tbody>
+<tr><td>Chess</td><td>Stockfish (TCEC champion)</td><td>9 hours</td><td>28 W, 0 L, 72 D</td></tr>
+<tr><td>Shogi</td><td>Elmo (world champion)</td><td>2 hours</td><td>90 W, 8 L, 2 D</td></tr>
+<tr><td>Go</td><td>AlphaGo Zero (3-day)</td><td>34 hours</td><td>60 W, 40 L</td></tr>
+</tbody></table>
+
+<h3>What changed from AlphaGo?</h3>
+<table><thead><tr><th>Feature</th><th>AlphaGo</th><th>AlphaZero</th></tr></thead><tbody>
+<tr><td>Human data</td><td>30M games</td><td><strong>None</strong></td></tr>
+<tr><td>Hand-crafted features</td><td>48 input planes</td><td><strong>None (raw pieces only)</strong></td></tr>
+<tr><td>Rollout policy</td><td>Yes</td><td><strong>Removed</strong></td></tr>
+<tr><td>Game-specific code</td><td>Go only</td><td><strong>Same code for all 3 games</strong></td></tr>
+<tr><td>Symmetry exploitation</td><td>8-fold Go symmetry</td><td><strong>No assumptions</strong></td></tr>
+</tbody></table>
+
+<h3>The architecture</h3>
+<pre><code>Board state (any game)
+      &darr;
+  Single ResNet (&asymp;20 residual blocks)
+      &darr;
+  &boxur;&mdash;&mdash;&mdash;&mdash;&boxur;&mdash;&mdash;&mdash;&mdash;&boxur;
+  Policy head      Value head
+  P(a|s) for       V(s) &isin; [-1, +1]
+  all legal moves  &ldquo;Who&rsquo;s winning?&rdquo;
+      &darr;               &darr;
+      &boxur;&mdash;&mdash;&mdash;&boxdr;&mdash;&mdash;&mdash;&boxur;
+           &darr;
+     MCTS (800 simulations)
+           &darr;
+     Play best move</code></pre>
+<p><strong>One network, two outputs.</strong> Same architecture for chess, shogi, and Go &mdash; the only differences are input encoding and output size.</p>
+
+<h3>Self-play training loop</h3>
+<pre><code>Repeat forever:
+  1. Play a game against yourself using MCTS
+  2. Record each position&rsquo;s board state, search results, and outcome
+  3. Train the network:
+     - Policy head: predict what MCTS recommends
+     - Value head: predict who actually won
+  4. Use the updated network for the next game</code></pre>
+<p>The network learns from MCTS, and MCTS uses the network. They bootstrap each other in a virtuous cycle.</p>
+
+<h3>Why 1,000&times; fewer positions = better play</h3>
+<div class="card"><div class="card-label blue">Quality beats quantity</div>
+<p>Stockfish evaluates 60 million positions per second with a <strong>hand-crafted scoring function</strong> &mdash; wide but shallow understanding. AlphaZero evaluates 60 thousand positions per second with a <strong>deep neural network</strong> &mdash; narrow but deep understanding. The neural network evaluation is so much richer that AlphaZero needs 1,000&times; fewer evaluations to find better moves.</p>
+</div>
+
+<h3>The chess revolution</h3>
+<p>AlphaZero&rsquo;s chess style shocked the chess world. Former world champion Garry Kasparov said AlphaZero plays &ldquo;how I always imagined a superior being would play chess.&rdquo; Its style:</p>
+<ul>
+<li><strong>Sacrifices material for positional advantage</strong> &mdash; gives up pieces for long-term strategic compensation</li>
+<li><strong>Favors aggressive, open positions</strong> where pattern recognition dominates</li>
+<li><strong>Ignores conventional wisdom</strong> &mdash; plays moves that violate textbook principles, but they work</li>
+</ul>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>AlphaZero is a <strong>generalization result</strong>. It doesn&rsquo;t play chess better because it knows more about chess &mdash; it plays better because it has a more powerful <strong>learning algorithm</strong> that discovers any game&rsquo;s strategies from scratch. The same code that masters chess also masters shogi and Go.</p></div>
+
+<div class="quiz" id="quiz-l1"><div class="quiz-title">Quiz &mdash; Level 1</div>
+<div class="q"><div class="q-text">1. AlphaZero searches ~60,000 positions/sec while Stockfish searches ~60 million. Despite this 1,000&times; gap, AlphaZero wins. What best explains this?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">AlphaZero uses a faster programming language and more efficient memory management than Stockfish</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">AlphaZero compensates by running on significantly more powerful hardware with more parallel threads</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,true)">AlphaZero&rsquo;s neural network evaluation per position is far more accurate than Stockfish&rsquo;s hand-crafted scoring, so it needs fewer evaluations to find strong moves</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">Stockfish&rsquo;s hand-crafted evaluation is unreliable, frequently miscounting material and piece positions</button></li>
+</ul><div class="q-explain" id="ex-l1-0">The neural network captures complex positional patterns that hand-crafted rules miss. Quality of evaluation beats quantity of positions searched.</div></div>
+
+<div class="q"><div class="q-text">2. Which of the following did AlphaZero remove compared to AlphaGo Zero?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">Self-play training &mdash; AlphaZero uses supervised learning on human games instead</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,true)">Game-specific assumptions like board symmetry exploitation, allowing the same algorithm to play chess, shogi, and Go unchanged</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">The value network &mdash; AlphaZero relies solely on the policy network for evaluation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">Monte Carlo Tree Search &mdash; AlphaZero uses pure neural network play without search</button></li>
+</ul><div class="q-explain" id="ex-l1-1">AlphaGo Zero exploited Go&rsquo;s 8-fold board symmetry. AlphaZero drops all symmetry assumptions to keep the algorithm game-agnostic across chess, shogi, and Go.</div></div>
+
+<div class="q"><div class="q-text">3. AlphaZero&rsquo;s training loop has the network learn from MCTS, while MCTS uses the network. What does this create?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">A circular dependency that prevents convergence &mdash; the system oscillates without improving</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">An inefficient redundancy &mdash; either the network or MCTS alone would achieve the same result</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,true)">A virtuous cycle where the network provides better intuition for search, and search provides better training targets for the network</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">A teacher-student setup where MCTS acts as a fixed oracle that never changes</button></li>
+</ul><div class="q-explain" id="ex-l1-2">The network and search bootstrap each other: better network &rarr; better search &rarr; better training data &rarr; even better network. This virtuous cycle drives continuous improvement.</div></div>
+
+<div class="q"><div class="q-text">4. Kasparov described AlphaZero&rsquo;s chess as &ldquo;how I always imagined a superior being would play.&rdquo; What specifically was surprising?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">It played extremely defensively, never taking risks or sacrificing material</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">It replicated the styles of famous grandmasters by memorizing their games</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">It played identically to Stockfish but faster, producing the same moves with lower latency</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,true)">It sacrificed material for long-term positional advantage and favored aggressive, open positions &mdash; violating conventional computer chess principles</button></li>
+</ul><div class="q-explain" id="ex-l1-3">Traditional engines are materialistic &mdash; piece values are hard-coded. AlphaZero learned that material isn&rsquo;t everything, voluntarily sacrificing pieces for strategic compensation.</div></div>
+
+<div class="q"><div class="q-text">5. AlphaZero is described as a &ldquo;generalization result.&rdquo; What does this mean?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">The algorithm generalizes poorly &mdash; it only works for board games and nothing else</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,true)">The power lies in the domain-general learning algorithm &mdash; the same code that masters chess also masters shogi and Go from scratch</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">AlphaZero contains three separate specialized engines, one per game, sharing a common framework</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">Generalization refers to AlphaZero&rsquo;s ability to play all possible board games without any retraining</button></li>
+</ul><div class="q-explain" id="ex-l1-4">AlphaZero proves the algorithm is game-agnostic. No game-specific tuning needed &mdash; the same code, architecture, and hyperparameters work for three fundamentally different games.</div></div>
+<div class="score" id="score-l1"></div><button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button></div>
+</div></div>
+
+<!-- L2 -->
+<div class="level l2" id="level2"><div class="level-header" onclick="toggle('level2')"><div class="level-dot"></div><h2>Level 2 &mdash; Intermediate</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>Architecture deep dive</h3>
+<p>AlphaZero uses a single deep residual network with two output heads: 20 residual blocks, 256 filters throughout.</p>
+<pre><code>Input encoding (game-specific):
+  Chess:  8&times;8&times;119 planes
+  Shogi:  9&times;9&times;362 planes
+  Go:     19&times;19&times;17 planes
+
+&rarr; Conv 3&times;3, 256 filters, batch norm, ReLU
+&rarr; 19 residual blocks (Conv&rarr;BN&rarr;ReLU&rarr;Conv&rarr;BN&rarr;skip&rarr;ReLU)
+&rarr; Split into two heads:
+
+Policy Head: Conv 1&times;1 &rarr; BN &rarr; ReLU &rarr; move planes &rarr; softmax
+Value Head:  Conv 1&times;1 &rarr; BN &rarr; ReLU &rarr; FC(256) &rarr; ReLU &rarr; FC(1) &rarr; tanh</code></pre>
+
+<h3>Input planes &mdash; why the numbers differ</h3>
+<p>Each &ldquo;plane&rdquo; is a binary grid the size of the board encoding one specific fact:</p>
+<table><thead><tr><th>Game</th><th>Board</th><th>Planes</th><th>Why</th></tr></thead><tbody>
+<tr><td>Chess</td><td>8&times;8</td><td>119</td><td>12 piece types &times; 8 history steps + castling, en passant, move counter</td></tr>
+<tr><td>Shogi</td><td>9&times;9</td><td>362</td><td>14 piece types &times; 2 colors + pieces in hand (drop rule) &times; 8 history</td></tr>
+<tr><td>Go</td><td>19&times;19</td><td>17</td><td>2 stone colors &times; 8 history steps + color to play</td></tr>
+</tbody></table>
+<p>Go&rsquo;s 17 planes vs. AlphaGo&rsquo;s 48 is a massive simplification &mdash; no hand-crafted features (liberties, ladders, ko). The network learns to compute whatever features matter from raw board state.</p>
+
+<h3>Continuous training</h3>
+<p>AlphaGo Zero trained in discrete cycles (generate games &rarr; train &rarr; evaluate &rarr; repeat). AlphaZero uses <strong>continuous training</strong>:</p>
+<pre><code>Self-play actors: Always generating games with latest network
+Trainer: Always training on most recent games
+No explicit evaluation step &mdash; network always updating</code></pre>
+<p>This is simpler and faster &mdash; no checkpoint selection overhead. The risk: a bad update could produce bad self-play data that reinforces the bad update (a death spiral). In practice this doesn&rsquo;t happen because updates are small relative to existing knowledge.</p>
+
+<h3>Training infrastructure</h3>
+<table><thead><tr><th>Component</th><th>Scale</th></tr></thead><tbody>
+<tr><td>Self-play generation</td><td>5,000 first-gen TPUs</td></tr>
+<tr><td>Neural network training</td><td>64 second-gen TPUs</td></tr>
+<tr><td>Chess training time</td><td>~9 hours (700K steps &times; 4,096 positions/step)</td></tr>
+<tr><td>Shogi training time</td><td>~12 hours</td></tr>
+<tr><td>Go training time</td><td>~13 days</td></tr>
+<tr><td>Match hardware</td><td>4 TPUs + 44 CPU cores (single machine)</td></tr>
+</tbody></table>
+
+<h3>The Stockfish controversy</h3>
+<p>The original December 2017 preprint drew significant criticism:</p>
+<table><thead><tr><th>Criticism</th><th>Detail</th></tr></thead><tbody>
+<tr><td>Hash size</td><td>Stockfish given only 1 GB &mdash; developer Tord Romstad called this &ldquo;suboptimal&rdquo;</td></tr>
+<tr><td>No opening book</td><td>Stockfish is optimized to work with opening books</td></tr>
+<tr><td>Fixed time</td><td>1 min/move doesn&rsquo;t let Stockfish manage its time</td></tr>
+<tr><td>Old version</td><td>2017 match used Stockfish 8; newer versions were stronger</td></tr>
+</tbody></table>
+
+<div class="card"><div class="card-label green">Science paper response (Dec 2018)</div>
+<p>DeepMind addressed every criticism: 3 hours + 15 sec/move time control; 1,000 games (+155 &minus;6 =839); tested with opening book (AlphaZero still won); tested against latest Stockfish dev version (same results). AlphaZero only started losing at <strong>30:1 time odds</strong>.</p>
+</div>
+
+<h3>Chess opening preferences</h3>
+<p>Without any opening book, AlphaZero develops its own repertoire through self-play. It almost never plays 1.e4, preferring 1.c4 (English Opening) and 1.d4 systems &mdash; slower, positional openings where long-term strategic understanding dominates over tactical calculation.</p>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>The only game-specific components are input encoding, output encoding, and the exploration noise parameter. Everything else &mdash; architecture, training loop, search algorithm &mdash; is identical across chess, shogi, and Go.</p></div>
+
+<div class="quiz" id="quiz-l2"><div class="quiz-title">Quiz &mdash; Level 2</div>
+<div class="q"><div class="q-text">1. AlphaZero uses continuous training rather than AlphaGo Zero&rsquo;s batched checkpoint approach. What risk does this introduce?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',0,true)">Without a gatekeeper evaluation, a bad network update could produce bad self-play data that reinforces the bad update &mdash; a potential death spiral</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">The neural network always overfits to the most recent games, forgetting how to play older positions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">Continuous training requires exponentially more TPUs than batched training</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">The policy and value heads interfere with each other when updated simultaneously</button></li>
+</ul><div class="q-explain" id="ex-l2-0">Without explicit checkpoint evaluation, there&rsquo;s no gatekeeper preventing a bad update from propagating. In practice, the small update size relative to existing weights prevents this death spiral.</div></div>
+
+<div class="q"><div class="q-text">2. AlphaZero drops the symmetry exploitation that AlphaGo Zero used for Go. Why?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Symmetry exploitation was found to hurt Go performance in ablation studies</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Modern TPUs are fast enough that symmetry savings are negligible</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">The residual network architecture is inherently unable to process symmetry transformations</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,true)">Chess has no rotational symmetry and shogi has limited symmetry, so assuming symmetries would break generality across the three games</button></li>
+</ul><div class="q-explain" id="ex-l2-1">To keep the algorithm truly game-agnostic, no symmetry is assumed for any game. The king-side is different from the queen-side in chess, and pieces in hand break shogi&rsquo;s near-symmetry.</div></div>
+
+<div class="q"><div class="q-text">3. The chess community criticized the 2017 match. Statement I says &ldquo;Stockfish was given suboptimal hash size &mdash; addressed by providing tournament-standard 44 CPU cores.&rdquo; Consider:<br>I.&nbsp;As stated above<br>II.&nbsp;No opening book &mdash; addressed by testing with a strong opening book; AlphaZero still won<br>III.&nbsp;Fixed time per move &mdash; addressed by using 3h+15s tournament time controls<br>IV.&nbsp;AlphaZero only starts losing at 30:1 time odds</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">I, II, and III only</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">All of I, II, III, and IV</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">II and III only</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,true)">II, III, and IV only &mdash; I falsely links the hash-size criticism to CPU-core fix</button></li>
+</ul><div class="q-explain" id="ex-l2-2">Statement I connects the wrong fix to the wrong criticism. 44 CPU cores addresses hardware fairness, not hash size. The hash-size concern was about RAM allocation, not CPU count. II, III, and IV are all correctly stated.</div></div>
+
+<div class="q"><div class="q-text">4. Chess input encoding uses 119 planes while Go uses 17. Why is chess more complex per-square?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">The 119 planes compensate for chess&rsquo;s smaller board, giving the network more parameters to work with</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,true)">Chess has 12 distinct piece types, castling rights, en passant, repetition counts, and a move counter &mdash; all needing separate planes &mdash; while Go has only 2 stone colors</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">Chess is a harder game than Go, requiring more information per position to play well</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">AlphaZero&rsquo;s chess encoding was designed by human experts, while Go encoding was learned automatically</button></li>
+</ul><div class="q-explain" id="ex-l2-3">The number of planes is a deterministic consequence of the game&rsquo;s rules: more piece types, more special rules (castling, en passant) = more planes needed to encode the full board state.</div></div>
+
+<div class="q"><div class="q-text">5. AlphaZero almost never opens with 1.e4 as White, preferring 1.c4 and 1.d4. What does this reveal?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">AlphaZero has a bug in its opening move generation making 1.e4 appear lower probability</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">1.e4 openings are objectively weaker &mdash; AlphaZero discovered what human theory has wrong</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,true)">AlphaZero prefers slower, positional openings where long-term strategic understanding dominates over sharp tactical calculation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">Training data happened to generate more 1.d4 games by random chance, creating a self-reinforcing bias</button></li>
+</ul><div class="q-explain" id="ex-l2-4">AlphaZero&rsquo;s neural evaluation excels at deep positional understanding. Quiet, strategic positions play to this strength more than sharp tactical positions where raw calculation depth matters.</div></div>
+<div class="score" id="score-l2"></div><button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button></div>
+</div></div>
+
+<!-- L3 -->
+<div class="level l3" id="level3"><div class="level-header" onclick="toggle('level3')"><div class="level-dot"></div><h2>Level 3 &mdash; Expert</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>MCTS &mdash; the PUCT formula</h3>
+<p>At each node during tree traversal, AlphaZero selects the action maximizing:</p>
+<pre><code>a = argmax [ Q(s,a) + c_puct &middot; P(s,a) &middot; sqrt(&Sigma;N(s,b)) / (1 + N(s,a)) ]
+
+Q(s,a)   = mean value of simulations through this action (exploitation)
+P(s,a)   = prior probability from policy network (learned intuition)
+N(s,a)   = visit count for this action
+c_puct   = exploration constant</code></pre>
+<p><strong>Early in search</strong> (low N): the prior P(s,a) dominates &mdash; network intuition guides exploration. <strong>Late in search</strong> (high N): Q(s,a) dominates &mdash; empirical results override intuition.</p>
+
+<h3>Dirichlet noise &mdash; forcing exploration</h3>
+<p>At the root node only, noise is added to the prior probabilities:</p>
+<pre><code>P(s,a) = (1 - &epsilon;) &middot; p_a + &epsilon; &middot; &eta;_a    where &eta; ~ Dir(&alpha;), &epsilon; = 0.25</code></pre>
+<p>75% network prior + 25% random noise. The &alpha; parameter is game-specific:</p>
+<table><thead><tr><th>Game</th><th>&alpha;</th><th>Avg Legal Moves</th><th>Relationship</th></tr></thead><tbody>
+<tr><td>Chess</td><td>0.3</td><td>~30</td><td>&alpha; &asymp; 10/avg_moves</td></tr>
+<tr><td>Shogi</td><td>0.15</td><td>~80</td><td>&alpha; &asymp; 10/avg_moves</td></tr>
+<tr><td>Go</td><td>0.03</td><td>~250</td><td>&alpha; &asymp; 10/avg_moves</td></tr>
+</tbody></table>
+<p>Small &alpha; produces sparse noise (boosting a few moves). Large &alpha; produces uniform noise. In Go (250 legal moves), you want sparse exploration; in chess (30 moves), denser noise is fine.</p>
+
+<h3>Temperature scheduling</h3>
+<pre><code>Move selection: &pi;(a|s) = N(s,a)^(1/&tau;) / &Sigma; N(s,b)^(1/&tau;)
+
+First 30 moves:  &tau; = 1.0  (proportional to visit count &mdash; exploratory)
+After move 30:   &tau; &rarr; 0   (approaches argmax &mdash; greedy)
+Competitive play: &tau; &rarr; 0   (always greedy)</code></pre>
+<p>Early-game diversity prevents self-play from collapsing into a single opening line. After move 30, positions are unique enough for greedy play.</p>
+
+<h3>Training dynamics &mdash; what AlphaZero learns when</h3>
+<pre><code>Chess Elo curve:
+  Hours 0-1:  Random &rarr; discovers material values       (~0 &rarr; ~1000 Elo)
+  Hours 1-2:  Piece development, king safety, tactics  (~1000 &rarr; ~2000)
+  Hours 2-4:  Positional concepts, pawn structure      (~2000 &rarr; ~3000, surpasses Stockfish)
+  Hours 4-9:  Refinement, subtle endgames              (~3000 &rarr; ~3400+, plateaus)</code></pre>
+<p>AlphaZero rediscovers centuries of human chess knowledge in about 3 hours. The remaining 5 hours are refinement.</p>
+
+<h3>Concepts AlphaZero independently discovers</h3>
+<p>GM Matthew Sadler and WIM Natasha Regan analyzed thousands of AlphaZero&rsquo;s games for <em>Game Changer</em> (2019):</p>
+<div class="card"><div class="card-label green">Classical concepts preserved</div>
+<p>King safety as primary concern. Central control. Bishop pair advantage. Rook on open files. Connected passed pawns.</p></div>
+<div class="card"><div class="card-label amber">Classical concepts modified</div>
+<p><strong>Material is less important</strong> &mdash; routinely sacrifices for initiative. <strong>Pawn structure flexibility</strong> &mdash; creates &ldquo;weaknesses&rdquo; deliberately. <strong>King mobility</strong> &mdash; sometimes marches the king to the center in the middlegame.</p></div>
+<div class="card"><div class="card-label purple">Novel strategies</div>
+<p><strong>&ldquo;Fawn pawns&rdquo;</strong> &mdash; lone advanced pawns cramping the opponent (Leela Chess Zero independently discovered the same). <strong>Prophylactic sacrifice</strong> &mdash; sacrificing to prevent comfortable positions. <strong>Extreme patience</strong> &mdash; maneuvering 50+ moves in won positions.</p></div>
+
+<h3>Limitations</h3>
+<ul>
+<li><strong>Perfect information only</strong> &mdash; cannot play poker (hidden cards), StarCraft (fog of war)</li>
+<li><strong>Two-player zero-sum only</strong> &mdash; no cooperative, multi-player, or negotiation games</li>
+<li><strong>Deterministic only</strong> &mdash; no backgammon (dice), no card draws</li>
+<li><strong>No explainability</strong> &mdash; outputs V(s)=0.72 but can&rsquo;t say why the position favors White</li>
+</ul>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>The only game-specific &ldquo;knowledge&rdquo; is the Dirichlet &alpha; parameter &mdash; one number per game, derived from branching factor. Everything else is learned from scratch. The limitations (perfect info, two-player, zero-sum, deterministic) define exactly where MuZero needed to push next.</p></div>
+
+<div class="quiz" id="quiz-l3"><div class="quiz-title">Quiz &mdash; Level 3</div>
+<div class="q"><div class="q-text">1. Dirichlet noise uses &alpha; = 0.3 (chess), 0.15 (shogi), 0.03 (Go). What determines these values?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">They represent the probability of a random move being optimal, derived from game-theoretic analysis</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,true)">They are approximately 10 divided by the average number of legal moves &mdash; sparse noise for large action spaces, denser for small</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">They were set equal to the inverse of the board area after a scaling factor</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">They were randomly chosen and happen to work well across all three games</button></li>
+</ul><div class="q-explain" id="ex-l3-0">The &alpha; parameter is inversely proportional to the average number of legal moves: &alpha; &asymp; 10/avg_moves. This ensures the noise distribution matches the action space size.</div></div>
+
+<div class="q"><div class="q-text">2. During self-play, &tau;=1.0 for the first 30 moves then &tau;&rarr;0. What happens with &tau;&rarr;0 (greedy) from move 1?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">Training improves because greedy moves generate higher-quality data from the start</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">Game length increases dramatically because greedy play avoids exchanges</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,true)">Self-play collapses into repeated opening sequences, starving the network of diverse positions and causing overfitting to narrow strategies</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">The policy network can&rsquo;t learn because greedy selection provides no gradient signal</button></li>
+</ul><div class="q-explain" id="ex-l3-1">Early-game diversity is critical. Without exploration in the opening, self-play generates the same positions repeatedly, and the network overfits to a narrow set of strategies.</div></div>
+
+<div class="q"><div class="q-text">3. GM Sadler&rsquo;s analysis found several departures from conventional play:<br>I.&nbsp;AlphaZero routinely sacrifices material for initiative<br>II.&nbsp;It sometimes marches the king to center in the middlegame<br>III.&nbsp;It always preserves pawn structure, never creating isolated/doubled pawns<br>IV.&nbsp;It independently discovered &ldquo;fawn pawns&rdquo;</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',2,true)">I, II, and IV only &mdash; III is false because AlphaZero deliberately creates pawn &ldquo;weaknesses&rdquo; for dynamic compensation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">All of I, II, III, and IV</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">I and IV only</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">I, II, III, and IV are all true but III is only partially true</button></li>
+</ul><div class="q-explain" id="ex-l3-2">III is false. AlphaZero deliberately creates isolated and doubled pawns when the dynamic compensation (activity, initiative) outweighs the structural weakness. Pawn structure flexibility is one of its signature departures.</div></div>
+
+<div class="q"><div class="q-text">4. AlphaZero surpasses Elmo (shogi) in ~2 hours but Stockfish (chess) in ~4 hours, despite shogi being more complex. Why?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">Shogi is fundamentally easier for neural networks because piece drops create predictable patterns</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">AlphaZero&rsquo;s architecture is better suited to 9&times;9 boards than 8&times;8 due to filter alignment</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,true)">Elmo was further from shogi&rsquo;s absolute skill ceiling than Stockfish was for chess &mdash; the champion engine was relatively weaker, not the game</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">Shogi training used more TPUs than chess, giving it a computational advantage</button></li>
+</ul><div class="q-explain" id="ex-l3-3">The speed to surpass a champion reflects the gap between the existing champion and the game&rsquo;s skill ceiling. Elmo was further from shogi&rsquo;s ceiling than Stockfish was from chess&rsquo;s.</div></div>
+
+<div class="q"><div class="q-text">5. AlphaZero works for chess, shogi, and Go but not poker. What fundamental property of poker violates its assumptions?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">Poker has too many possible hands for the policy network to enumerate</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,true)">Poker involves hidden information (opponents&rsquo; cards), violating the perfect information assumption MCTS needs to simulate future states</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">Poker is not zero-sum &mdash; the house takes a rake, making it negative-sum</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">Poker&rsquo;s branching factor (bet sizes) exceeds Go&rsquo;s, making MCTS infeasible</button></li>
+</ul><div class="q-explain" id="ex-l3-4">MCTS requires knowing the full game state to simulate future positions. In poker, opponents&rsquo; cards are hidden, making simulation impossible without modeling beliefs about hidden information.</div></div>
+<div class="score" id="score-l3"></div><button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button></div>
+</div></div>
+
+<!-- L4 -->
+<div class="level l4" id="level4"><div class="level-header" onclick="toggle('level4')"><div class="level-dot"></div><h2>Level 4 &mdash; Frontier</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>AlphaZero&rsquo;s legacy &mdash; how it changed chess engines</h3>
+<p>In August 2020, Stockfish integrated <strong>NNUE (Efficiently Updatable Neural Network)</strong> &mdash; a neural network evaluation originally developed for shogi. The result: <strong>+90 Elo</strong> from swapping the evaluation function alone.</p>
+<pre><code>Before NNUE (Stockfish 11):  hand-crafted eval + alpha-beta search
+After NNUE (Stockfish 12+):  neural network eval + alpha-beta search (NOT MCTS)
+
+The hybrid: neural evaluation + classical search</code></pre>
+<p>Stockfish didn&rsquo;t adopt MCTS. It kept alpha-beta search but replaced hand-crafted evaluation with a neural network &mdash; taking AlphaZero&rsquo;s key insight (learned evaluation) without its search algorithm. Modern Stockfish is <strong>stronger than AlphaZero ever was</strong>. AlphaZero&rsquo;s contribution was proving neural evaluation is superior, which the traditional engine community then integrated.</p>
+
+<h3>Leela Chess Zero &mdash; the open-source clone</h3>
+<p>Since AlphaZero was never open-sourced, the community built <strong>Leela Chess Zero (Lc0)</strong> &mdash; a faithful reimplementation trained through distributed volunteer computing. Lc0 has won multiple TCEC seasons, trading titles with Stockfish and pushing both engines far beyond where AlphaZero left off.</p>
+<table><thead><tr><th>Era</th><th>Dominant Approach</th></tr></thead><tbody>
+<tr><td>Pre-2017</td><td>Hand-crafted eval + alpha-beta (Stockfish)</td></tr>
+<tr><td>2017&ndash;2020</td><td>MCTS + neural eval begins competing (Lc0 rises)</td></tr>
+<tr><td>2020+</td><td>NNUE hybrid emerges (Stockfish adopts neural eval)</td></tr>
+<tr><td>2024+</td><td>Both approaches superhuman, trading TCEC wins</td></tr>
+</tbody></table>
+
+<h3>Impact on human chess</h3>
+<p>For the first time, grandmasters studied computer games for <strong>strategic inspiration</strong>. Previous engines played &ldquo;correct but uninspiring&rdquo; chess. AlphaZero&rsquo;s games were different &mdash; GM Sadler and WIM Regan spent a year analyzing them for <em>Game Changer</em> (2019).</p>
+<ul>
+<li><strong>Initiative over material</strong> &mdash; top players became more willing to sacrifice for dynamic compensation</li>
+<li><strong>1.d4 resurgence</strong> &mdash; AlphaZero&rsquo;s preference influenced both engine and human opening choices</li>
+<li><strong>Exchange sacrifice revival</strong> &mdash; giving rook for minor piece + positional compensation, previously rejected by engines</li>
+</ul>
+
+<h3>The Nim blind spot (2026)</h3>
+<p>A March 2026 paper (Zhou &amp; Riis, Queen Mary University of London) tested AlphaZero-style self-play on <strong>Nim</strong> &mdash; a simple game with a known perfect strategy based on XOR of heap sizes.</p>
+<div class="card"><div class="card-label red">Key finding</div>
+<p>Despite heavy training and search, agents developed <strong>blind spots</strong> &mdash; positions where they missed optimal moves. Performance degraded toward random as board size grew. The optimal Nim strategy is an <strong>abstract arithmetic rule</strong> (XOR), not a spatial pattern &mdash; and pattern-matching neural networks struggle with abstract rules.</p>
+</div>
+
+<h3>From AlphaZero to MuZero</h3>
+<p>AlphaZero still requires knowing the <strong>rules of the game</strong>. MuZero (2019 preprint, 2020 Nature) removes this final crutch:</p>
+<table><thead><tr><th>Feature</th><th>AlphaZero</th><th>MuZero</th></tr></thead><tbody>
+<tr><td>Knows game rules</td><td>&check; Yes</td><td>&cross; Learns them</td></tr>
+<tr><td>Game types</td><td>Board games</td><td>Board games + Atari</td></tr>
+<tr><td>Search simulation</td><td>Uses real rules</td><td>Uses learned world model</td></tr>
+<tr><td>Risk</td><td>None (rules are correct)</td><td>Model can be wrong &rarr; exploitation</td></tr>
+</tbody></table>
+<p>MuZero learns three networks: <strong>representation</strong> (observation &rarr; hidden state), <strong>dynamics</strong> (state + action &rarr; next state + reward), and <strong>prediction</strong> (state &rarr; policy + value). It achieves comparable performance to AlphaZero on chess, shogi, and Go &mdash; without knowing the rules &mdash; and masters 57 Atari games.</p>
+
+<h3>The meta-lesson &mdash; System 1 + System 2</h3>
+<p>AlphaZero&rsquo;s deepest insight isn&rsquo;t about games. It&rsquo;s about the relationship between <strong>fast intuition</strong> and <strong>slow deliberation</strong>:</p>
+<pre><code>System 1 (fast):  Neural network &mdash; instant pattern recognition
+                  &ldquo;This position looks good for White&rdquo;
+
+System 2 (slow):  MCTS &mdash; deliberate search through possibilities
+                  &ldquo;Let me verify by exploring move sequences&hellip;&rdquo;</code></pre>
+<p>Neither alone is sufficient. Pure intuition (network without search) plays strong amateur chess. Pure deliberation (search without network) plays intermediate chess. Together: superhuman. This dual-process paradigm &mdash; learning provides intuition, search provides verification &mdash; may be the most important architectural insight in modern AI.</p>
+
+<h3>Scorecard</h3>
+<table><thead><tr><th>Dimension</th><th>Rating</th><th>Notes</th></tr></thead><tbody>
+<tr><td>Novelty</td><td>&starf;&starf;&starf;&starf;&starf;</td><td>First domain-general superhuman game-playing algorithm</td></tr>
+<tr><td>Evidence quality</td><td>&starf;&starf;&starf;&starf;</td><td>1,000-game matches, time-odds, addressed all criticism in Science paper</td></tr>
+<tr><td>Technical depth</td><td>&starf;&starf;&starf;&starf;</td><td>Elegant simplification from AlphaGo Zero; identical code for 3 games</td></tr>
+<tr><td>Writing quality</td><td>&starf;&starf;&starf;&starf;</td><td>Clear and concise; supplementary tables thorough</td></tr>
+<tr><td>Longevity</td><td>&starf;&starf;&starf;&starf;&starf;</td><td>Spawned Stockfish NNUE, Lc0, MuZero; transformed chess culture; paradigm applies beyond games</td></tr>
+</tbody></table>
+<div class="takeaway"><div class="takeaway-label">Bottom line</div><p><strong>The paper that proved AI can be domain-general.</strong> Not just superhuman at one game, but at three fundamentally different games with zero game-specific engineering. AlphaZero&rsquo;s search + learning paradigm &mdash; where neural intuition and deliberate search amplify each other &mdash; has become the template for AI systems from protein folding to mathematical reasoning. And its chess is beautiful.</p></div>
+
+<div class="quiz" id="quiz-l4"><div class="quiz-title">Quiz &mdash; Level 4</div>
+<div class="q"><div class="q-text">1. After AlphaZero, Stockfish integrated NNUE (neural evaluation) in 2020. What architectural choice differs from AlphaZero?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">Stockfish uses MCTS like AlphaZero but with a smaller neural network that runs on CPU</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,true)">Stockfish kept alpha-beta search but replaced hand-crafted evaluation with a neural network &mdash; combining neural eval with classical search</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">Stockfish adopted AlphaZero&rsquo;s full architecture but trained on human games instead of self-play</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">Stockfish uses self-play RL identical to AlphaZero but runs on distributed CPUs instead of TPUs</button></li>
+</ul><div class="q-explain" id="ex-l4-0">Stockfish took AlphaZero&rsquo;s key insight (learned evaluation) but kept its own search (alpha-beta), creating a hybrid that&rsquo;s now stronger than either pure approach.</div></div>
+
+<div class="q"><div class="q-text">2. A 2026 study tested AlphaZero-style self-play on Nim and found blind spots. What does this reveal?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">Self-play always degrades with more training due to catastrophic forgetting</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">AlphaZero-style self-play only works on games with boards larger than 8&times;8</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,true)">Pattern-matching neural networks struggle when the optimal strategy is an abstract mathematical rule (XOR) rather than spatial patterns</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">Nim is computationally harder than Go, explaining why the approach fails</button></li>
+</ul><div class="q-explain" id="ex-l4-1">Nim&rsquo;s optimal strategy is an arithmetic XOR operation that doesn&rsquo;t map to spatial patterns. Neural networks are powerful pattern matchers but can struggle with systematic rule-based reasoning.</div></div>
+
+<div class="q"><div class="q-text">3. MuZero removes AlphaZero&rsquo;s need for game rules. Consider:<br>I.&nbsp;MuZero learns three networks: representation, dynamics, and prediction<br>II.&nbsp;MuZero uses the learned dynamics model instead of real rules during MCTS<br>III.&nbsp;MuZero achieves comparable performance without knowing the rules<br>IV.&nbsp;MuZero&rsquo;s learned model is always more accurate than real rules</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',2,true)">I, II, and III only &mdash; IV is false because learned models can be wrong, risking model exploitation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">All of I, II, III, and IV</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">I and II only</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">II, III, and IV only</button></li>
+</ul><div class="q-explain" id="ex-l4-2">IV is false. A learned world model can be inaccurate, and the agent may find actions that score high in the imagined world but fail in reality &mdash; analogous to reward hacking.</div></div>
+
+<div class="q"><div class="q-text">4. AlphaZero learns each game independently from scratch. Why is this a significant limitation?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">Independent training means AlphaZero can only play one game at a time, requiring a full restart to switch</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,true)">Chess and shogi share deep strategic concepts (piece development, king safety) &mdash; a truly general system should transfer insights between games, but AlphaZero cannot</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">Independent training is wasteful because the three games use identical neural network weights</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">Independent training prevents discovering strategies that combine elements of multiple games</button></li>
+</ul><div class="q-explain" id="ex-l4-3">AlphaZero&rsquo;s &ldquo;generality&rdquo; is in the algorithm, not in the learned knowledge. After 9 hours of chess training, it knows nothing about shogi. True generalization would transfer strategic concepts.</div></div>
+
+<div class="q"><div class="q-text">5. The neural network is &ldquo;System 1&rdquo; (fast intuition) and MCTS is &ldquo;System 2&rdquo; (slow deliberation). Why does this pairing outperform either alone?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">System 1 and System 2 cancel each other&rsquo;s biases perfectly, eliminating all errors</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,true)">The network provides rapid pattern recognition guiding search toward promising moves; search provides rigorous verification catching the network&rsquo;s mistakes &mdash; each compensates the other&rsquo;s weakness</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">System 2 is only needed during training; at inference the network alone achieves the same strength</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">The dual-process pairing has no measurable impact &mdash; AlphaZero&rsquo;s strength comes entirely from scale</button></li>
+</ul><div class="q-explain" id="ex-l4-4">Network intuition is fast but imperfect. Search is thorough but needs guidance. Together: the network narrows the search space, and search catches the network&rsquo;s errors. This complementary pairing is the core architectural insight.</div></div>
+<div class="score" id="score-l4"></div><button class="reset-btn" id="reset-l4" onclick="resetQuiz('l4')">Try again</button></div>
+</div></div>
+
+<a class="back" href="../index.html" style="margin-top:2rem">&larr; Back to all papers</a>
+</div>
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('open')}
+var S={};
+function ans(btn,qid,qi,ok){if(!S[qid])S[qid]={a:[],t:document.querySelectorAll('#quiz-'+qid+' .q').length};var s=S[qid];if(s.a[qi]!=null)return;s.a[qi]=ok;btn.parentElement.querySelectorAll('.q-btn').forEach(function(b){b.disabled=true;if(b===btn)b.classList.add(ok?'correct':'incorrect');if(!ok&&b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(',true)')>-1)b.classList.add('reveal')});var ex=document.getElementById('ex-'+qid+'-'+qi);if(ex)ex.classList.add('show');var done=s.a.filter(function(x){return x!=null}).length;if(done===s.t){var c=s.a.filter(function(x){return x===true}).length;var el=document.getElementById('score-'+qid);var pass=c>=4;el.className='score show '+(pass?'pass':'fail');el.textContent=c+'/'+s.t+(c===s.t?' \u2014 Perfect score!':pass?' \u2014 Great job! Level passed.':' \u2014 Review the material and try again.');if(!pass)document.getElementById('reset-'+qid).classList.add('show')}}
+function resetQuiz(qid){S[qid]=null;var container=document.getElementById('quiz-'+qid);container.querySelectorAll('.q-btn').forEach(function(b){b.disabled=false;b.classList.remove('correct','incorrect','reveal')});container.querySelectorAll('.q-explain').forEach(function(e){e.classList.remove('show')});document.getElementById('score-'+qid).className='score';document.getElementById('reset-'+qid).classList.remove('show')}
+</script>
+</body>
+</html>
