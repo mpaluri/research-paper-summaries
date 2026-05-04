@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlphaFold 2 &mdash; Highly Accurate Protein Structure Prediction</title>
+<meta name="description" content="Four-level explainer: AlphaFold 2 — how DeepMind solved protein structure prediction using attention over evolution, achieving experimental-level accuracy and winning the 2024 Nobel Prize in Chemistry">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0;--purple:#8250df;--purple-bg:#fbefff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129;--purple:#bc8cff;--purple-bg:#2a1a3a}}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem}.back{display:inline-block;font-size:.875rem;color:var(--accent);text-decoration:none;margin-bottom:1.5rem}.back:hover{text-decoration:underline}h1{font-size:1.6rem;font-weight:700;line-height:1.3;margin-bottom:.75rem}.paper-info{font-size:.875rem;color:var(--text2);margin-bottom:.5rem}.paper-info a{color:var(--accent);text-decoration:none}.paper-info a:hover{text-decoration:underline}.tldr{font-size:.9rem;color:var(--text2);padding:1rem 1.25rem;background:var(--bg2);border-radius:8px;margin-bottom:2rem;border-left:3px solid var(--accent)}.level{margin-bottom:2.5rem;border:1px solid var(--border);border-radius:10px;overflow:hidden}.level-header{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;cursor:pointer;background:var(--bg2);user-select:none;border-bottom:1px solid var(--border)}.level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.l1 .level-dot{background:#2da44e}.l2 .level-dot{background:#bf8700}.l3 .level-dot{background:#cf222e}.l4 .level-dot{background:var(--purple)}.level-header h2{font-size:1rem;font-weight:600;margin:0;flex:1}.chevron{font-size:.8rem;color:var(--text3);transition:transform .2s}.level.open .chevron{transform:rotate(180deg)}.level-body{display:none;padding:1.5rem 1.25rem}.level.open .level-body{display:block}h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}.level-body>h3:first-child{margin-top:0}p{margin-bottom:.75rem}ul,ol{margin:0 0 .75rem 1.25rem}li{margin-bottom:.25rem}strong{font-weight:600}em{font-style:italic}code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--code-bg);padding:1px 5px;border-radius:3px}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;margin:.75rem 0;font-size:.8rem;line-height:1.5}pre code{background:none;padding:0}table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.875rem}th{text-align:left;font-weight:600;padding:.5rem .75rem;border-bottom:2px solid var(--border);font-size:.8rem}td{padding:.5rem .75rem;border-bottom:1px solid var(--border)}tr:last-child td{border-bottom:none}.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0}.card-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}.card-label.green{color:var(--green)}.card-label.amber{color:#bf8700}.card-label.red{color:var(--red)}.card-label.blue{color:var(--accent)}.card-label.purple{color:var(--purple)}.card p:last-child{margin-bottom:0}.takeaway{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0}.takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.35rem}.takeaway p:last-child{margin-bottom:0}.result-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:.75rem 0}.result-box{text-align:center;padding:1rem;border-radius:8px}.result-box.green-bg{background:var(--green-bg);border:1px solid var(--green)}.result-box.amber-bg{background:#fff8c5;border:1px solid #bf8700}.result-box.red-bg{background:var(--red-bg);border:1px solid var(--red)}@media(prefers-color-scheme:dark){.result-box.amber-bg{background:#2a2000;border-color:#bf8700}}.result-number{font-size:1.75rem;font-weight:700;line-height:1}.result-box.green-bg .result-number{color:var(--green)}.result-box.amber-bg .result-number{color:#bf8700}.result-box.red-bg .result-number{color:var(--red)}.result-label{font-size:.75rem;color:var(--text2);margin-top:.25rem}.quiz{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1.5rem}.quiz-title{font-weight:600;font-size:.9rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}.q{margin-bottom:1.25rem}.q:last-of-type{margin-bottom:.5rem}.q-text{font-weight:500;font-size:.9rem;margin-bottom:.5rem}.q-options{list-style:none;padding:0;margin:0}.q-btn{display:block;width:100%;text-align:left;padding:.5rem .85rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);transition:border-color .12s,background .12s}.q-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg)}.q-btn:disabled{cursor:default}.q-btn:disabled:hover{border-color:inherit;background:inherit}.q-btn.correct{border-color:var(--green)!important;background:var(--green-bg)!important}.q-btn.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;opacity:.7}.q-btn.reveal{border-color:var(--green)!important;background:var(--green-bg)!important}.q-explain{display:none;font-size:.8rem;color:var(--text2);margin:.4rem 0 0;padding:.5rem .85rem;border-left:2px solid var(--border)}.q-explain.show{display:block}.score{display:none;padding:.85rem 1rem;border-radius:6px;font-weight:600;font-size:.9rem;margin-top:.75rem}.score.show{display:block}.score.pass{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}.score.fail{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}.reset-btn{display:none;margin-top:.5rem;padding:.4rem 1rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.8rem;font-family:inherit;color:var(--text)}.reset-btn.show{display:inline-block}.reset-btn:hover{border-color:var(--accent);background:var(--accent-bg)}@media(max-width:600px){.result-row{grid-template-columns:1fr}.container{padding:1.5rem 1rem 4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back" href="../index.html">&larr; Back to all papers</a>
+<h1>AlphaFold 2: Highly Accurate Protein Structure Prediction with AlphaFold</h1>
+<p class="paper-info">Jumper, Evans, Pritzel et al. &mdash; DeepMind &mdash; Nature, July 2021</p>
+<p class="paper-info"><a href="https://www.nature.com/articles/s41586-021-03819-2">&#128196; Paper (Nature)</a> &middot; <a href="https://github.com/google-deepmind/alphafold">&#128187; Code (GitHub)</a></p>
+<div class="tldr"><strong>TL;DR:</strong> AlphaFold 2 predicts 3D protein structures from amino acid sequences at near-experimental accuracy, solving a <strong>50-year grand challenge</strong> in biology. It dominated CASP14 with a median GDT of 92.4 (next best: ~75), predicted structures for <strong>200+ million proteins</strong>, and earned the <strong>2024 Nobel Prize in Chemistry</strong> for Demis Hassabis and John Jumper. The key insight: treat protein structure prediction as attention over evolutionary data, not as physics simulation.</div>
+
+<!-- ==================== LEVEL 1 ==================== -->
+<div class="level l1 open" id="level1"><div class="level-header" onclick="toggle('level1')"><div class="level-dot"></div><h2>Level 1 &mdash; Beginner</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>What is protein folding?</h3>
+<p>Proteins are molecular machines that do almost everything in your body &mdash; digest food, fight infections, carry oxygen, read DNA. Every protein starts as a <strong>chain of amino acids</strong> (think: a string of 20 different colored beads). There are 20 types of amino acids, and a typical protein has 100&ndash;1,000 of them strung together.</p>
+<p>This chain doesn&rsquo;t stay flat. Within milliseconds, it <strong>folds</strong> into a specific 3D shape. That shape determines what the protein does. Get the shape wrong, and the protein malfunctions &mdash; causing diseases like Alzheimer&rsquo;s, cancer, and cystic fibrosis.</p>
+
+<div class="card"><div class="card-label blue">The folding problem</div>
+<p>Given <em>only</em> the sequence of amino acids (the &ldquo;string of beads&rdquo;), predict the final 3D shape. This has been biology&rsquo;s hardest problem for 50 years. Experimental methods (X-ray crystallography, cryo-EM) cost $50K&ndash;$100K per protein and take months to years. There are ~200 million known protein sequences but only ~170,000 experimentally solved structures.</p>
+</div>
+
+<h3>The CASP competition</h3>
+<p><strong>CASP</strong> (Critical Assessment of Structure Prediction) is the Olympics of protein structure prediction, held every two years since 1994. Labs around the world try to predict structures for proteins whose real structures have been solved but not yet published. The metric is <strong>GDT</strong> (Global Distance Test): 0&ndash;100, where &gt;90 is considered &ldquo;experimental quality.&rdquo;</p>
+
+<div class="result-row">
+<div class="result-box green-bg"><div class="result-number">92.4</div><div class="result-label">AlphaFold 2<br>median GDT</div></div>
+<div class="result-box amber-bg"><div class="result-number">~75</div><div class="result-label">Next best<br>CASP14 entry</div></div>
+<div class="result-box red-bg"><div class="result-number">~60</div><div class="result-label">Best before<br>AlphaFold era</div></div>
+</div>
+<p>AlphaFold 2 didn&rsquo;t just win &mdash; it <strong>leapt past the experimental-quality threshold</strong> that the field thought was years away.</p>
+
+<h3>How does AlphaFold 2 work? (The intuition)</h3>
+<p>AlphaFold 2 has three key insights:</p>
+
+<h3>Insight 1: Evolution is the teacher</h3>
+<p>Your protein sequence has cousins across millions of species. By aligning these related sequences (a <strong>Multiple Sequence Alignment</strong> or MSA), you can spot patterns: &ldquo;When position 10 changes, position 50 always changes too.&rdquo; This <strong>co-evolution</strong> signal implies those positions are physically close in 3D &mdash; they need to change together to keep the protein functional.</p>
+<pre><code>Sequence 1:  A L G V D K ...   (human)
+Sequence 2:  A L D V D K ...   (mouse)
+Sequence 3:  S L D I E K ...   (fish)
+Sequence 4:  A M G V D K ...   (bird)
+
+Positions 3 and 5 co-vary:
+  G&harr;D, D&harr;D, D&harr;E, G&harr;D
+  &rarr; These positions are likely close in 3D space</code></pre>
+<p>MSA is purely linear sequence data &mdash; no 3D information. But the co-evolutionary patterns hidden within it encode structural information. AlphaFold 2&rsquo;s job is to decode that signal.</p>
+
+<h3>Insight 2: Think in pairs, not just positions</h3>
+<p>Traditional methods looked at each amino acid independently. AlphaFold 2 maintains a <strong>pair representation</strong> &mdash; a matrix tracking what every residue &ldquo;knows&rdquo; about every other residue. This is like having a giant spreadsheet where row 10, column 50 says &ldquo;these two residues are probably 5&Aring; apart and co-evolved strongly.&rdquo;</p>
+
+<h3>Insight 3: Start with a &ldquo;residue gas&rdquo; and let it condense</h3>
+<p>Instead of trying to fold a chain step by step, AlphaFold 2 starts with all residues floating freely in space (a &ldquo;gas&rdquo;) and gradually moves them into their correct positions. Each residue is represented as a rigid frame (position + orientation), and the network iteratively refines all frames simultaneously.</p>
+
+<h3>The architecture in one picture</h3>
+<pre><code>Amino acid sequence
+       &darr;
+  Database search (JackHMMER / HHblits)
+       &darr;
+  Multiple Sequence Alignment (MSA)
+       &darr;
+  ┌─────────────────────────┐
+  │      EVOFORMER           │  &larr; 48 blocks of attention
+  │  MSA repr &harr; Pair repr   │     (the core innovation)
+  │  (rows &times; cols attention)  │
+  └─────────────────────────┘
+       &darr;
+  ┌─────────────────────────┐
+  │   STRUCTURE MODULE       │  &larr; Invariant Point Attention
+  │   &ldquo;Residue gas&rdquo; &rarr; 3D   │     (rotations/translations)
+  └─────────────────────────┘
+       &darr;
+  3D protein structure + confidence (pLDDT)</code></pre>
+
+<h3>What is pLDDT?</h3>
+<p>AlphaFold 2 doesn&rsquo;t just predict a structure &mdash; it tells you <strong>how confident it is</strong> for each residue. The predicted Local Distance Difference Test (pLDDT) ranges from 0 to 100:</p>
+<table><thead><tr><th>pLDDT</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>&gt; 90</td><td>Very high confidence &mdash; trust this prediction</td></tr>
+<tr><td>70&ndash;90</td><td>Good confidence &mdash; backbone reliable, some side-chain uncertainty</td></tr>
+<tr><td>50&ndash;70</td><td>Low confidence &mdash; treat with caution</td></tr>
+<tr><td>&lt; 50</td><td>Very low &mdash; may be intrinsically disordered (no fixed structure)</td></tr>
+</tbody></table>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>AlphaFold 2 solved the protein folding problem by treating it as an <strong>information extraction problem</strong> &mdash; mining co-evolutionary signals from millions of related sequences &mdash; rather than a physics simulation. The key was building the right attention architecture (Evoformer) to decode that evolutionary signal into 3D coordinates.</p></div>
+
+<div class="quiz" id="quiz-l1"><div class="quiz-title">Quiz &mdash; Level 1</div>
+<div class="q"><div class="q-text">1. AlphaFold 2 uses Multiple Sequence Alignments (MSAs) as a primary input. What kind of information do MSAs contain?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">A) 3D atomic coordinates of homologous proteins from X-ray crystallography experiments</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,true)">B) Aligned linear amino acid sequences from related proteins across different species, with no 3D structural data</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">C) Pre-computed distance matrices between all pairs of atoms in the protein</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">D) Experimentally measured folding trajectories showing how the protein changes shape over time</button></li>
+</ul><div class="q-explain" id="ex-l1-0">MSAs are purely linear sequence data &mdash; rows of amino acid letters aligned across species. They contain no 3D information whatsoever. The co-evolutionary patterns in these alignments are what AlphaFold 2 uses to infer 3D structure.</div></div>
+
+<div class="q"><div class="q-text">2. Co-evolution in an MSA reveals that when position 10 mutates, position 50 always mutates too. What does this pattern most likely indicate?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">A) Positions 10 and 50 are adjacent in the linear sequence and share a peptide bond</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">B) The mutations at positions 10 and 50 are random coincidences in the evolutionary record</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">C) Position 10 is always the same amino acid as position 50 (they are identical)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,true)">D) Positions 10 and 50 are likely close together in the folded 3D structure and must change together to maintain protein function</button></li>
+</ul><div class="q-explain" id="ex-l1-1">Co-evolution means compensatory mutations: when one position changes, another must also change to maintain the physical contact between them. This is the primary signal AlphaFold 2 uses to infer which residues are spatially close.</div></div>
+
+<div class="q"><div class="q-text">3. The Structure Module starts with residues as a &ldquo;gas&rdquo; floating freely in space. Why does AlphaFold 2 use this approach instead of folding the chain step by step?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',2,true)">A) It allows the network to update all residue positions simultaneously based on global information, avoiding errors that accumulate in sequential folding</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">B) A gas representation uses less memory than a chain representation, making computation faster</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">C) Proteins actually exist as a gas in cells before folding, so this mirrors the biological reality</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">D) The gas representation was inherited from AlphaFold 1 and kept for backward compatibility</button></li>
+</ul><div class="q-explain" id="ex-l1-2">Sequential folding accumulates errors &mdash; if an early step is wrong, everything downstream breaks. The residue gas approach lets the network refine all positions at once, using global context from the Evoformer to guide each residue toward its correct location.</div></div>
+
+<div class="q"><div class="q-text">4. A researcher gets an AlphaFold 2 prediction with pLDDT of 45 for a stretch of 30 residues. What is the most reasonable interpretation?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">A) The prediction is highly reliable and these residues form a well-defined alpha helix</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">B) The protein sequence was too short for AlphaFold 2 to process</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,true)">C) The model has very low confidence in this region &mdash; it may be intrinsically disordered or the prediction may be unreliable</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">D) The pLDDT score of 45 indicates the structure was predicted using templates rather than co-evolution</button></li>
+</ul><div class="q-explain" id="ex-l1-3">pLDDT below 50 means very low confidence. This often indicates the region is intrinsically disordered (genuinely has no fixed structure), or that AlphaFold 2 lacks enough evolutionary data to predict it reliably.</div></div>
+
+<div class="q"><div class="q-text">5. Before AlphaFold 2, determining a single protein&rsquo;s structure experimentally cost $50K&ndash;$100K and took months. What was AlphaFold 2&rsquo;s most transformative impact?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">A) It completely replaced all experimental methods, making X-ray crystallography and cryo-EM obsolete</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">B) It reduced the cost of experimental structure determination by providing better starting models for refinement</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,true)">D) It predicted structures for over 200 million proteins in minutes each, inverting the economics of structural biology from expensive experiments to cheap computation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">C) It proved that protein folding follows simple physical rules that can be solved analytically</button></li>
+</ul><div class="q-explain" id="ex-l1-4">AlphaFold 2 didn&rsquo;t replace experiments (they&rsquo;re still needed for validation and dynamics), but it democratized structural knowledge. The AlphaFold Protein Structure Database covers virtually all known protein sequences, turning structure prediction from a bottleneck into a commodity.</div></div>
+<div class="score" id="score-l1"></div><button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button></div>
+</div></div>
+
+<!-- ==================== LEVEL 2 ==================== -->
+<div class="level l2" id="level2"><div class="level-header" onclick="toggle('level2')"><div class="level-dot"></div><h2>Level 2 &mdash; Intermediate</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>The Evoformer: where the magic happens</h3>
+<p>The Evoformer is a stack of <strong>48 identical blocks</strong>, each updating two representations simultaneously:</p>
+<table><thead><tr><th>Representation</th><th>Shape</th><th>What it encodes</th></tr></thead><tbody>
+<tr><td>MSA representation</td><td>N<sub>seq</sub> &times; N<sub>res</sub> &times; 256</td><td>Per-sequence, per-position features &mdash; what each sequence &ldquo;knows&rdquo; about each position</td></tr>
+<tr><td>Pair representation</td><td>N<sub>res</sub> &times; N<sub>res</sub> &times; 128</td><td>Pairwise relationship between every residue pair &mdash; distance, orientation, co-evolution signals</td></tr>
+</tbody></table>
+
+<p>These two representations <strong>talk to each other</strong> every block through specific information pathways:</p>
+
+<h3>Outer product mean: MSA &rarr; Pair</h3>
+<p>This is the mechanism that converts evolutionary information into pairwise structural information:</p>
+<pre><code>For each pair of residue positions (i, j):
+  1. Take column i from the MSA representation  (N_seq vectors)
+  2. Take column j from the MSA representation  (N_seq vectors)
+  3. Compute outer product of each pair of vectors
+  4. Average across all sequences
+  5. Project to update pair[i][j]
+
+Intuition: &ldquo;What do all the sequences collectively say
+about the relationship between position i and position j?&rdquo;</code></pre>
+<p>This is where co-evolution gets directly injected into the pair representation. If positions i and j co-evolve strongly, their MSA columns will have correlated patterns that produce a distinctive outer product signature.</p>
+
+<h3>Triangle multiplicative updates: enforcing geometric consistency</h3>
+<p>The pair representation must obey the <strong>triangle inequality</strong>: if residue A is close to B, and B is close to C, then A must be somewhat close to C. Standard attention doesn&rsquo;t enforce this. Triangle updates do:</p>
+<pre><code>To update pair(i, j), consider ALL intermediate residues k:
+
+&ldquo;Outgoing edges&rdquo;:  pair(i,k) &times; pair(j,k)  &rarr;  update pair(i,j)
+&ldquo;Incoming edges&rdquo;:  pair(k,i) &times; pair(k,j)  &rarr;  update pair(i,j)
+
+Intuition: &ldquo;What does the rest of the protein tell me
+about the relationship between i and j?&rdquo;
+
+   i ─── j
+    \   /
+     \ /
+      k    &larr; intermediate residue provides geometric constraint</code></pre>
+<p>This is computationally O(N&sup3;) per block &mdash; for each pair (i,j), you sum over all k &mdash; which is expensive but essential for geometric consistency.</p>
+
+<h3>Template embedding</h3>
+<p>When homologous structures exist in PDB, AlphaFold 2 can use them as templates. Template features (backbone distances, torsion angles) are projected and added as a bias to the pair representation. Two of the five models use templates; three don&rsquo;t.</p>
+
+<div class="card"><div class="card-label blue">Why not always use templates?</div>
+<p>Templates from <strong>close homologs</strong> are very helpful. But templates from <strong>distant homologs</strong> can actually mislead the network, anchoring it to an incorrect fold. The template-free models avoid this risk entirely. Omitting templates also prevents the model from becoming dependent on template availability and helps when the target has a truly novel fold.</p>
+</div>
+
+<h3>The FAPE loss: learning in 3D</h3>
+<p>The <strong>Frame Aligned Point Error</strong> (FAPE) is AlphaFold 2&rsquo;s primary loss function, measuring structural accuracy in a rotation/translation invariant way:</p>
+<pre><code>For each pair of residues (i, j):
+  1. Look at the predicted structure from residue i&rsquo;s reference frame
+  2. Look at the true structure from residue i&rsquo;s reference frame
+  3. Compute the distance between predicted and true position of j
+  4. Average over all (i, j) pairs
+
+Why frames? Two structures can be identical but rotated
+differently in space. FAPE compares local geometry,
+not global orientation, making it invariant to rigid-body
+transformations.</code></pre>
+
+<h3>Recycling: iterative refinement</h3>
+<p>AlphaFold 2 runs the entire Evoformer + Structure Module pipeline <strong>three times</strong>, feeding the output of each cycle back as input to the next:</p>
+<pre><code>Cycle 1: MSA + pair repr &rarr; Evoformer &rarr; Structure &rarr; 3D coords (draft 1)
+              ↑                                              │
+              └──────────── feed back pair + coords ─────────┘
+Cycle 2: improved input &rarr; Evoformer &rarr; Structure &rarr; 3D coords (draft 2)
+              ↑                                              │
+              └──────────── feed back pair + coords ─────────┘
+Cycle 3: further refined &rarr; Evoformer &rarr; Structure &rarr; FINAL structure</code></pre>
+<p>Each cycle refines the structure. Loss is computed <strong>only on the final cycle</strong>, but gradients flow through all three via shared weights.</p>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>The Evoformer&rsquo;s genius is the <strong>bidirectional information flow</strong> between MSA and pair representations. The outer product mean converts evolutionary signals to structural signals; triangle updates enforce geometric consistency; and recycling lets the network iteratively refine its predictions across multiple passes.</p></div>
+
+<div class="quiz" id="quiz-l2"><div class="quiz-title">Quiz &mdash; Level 2</div>
+<div class="q"><div class="q-text">1. The outer product mean operation converts MSA information into pair information. What specific role does it play?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">A) It computes pairwise sequence identity between MSA rows to filter out low-quality sequences</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,true)">B) It extracts co-evolutionary signals by computing outer products of MSA column vectors for each residue pair, converting evolutionary patterns into pairwise structural information</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">C) It averages all MSA sequences into a single consensus sequence that replaces individual sequences</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">D) It aligns template structures from PDB to the MSA for structural bootstrapping</button></li>
+</ul><div class="q-explain" id="ex-l2-0">The outer product mean takes MSA columns for positions i and j, computes their outer product, and averages across sequences. This directly converts co-evolutionary correlations in the MSA into pairwise structural features.</div></div>
+
+<div class="q"><div class="q-text">2. Triangle multiplicative updates enforce geometric consistency in the pair representation. How do they update pair(i, j)?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">A) By checking whether the predicted distance between i and j matches a lookup table of known protein distances</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,true)">B) By aggregating information from all intermediate residues k &mdash; combining pair(i,k) and pair(j,k) &mdash; to ensure pairwise relationships are geometrically consistent</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">C) By applying a fixed rotation matrix to pair(i, j) based on the protein&rsquo;s predicted secondary structure</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">D) By averaging pair(i, j) with its transpose pair(j, i) to enforce symmetry</button></li>
+</ul><div class="q-explain" id="ex-l2-1">Triangle updates use all intermediate residues k to update pair(i,j), enforcing the triangle inequality: if A is close to B, and B is close to C, the network must keep A&ndash;C distances consistent. This is O(N&sup3;) per block.</div></div>
+
+<div class="q"><div class="q-text">3. AlphaFold 2 initializes the Structure Module with residues as a &ldquo;gas&rdquo; (all at origin with identity orientations) rather than using template coordinates. What advantage does this provide?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">A) It reduces memory usage by compressing the initial representation to a single point</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">B) It guarantees that the final structure will be identical to experimental structures in PDB</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,true)">C) It eliminates template bias, allowing the network to predict structures for novel folds without being anchored to potentially incorrect homologous structures</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">D) It is computationally cheaper than loading coordinates from PDB</button></li>
+</ul><div class="q-explain" id="ex-l2-2">Starting from a uniform &ldquo;gas&rdquo; means the network must derive the structure entirely from the Evoformer&rsquo;s learned representations, avoiding any bias from potentially misleading template coordinates.</div></div>
+
+<div class="q"><div class="q-text">4. pLDDT scores correlate well with actual model quality. A region with consistently very high pLDDT (&gt;90) means:</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',3,true)">A) The model is highly confident that both backbone and side-chain positions are accurate for this region &mdash; and this confidence is remarkably well-calibrated against real structural quality</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">B) The region was copied directly from a template structure and not predicted by the network</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">C) The region is intrinsically disordered but the model has high confidence in its disorder prediction</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">D) The model used more MCTS simulations for this region, similar to AlphaGo&rsquo;s search strategy</button></li>
+</ul><div class="q-explain" id="ex-l2-3">pLDDT &gt;90 indicates very high confidence, and crucially, this confidence is well-calibrated &mdash; high pLDDT genuinely corresponds to high prediction accuracy. This makes pLDDT a reliable quality indicator for downstream use.</div></div>
+
+<div class="q"><div class="q-text">5. Why did conventional CNNs struggle with protein structure prediction compared to AlphaFold 2&rsquo;s attention-based Evoformer?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">A) CNNs cannot process 2D matrices, so they fail on pair representations entirely</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">B) CNNs require more training data than attention models, and the PDB is too small</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">C) CNNs can only predict protein secondary structure but not tertiary structure</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,true)">D) CNNs have fixed-size receptive fields that struggle with long-range dependencies, while attention mechanisms can directly relate any two positions regardless of sequence distance</button></li>
+</ul><div class="q-explain" id="ex-l2-4">Protein contacts can be hundreds of residues apart in sequence but adjacent in 3D. CNNs need many stacked layers to grow their receptive field that far. Attention relates any two positions in a single operation, making it naturally suited for long-range structural contacts.</div></div>
+<div class="score" id="score-l2"></div><button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button></div>
+</div></div>
+
+<!-- ==================== LEVEL 3 ==================== -->
+<div class="level l3" id="level3"><div class="level-header" onclick="toggle('level3')"><div class="level-dot"></div><h2>Level 3 &mdash; Expert</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>Training curriculum: a three-stage process</h3>
+<p>AlphaFold 2 was trained in carefully staged phases:</p>
+<table><thead><tr><th>Stage</th><th>Crop Size</th><th>Details</th></tr></thead><tbody>
+<tr><td>1. Initial training</td><td>256 residues</td><td>~170K PDB structures (clustered at 40% seq identity), 128-seq MSA clusters, ~300K steps. Learn basic fold recognition and attention patterns.</td></tr>
+<tr><td>2. Fine-tuning</td><td>384 residues</td><td>Larger crops, structure violation loss added. Handle longer proteins, enforce physical constraints.</td></tr>
+<tr><td>3. Self-distillation</td><td>384 residues</td><td>&ldquo;Noisy student&rdquo;: use the trained model to predict structures for sequences with no experimental data, then retrain on real + predicted structures.</td></tr>
+</tbody></table>
+
+<div class="card"><div class="card-label green">Self-distillation safeguard</div>
+<p>Only high-confidence predictions (pLDDT &gt; 70) were used as pseudo-labels. Low-confidence predictions were discarded to prevent training on garbage. This massively expanded the effective training set beyond the ~170K PDB structures to millions of protein sequences.</p>
+</div>
+
+<h3>The full loss function</h3>
+<p>AlphaFold 2&rsquo;s training uses <strong>six loss terms</strong> working together:</p>
+<table><thead><tr><th>Loss</th><th>What It Teaches</th><th>Detail</th></tr></thead><tbody>
+<tr><td><strong>FAPE backbone</strong></td><td>Global fold accuracy</td><td>Frame Aligned Point Error on C&alpha; atoms; clamped at 10&Aring; to prevent outlier residues from dominating gradients</td></tr>
+<tr><td><strong>FAPE sidechain</strong></td><td>Local rotamer accuracy</td><td>Same metric on all-atom positions, using side-chain reference frames</td></tr>
+<tr><td><strong>Distogram</strong></td><td>Pairwise distances</td><td>Cross-entropy on binned C&alpha;&ndash;C&alpha; distances (64 bins, 2&ndash;22&Aring;); regularizer for pair representation</td></tr>
+<tr><td><strong>Masked MSA</strong></td><td>Evolutionary understanding</td><td>BERT-like: mask 15% of MSA positions, predict the amino acids. Forces genuine evolutionary pattern learning.</td></tr>
+<tr><td><strong>Violation</strong></td><td>Physical realism</td><td>Penalizes bond length/angle violations, steric clashes, chain breaks. Added only in Stage 2.</td></tr>
+<tr><td><strong>Experimentally resolved</strong></td><td>Confidence calibration</td><td>Per-residue prediction of whether each atom has experimental coordinates in the PDB entry.</td></tr>
+</tbody></table>
+
+<h3>FAPE clamping: a subtle design choice</h3>
+<pre><code>FAPE_clamped = min(FAPE_raw, 10&Aring;)
+
+Without clamping:
+  One badly predicted residue 50&Aring; away generates huge loss
+  &rarr; Gradient dominated by one outlier
+  &rarr; Network optimizes that residue at expense of everything else
+
+With clamping at 10&Aring;:
+  Outliers contribute at most 10&Aring; of loss each
+  &rarr; Balanced gradients across all residues
+  &rarr; Network improves overall structure, not just worst cases</code></pre>
+<p>This is analogous to Huber loss in regression &mdash; robust to outliers while still penalizing errors.</p>
+
+<h3>Masked MSA prediction: the BERT connection</h3>
+<pre><code>Original MSA:     A  L  G  V  D
+                  A  L  D  V  D
+                  S  L  D  I  E
+                  A  M  G  V  D
+
+Masked (15%):     A  L  [M] V  D
+                  A  [M] D  V  [M]
+                  S  L  [M] I  E
+                  A  M  G  [M] D
+
+Task: predict masked amino acids from context</code></pre>
+<p>This BERT-like auxiliary loss forces the Evoformer to genuinely understand evolutionary patterns rather than simply passing MSA features through without processing them.</p>
+
+<h3>The five-model ensemble</h3>
+<p>AlphaFold 2 trains five separate models with different configurations:</p>
+<ul>
+<li><strong>Models 1 &amp; 2:</strong> Use template structures from PDB as additional pair bias</li>
+<li><strong>Models 3, 4, 5:</strong> Template-free, rely entirely on MSA + learned patterns</li>
+</ul>
+<p>All five are run independently and the highest-confidence prediction (ranked by pLDDT) wins.</p>
+
+<h3>MSA depth sensitivity</h3>
+<pre><code>MSA Depth vs Accuracy:
+  &gt;1000 sequences:    Median GDT &gt; 90  (near-experimental)
+  100&ndash;1000:           Median GDT 70&ndash;85  (good, some details wrong)
+  30&ndash;100:             Median GDT 50&ndash;70  (rough fold)
+  &lt;30:                Often fails completely
+  Single sequence:    Near-random for most proteins</code></pre>
+<p>Co-evolution is the primary signal. With few sequences, the outer product mean has no data to extract &mdash; the pair representation stays uninformative. <strong>Orphan proteins</strong> (~10&ndash;15% of known families) remain AlphaFold 2&rsquo;s biggest failure mode.</p>
+
+<h3>The &ldquo;sophisticated fold recognition&rdquo; argument</h3>
+<p>Skolnick (2021) argued AF2 is fundamentally a very sophisticated fold recognition algorithm: the library of single-domain protein folds in PDB is essentially <strong>complete</strong> &mdash; all possible domain topologies are already represented. AF2 has learned to map any sequence to the correct existing fold, then refine local details. This explains both its success (single domains) and its limitations (truly novel folds).</p>
+
+<h3>Known limitations</h3>
+<table><thead><tr><th>Limitation</th><th>Detail</th></tr></thead><tbody>
+<tr><td><strong>Intrinsically disordered regions</strong></td><td>~30% of human proteome has no fixed 3D structure. AF2 predicts one arbitrary conformation with low pLDDT, but cannot distinguish &ldquo;genuinely disordered&rdquo; from &ldquo;insufficient data.&rdquo;</td></tr>
+<tr><td><strong>Conformational states</strong></td><td>Proteins often switch between states (e.g., active/inactive kinase). AF2 predicts the single dominant conformation in PDB training data. Alternative states are invisible.</td></tr>
+<tr><td><strong>Protein complexes</strong></td><td>Designed for single chains. Multi-chain prediction requires AlphaFold-Multimer (2021) or AlphaFold 3 (2024).</td></tr>
+<tr><td><strong>Mutations &amp; stability</strong></td><td>Wild-type and mutant sequences often produce identical structures. AF2 is not a thermodynamic stability predictor.</td></tr>
+</tbody></table>
+
+<h3>Computational complexity</h3>
+<pre><code>Pair representation:  N_res &times; N_res &times; 128  (quadratic in protein length)
+Triangle attention:   O(N&sup3;) per Evoformer block
+48 blocks &times; 3 cycles: ~144 forward passes through attention stack
+
+~1000 residues: ~16 GB GPU, minutes
+~2000 residues: ~64 GB GPU, hours
+&gt;2500 residues: typically split into domains and predicted separately</code></pre>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>AlphaFold 2&rsquo;s training is a masterclass in engineering: staged curriculum, robust loss functions with FAPE clamping, BERT-like auxiliary losses for representation quality, self-distillation for data augmentation, and a five-model ensemble for robustness. The system&rsquo;s accuracy depends critically on MSA depth, and its fundamental limitation is predicting static snapshots of dynamic proteins.</p></div>
+
+<div class="quiz" id="quiz-l3"><div class="quiz-title">Quiz &mdash; Level 3</div>
+<div class="q"><div class="q-text">1. AlphaFold 2&rsquo;s training uses a BERT-like masked MSA prediction loss alongside the structural FAPE loss. What does the masked MSA loss specifically enforce?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">A) It forces the network to memorize all amino acid sequences in the training set for later retrieval</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,true)">B) It forces the Evoformer to genuinely understand evolutionary patterns &mdash; predicting masked amino acids from surrounding context &mdash; rather than simply passing MSA features through unprocessed</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">C) It masks residues that are disordered so the network learns to skip them during structure prediction</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">D) It replaces missing experimental coordinates in X-ray structures with predicted values</button></li>
+</ul><div class="q-explain" id="ex-l3-0">The masked MSA loss is a BERT-style self-supervised task: randomly mask 15% of MSA positions and predict them. This forces the Evoformer to learn genuine evolutionary patterns, not just pass features through.</div></div>
+
+<div class="q"><div class="q-text">2. AlphaFold 2&rsquo;s self-distillation stage uses the trained model to predict structures for sequences without experimental data, then retrains on those predictions. What safeguard prevents error amplification?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">A) Self-distillation is only applied to sequences with &gt;10,000 homologs where the model is guaranteed correct</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">B) The self-distilled structures are manually verified by human experts before being added to training</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,true)">C) Only high-confidence predictions (pLDDT &gt; 70) are used as pseudo-labels &mdash; low-confidence predictions are discarded</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">D) Self-distillation only runs for a single epoch to minimize error propagation</button></li>
+</ul><div class="q-explain" id="ex-l3-1">The confidence threshold (pLDDT &gt; 70) acts as a quality filter. Only predictions the model is already confident about become pseudo-labels, preventing low-quality predictions from corrupting the training set.</div></div>
+
+<div class="q"><div class="q-text">3. AlphaFold 2 trains five separate models &mdash; two with templates and three without. Why not always use templates?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',2,true)">A) Templates from close homologs help significantly, but templates from distant homologs can mislead the network by anchoring it to an incorrect fold &mdash; template-free models avoid this risk</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">B) Templates require too much GPU memory, making models 1 and 2 impractical for routine use</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">C) Templates were only available for half the proteins in the PDB, so three models had to be trained without them</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">D) The template-free models run 10&times; faster, making them preferred for bulk predictions</button></li>
+</ul><div class="q-explain" id="ex-l3-2">Distant-homolog templates can actually hurt performance by anchoring the network to incorrect structural hypotheses. Template-free models avoid this risk entirely and are better for novel folds.</div></div>
+
+<div class="q"><div class="q-text">4. Skolnick (2021) argues AlphaFold 2 is fundamentally a &ldquo;sophisticated fold recognition algorithm.&rdquo; What evidence supports this?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">A) AlphaFold 2 explicitly searches the PDB for template structures and copies their coordinates</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">B) AlphaFold 2&rsquo;s accuracy is identical to traditional threading methods like HHpred</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,true)">D) The PDB library of single-domain folds is essentially complete, so AF2 learned to map any sequence to the correct existing fold and then refine local details</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">C) AlphaFold 2 fails on every protein that doesn&rsquo;t have a close homolog in PDB</button></li>
+</ul><div class="q-explain" id="ex-l3-3">Skolnick&rsquo;s argument: the library of single-domain folds is complete &mdash; all topologies are already in PDB. AF2 has learned a sophisticated mapping from sequence to the correct existing fold, then refines local structure. This explains its strength (known folds) and weakness (truly novel topologies).</div></div>
+
+<div class="q"><div class="q-text">5. A researcher predicts a kinase structure with pLDDT &gt; 90 everywhere, then discovers the kinase has both active and inactive conformations. What is the most accurate assessment?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">A) The high pLDDT proves AlphaFold 2 correctly predicted both conformational states</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">C) pLDDT &gt; 90 guarantees the predicted structure matches the biologically active conformation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,true)">B) AF2 likely predicted the dominant PDB conformation (probably inactive), with high confidence &mdash; but alternative states are invisible, and high pLDDT says nothing about the existence of other states</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">D) AlphaFold 2 cannot predict kinase structures at all because they have multiple states</button></li>
+</ul><div class="q-explain" id="ex-l3-4">AF2 predicts the single dominant conformation in PDB training data. Since ~80% of kinase structures are inactive, it likely predicts the inactive state with high confidence. The active state is invisible &mdash; high pLDDT reflects confidence in one state, not awareness of all states.</div></div>
+<div class="score" id="score-l3"></div><button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button></div>
+</div></div>
+
+<!-- ==================== LEVEL 4 ==================== -->
+<div class="level l4" id="level4"><div class="level-header" onclick="toggle('level4')"><div class="level-dot"></div><h2>Level 4 &mdash; Frontier</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>AlphaFold 3: the paradigm shift</h3>
+<p>AlphaFold 3 (May 2024, Nature) isn&rsquo;t an incremental update &mdash; it&rsquo;s a <strong>fundamental architectural redesign</strong> co-developed by DeepMind and Isomorphic Labs.</p>
+<table><thead><tr><th>Dimension</th><th>AlphaFold 2 (2020)</th><th>AlphaFold 3 (2024)</th></tr></thead><tbody>
+<tr><td><strong>Scope</strong></td><td>Single protein chains</td><td>Proteins + DNA + RNA + ligands + ions</td></tr>
+<tr><td><strong>Input tokens</strong></td><td>Per-residue (one token = one residue)</td><td>Per-atom (every atom is a token)</td></tr>
+<tr><td><strong>Trunk</strong></td><td>Evoformer (MSA + pair repr)</td><td>Pairformer (pair repr only; MSA processed separately upstream)</td></tr>
+<tr><td><strong>Structure module</strong></td><td>IPA &mdash; deterministic, one output</td><td>Diffusion &mdash; denoises from random noise, can sample multiple structures</td></tr>
+<tr><td><strong>Confidence</strong></td><td>pLDDT + pTM</td><td>pLDDT + pTM + PAE + pDE (interface distance error)</td></tr>
+</tbody></table>
+
+<h3>Why diffusion? The key architectural insight</h3>
+<pre><code>AlphaFold 2 Structure Module:
+  Input: pair repr &rarr; IPA &rarr; ONE deterministic output
+  Problem: one input &rarr; one structure, no structural uncertainty
+
+AlphaFold 3 Diffusion Module:
+  Input: pair repr + NOISE &rarr; denoise &rarr; predicted coordinates
+  
+  Different noise seeds &rarr; different structures
+  Run 5 times &rarr; 5 candidates &rarr; rank by confidence
+  
+  Same paradigm shift as deterministic image encoders &rarr; 
+  Stable Diffusion: one input, many possible outputs</code></pre>
+
+<div class="card"><div class="card-label purple">What AF3 gained and lost</div>
+<p><strong>Gained:</strong> Protein-ligand docking (50% better than prior best), protein-nucleic acid complexes, antibody-antigen interactions, multiple structure samples per input.</p>
+<p><strong>Lost:</strong> Single-chain protein accuracy slightly worse than AF2 (traded monomer accuracy for generality); hallucination risk from diffusion; ~4.4% chirality errors in predicted ligand poses.</p>
+</div>
+
+<h3>ESMFold: the language model approach (Meta FAIR)</h3>
+<p>While DeepMind built AF2 around MSA + co-evolution, Meta&rsquo;s FAIR team asked: what if a protein language model already encodes structural information, and you don&rsquo;t need MSA at all?</p>
+<pre><code>AlphaFold 2:  Sequence &rarr; MSA (minutes-hours) &rarr; Evoformer &rarr; Structure
+ESMFold:      Sequence &rarr; ESM-2 (15B params) &rarr; Structure Module &rarr; 3D
+
+ESMFold: no MSA, no database search, just the raw sequence
+         ~60&times; faster than AlphaFold 2</code></pre>
+<p>ESM-2 was trained on 250M protein sequences with masked language modeling (exactly like BERT). During training, it implicitly learns co-evolutionary patterns, structural motifs, and long-range contacts.</p>
+<table><thead><tr><th>Model</th><th>Monomer Accuracy</th><th>Speed</th><th>Orphan Proteins</th></tr></thead><tbody>
+<tr><td>AlphaFold 2</td><td>88%</td><td>Minutes&ndash;hours</td><td>Fails (needs MSA)</td></tr>
+<tr><td>ESMFold</td><td>76%</td><td>Seconds</td><td>Works (no MSA needed)</td></tr>
+</tbody></table>
+<p>ESMFold predicted 617 million metagenomic protein structures (the ESM Metagenomic Atlas) &mdash; structures for proteins that have no homologs in any database.</p>
+
+<h3>The inverse problem: from prediction to design</h3>
+<p>AlphaFold solves the <strong>forward problem</strong>: sequence &rarr; structure. The more valuable problem is the <strong>inverse</strong>: design a sequence that folds into a desired structure.</p>
+
+<h3>RFdiffusion (Baker Lab, 2023)</h3>
+<p>David Baker&rsquo;s lab adapted diffusion models for protein backbone design:</p>
+<pre><code>1. Start with random noise in 3D coordinate space
+2. Denoise using a fine-tuned RoseTTAFold network &rarr; novel backbone
+3. Use ProteinMPNN to design a sequence for that backbone
+4. Use AlphaFold 2 to VERIFY the sequence folds correctly
+5. Synthesize in lab
+
+Applications demonstrated:
+  &bull; De novo binders (therapeutic antibodies)
+  &bull; Symmetric nanocages (drug delivery)
+  &bull; Custom enzyme active sites (RFdiffusion2, April 2025)</code></pre>
+<p>AlphaFold 2 serves as the <strong>verification step</strong> in this pipeline &mdash; closing the design loop by predicting whether designed sequences actually fold into the intended structures.</p>
+
+<h3>The open-source ecosystem</h3>
+<table><thead><tr><th>Model</th><th>Lab</th><th>Year</th><th>Key Feature</th></tr></thead><tbody>
+<tr><td>AlphaFold 3</td><td>DeepMind</td><td>2024</td><td>Gold standard; initially closed, later opened</td></tr>
+<tr><td>Boltz-1</td><td>MIT</td><td>2024</td><td>Fully open-source, AF3-level accuracy, &ldquo;Boltz-steering&rdquo;</td></tr>
+<tr><td>Chai-1</td><td>Chai Discovery</td><td>2024</td><td>Commercial; claims higher accuracy than AF3</td></tr>
+<tr><td>OpenFold</td><td>Columbia</td><td>2022</td><td>Open AF2 reimplementation</td></tr>
+<tr><td>RoseTTAFold</td><td>Baker Lab</td><td>2021&ndash;24</td><td>Independent architecture, extended to all-atom</td></tr>
+<tr><td>ESMFold</td><td>Meta FAIR</td><td>2022</td><td>No MSA; 60&times; faster</td></tr>
+</tbody></table>
+
+<h3>Remaining open problems</h3>
+<table><thead><tr><th>Status</th><th>Problem</th></tr></thead><tbody>
+<tr><td>&#9989; Solved</td><td>Single-domain structure prediction; large-scale structural annotation (200M+ predictions)</td></tr>
+<tr><td>&#128993; Partial</td><td>Multi-domain proteins; stable protein complexes; antibody CDR-H3 loops</td></tr>
+<tr><td>&#10060; Unsolved</td><td>Conformational ensembles (snapshot vs. movie); intrinsically disordered proteins; allosteric mechanisms; protein function prediction; folding pathways; membrane protein environments; post-translational modifications</td></tr>
+</tbody></table>
+
+<h3>The Nobel Prize (2024)</h3>
+<table><thead><tr><th>Laureate</th><th>Contribution</th></tr></thead><tbody>
+<tr><td>Demis Hassabis + John Jumper</td><td>Protein structure <strong>prediction</strong> (AlphaFold)</td></tr>
+<tr><td>David Baker</td><td>Computational protein <strong>design</strong> (Rosetta, RFdiffusion)</td></tr>
+</tbody></table>
+<p>The split is telling: Hassabis/Jumper = understanding (prediction), Baker = creation (design). Together they represent the full loop of programmable biology: predict structure &rarr; design new proteins &rarr; verify predictions.</p>
+
+<div class="takeaway"><div class="takeaway-label">Meta-lesson for AI</div><p>AlphaFold 2 wasn&rsquo;t just a better model &mdash; it was a better <strong>formulation</strong>. The key innovations (treating structure as a graph with frames, using attention over evolution, learning to refine iteratively) came from deeply understanding the domain and finding the right inductive biases. Raw scale alone wouldn&rsquo;t have worked. This lesson applies across all of AI &mdash; the best models come from understanding what the data fundamentally <em>is</em>, not just throwing more compute at it.</p></div>
+
+<div class="quiz" id="quiz-l4"><div class="quiz-title">Quiz &mdash; Level 4</div>
+<div class="q"><div class="q-text">1. AlphaFold 3 replaced AF2&rsquo;s deterministic Structure Module with a diffusion-based module. What is the most significant capability this enables?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">A) Diffusion makes the model 10&times; faster at inference, enabling real-time predictions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,true)">B) Diffusion can generate multiple candidate structures from the same input by sampling different noise seeds, enabling exploration of structural uncertainty</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">C) Diffusion eliminates the need for MSA entirely, making AF3 a single-sequence model like ESMFold</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">D) Diffusion guarantees physically correct bond angles and chirality in all predictions</button></li>
+</ul><div class="q-explain" id="ex-l4-0">Diffusion is generative: different noise seeds produce different structure samples. This lets AF3 explore structural uncertainty and produce multiple candidate conformations, unlike AF2&rsquo;s single deterministic output. AF3 still uses MSA (processed upstream) and has a 4.4% chirality error rate.</div></div>
+
+<div class="q"><div class="q-text">2. ESMFold achieves ~76% monomer accuracy vs AlphaFold 2&rsquo;s ~88%, but is 60&times; faster. What explains this performance gap?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',1,true)">A) ESMFold relies on a language model&rsquo;s implicit encoding of co-evolutionary information, which is less precise than AF2&rsquo;s explicit MSA outer products and attention</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">B) ESMFold uses a smaller network with fewer parameters, so it has less capacity to learn patterns</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">C) ESMFold was only trained on bacterial proteins and doesn&rsquo;t generalize to eukaryotic structures</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">D) ESMFold uses a CNN backbone instead of attention, limiting long-range dependency capture</button></li>
+</ul><div class="q-explain" id="ex-l4-1">ESMFold&rsquo;s language model implicitly learns co-evolutionary patterns during pre-training, but this encoding is less precise than AF2&rsquo;s explicit computation via MSA outer products and dedicated co-evolution attention mechanisms. The trade-off is speed (no MSA search needed) for accuracy.</div></div>
+
+<div class="q"><div class="q-text">3. RFdiffusion generates novel protein backbones, then ProteinMPNN designs sequences. Why is AlphaFold 2 still needed in this pipeline?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">A) AlphaFold 2 generates the initial noise distribution that RFdiffusion samples from</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">B) AlphaFold 2 trains ProteinMPNN by providing ground-truth structures for supervised learning</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,true)">C) AlphaFold 2 serves as the verification step &mdash; predicting whether the designed sequence actually folds into the intended backbone, closing the design loop</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">D) AlphaFold 2 optimizes side-chain rotamers after RFdiffusion places backbone atoms</button></li>
+</ul><div class="q-explain" id="ex-l4-2">AF2 acts as the &ldquo;oracle&rdquo; to verify that designed sequences fold correctly. The pipeline is: RFdiffusion (design backbone) &rarr; ProteinMPNN (design sequence) &rarr; AlphaFold 2 (verify it folds into intended structure) &rarr; synthesize in lab.</div></div>
+
+<div class="q"><div class="q-text">4. Despite the Nobel Prize and AF3, the protein problem is considered &ldquo;not solved.&rdquo; Which limitation is fundamental?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">B) Current models cannot predict structures for any protein longer than 500 residues</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,true)">D) Current models predict static structures but cannot model the dynamic conformational ensembles proteins actually occupy in solution</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">C) The PDB training data only covers bacterial proteins, leaving human proteins inaccurately predicted</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">A) AlphaFold&rsquo;s accuracy has plateaued at 60% GDT and shows no path to improvement</button></li>
+</ul><div class="q-explain" id="ex-l4-3">The &ldquo;snapshot vs movie&rdquo; problem: proteins are dynamic molecular machines that constantly change shape. Current models produce a single static structure, missing conformational ensembles, allosteric transitions, and intrinsically disordered dynamics.</div></div>
+
+<div class="q"><div class="q-text">5. Boltz-1 (MIT, 2024) matches AF3 accuracy while being fully open-source and introduces &ldquo;Boltz-steering.&rdquo; What does this technique solve?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">A) Boltz-steering corrects for training data biases by upweighting underrepresented protein families during inference</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,true)">C) It improves physical plausibility of predicted poses (reducing clashes, chirality errors) at inference time by guiding the diffusion sampling process, without retraining</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">B) It constrains outputs to specific protein families by specifying fold targets</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">D) It dynamically adjusts the learning rate during inference to fine-tune on the target sequence</button></li>
+</ul><div class="q-explain" id="ex-l4-4">Boltz-steering guides the diffusion sampling process at inference time to improve physical plausibility &mdash; reducing steric clashes and chirality errors &mdash; without requiring retraining. It&rsquo;s an inference-time intervention, not a training change.</div></div>
+<div class="score" id="score-l4"></div><button class="reset-btn" id="reset-l4" onclick="resetQuiz('l4')">Try again</button></div>
+</div></div>
+
+<a class="back" href="../index.html" style="margin-top:2rem">&larr; Back to all papers</a>
+</div>
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('open')}
+var S={};
+function ans(btn,qid,qi,ok){if(!S[qid])S[qid]={a:[],t:document.querySelectorAll('#quiz-'+qid+' .q').length};var s=S[qid];if(s.a[qi]!=null)return;s.a[qi]=ok;btn.parentElement.querySelectorAll('.q-btn').forEach(function(b){b.disabled=true;if(b===btn)b.classList.add(ok?'correct':'incorrect');if(!ok&&b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(',true)')>-1)b.classList.add('reveal')});var ex=document.getElementById('ex-'+qid+'-'+qi);if(ex)ex.classList.add('show');var done=s.a.filter(function(x){return x!=null}).length;if(done===s.t){var c=s.a.filter(function(x){return x===true}).length;var el=document.getElementById('score-'+qid);var pass=c>=4;el.className='score show '+(pass?'pass':'fail');el.textContent=c+'/'+s.t+(c===s.t?' \u2014 Perfect score!':pass?' \u2014 Great job! Level passed.':' \u2014 Review the material and try again.');if(!pass)document.getElementById('reset-'+qid).classList.add('show')}}
+function resetQuiz(qid){S[qid]=null;var container=document.getElementById('quiz-'+qid);container.querySelectorAll('.q-btn').forEach(function(b){b.disabled=false;b.classList.remove('correct','incorrect','reveal')});container.querySelectorAll('.q-explain').forEach(function(e){e.classList.remove('show')});document.getElementById('score-'+qid).className='score';document.getElementById('reset-'+qid).classList.remove('show')}
+</script>
+</body>
+</html>

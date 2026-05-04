@@ -10,6 +10,7 @@ See [SKILL.md](SKILL.md) for the full study system design, quiz construction rul
 
 | # | Paper | Topic | Published | Created |
 |:--|:------|:------|:----------|:--------|
+| 11 | [AlphaFold 2](papers/alphafold2.html) | Protein structure prediction, attention, co-evolution, structural biology | 07/15/21 | 05/02/26 |
 | 10 | [AlphaZero](papers/alphazero.html) | Reinforcement learning, self-play, MCTS, domain-general game AI | 12/07/18 | 04/18/26 |
 | 9 | [AlphaGo](papers/alphago.html) | Reinforcement learning, MCTS, neural networks, game AI | 01/27/16 | 04/09/26 |
 | 8 | [DALL-E 3](papers/dalle3.html) | Image generation, data-centric AI, recaptioning, diffusion | 10/01/23 | 04/07/26 |
