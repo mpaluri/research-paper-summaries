@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vision Banana &mdash; Image Generators are Generalist Vision Learners</title>
+<meta name="description" content="Four-level explainer: Vision Banana — how Google DeepMind showed that a single image generator, with lightweight instruction tuning, can beat specialist models at segmentation, depth estimation, and surface normal prediction.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0;--purple:#8250df;--purple-bg:#fbefff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129;--purple:#bc8cff;--purple-bg:#2a1a3a}}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem}.back{display:inline-block;font-size:.875rem;color:var(--accent);text-decoration:none;margin-bottom:1.5rem}.back:hover{text-decoration:underline}h1{font-size:1.6rem;font-weight:700;line-height:1.3;margin-bottom:.75rem}.paper-info{font-size:.875rem;color:var(--text2);margin-bottom:.5rem}.paper-info a{color:var(--accent);text-decoration:none}.paper-info a:hover{text-decoration:underline}.tldr{font-size:.9rem;color:var(--text2);padding:1rem 1.25rem;background:var(--bg2);border-radius:8px;margin-bottom:2rem;border-left:3px solid var(--accent)}.level{margin-bottom:2.5rem;border:1px solid var(--border);border-radius:10px;overflow:hidden}.level-header{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;cursor:pointer;background:var(--bg2);user-select:none;border-bottom:1px solid var(--border)}.level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.l1 .level-dot{background:#2da44e}.l2 .level-dot{background:#bf8700}.l3 .level-dot{background:#cf222e}.l4 .level-dot{background:var(--purple)}.level-header h2{font-size:1rem;font-weight:600;margin:0;flex:1}.chevron{font-size:.8rem;color:var(--text3);transition:transform .2s}.level.open .chevron{transform:rotate(180deg)}.level-body{display:none;padding:1.5rem 1.25rem}.level.open .level-body{display:block}h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}.level-body>h3:first-child{margin-top:0}p{margin-bottom:.75rem}ul,ol{margin:0 0 .75rem 1.25rem}li{margin-bottom:.25rem}strong{font-weight:600}em{font-style:italic}code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--code-bg);padding:1px 5px;border-radius:3px}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;margin:.75rem 0;font-size:.8rem;line-height:1.5}pre code{background:none;padding:0}table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.875rem}th{text-align:left;font-weight:600;padding:.5rem .75rem;border-bottom:2px solid var(--border);font-size:.8rem}td{padding:.5rem .75rem;border-bottom:1px solid var(--border)}tr:last-child td{border-bottom:none}.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0}.card-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}.card-label.green{color:var(--green)}.card-label.amber{color:#bf8700}.card-label.red{color:var(--red)}.card-label.blue{color:var(--accent)}.card-label.purple{color:var(--purple)}.card p:last-child{margin-bottom:0}.takeaway{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0}.takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.35rem}.takeaway p:last-child{margin-bottom:0}.result-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:.75rem 0}.result-box{text-align:center;padding:1rem;border-radius:8px}.result-box.green-bg{background:var(--green-bg);border:1px solid var(--green)}.result-box.amber-bg{background:#fff8c5;border:1px solid #bf8700}.result-box.red-bg{background:var(--red-bg);border:1px solid var(--red)}@media(prefers-color-scheme:dark){.result-box.amber-bg{background:#2a2000;border-color:#bf8700}}.result-number{font-size:1.75rem;font-weight:700;line-height:1}.result-box.green-bg .result-number{color:var(--green)}.result-box.amber-bg .result-number{color:#bf8700}.result-box.red-bg .result-number{color:var(--red)}.result-label{font-size:.75rem;color:var(--text2);margin-top:.25rem}.quiz{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1.5rem}.quiz-title{font-weight:600;font-size:.9rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}.q{margin-bottom:1.25rem}.q:last-of-type{margin-bottom:.5rem}.q-text{font-weight:500;font-size:.9rem;margin-bottom:.5rem}.q-options{list-style:none;padding:0;margin:0}.q-btn{display:block;width:100%;text-align:left;padding:.5rem .85rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);transition:border-color .12s,background .12s}.q-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg)}.q-btn:disabled{cursor:default}.q-btn:disabled:hover{border-color:inherit;background:inherit}.q-btn.correct{border-color:var(--green)!important;background:var(--green-bg)!important}.q-btn.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;opacity:.7}.q-btn.reveal{border-color:var(--green)!important;background:var(--green-bg)!important}.q-explain{display:none;font-size:.8rem;color:var(--text2);margin:.4rem 0 0;padding:.5rem .85rem;border-left:2px solid var(--border)}.q-explain.show{display:block}.score{display:none;padding:.85rem 1rem;border-radius:6px;font-weight:600;font-size:.9rem;margin-top:.75rem}.score.show{display:block}.score.pass{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}.score.fail{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}.reset-btn{display:none;margin-top:.5rem;padding:.4rem 1rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.8rem;font-family:inherit;color:var(--text)}.reset-btn.show{display:inline-block}.reset-btn:hover{border-color:var(--accent);background:var(--accent-bg)}@media(max-width:600px){.result-row{grid-template-columns:1fr}.container{padding:1.5rem 1rem 4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back" href="../index.html">&larr; Back to all papers</a>
+<h1>Vision Banana: Image Generators are Generalist Vision Learners</h1>
+<p class="paper-info">Gabeur, Long, Peng, Voigtlaender, Sun, Bao, Truong, Wang, Zhou, Barron, Genova, Kannen, Ben, Li, Guo, Yogin, Gu, Chen, Wang, Xie, Zhou, He, Funkhouser, Alayrac, Soricut &mdash; Google DeepMind &mdash; arXiv, April 2026</p>
+<p class="paper-info"><a href="https://arxiv.org/abs/2604.20329">&#128196; Paper (arXiv)</a></p>
+<div class="tldr"><strong>TL;DR:</strong> A single image generator (Nano Banana Pro), with lightweight instruction tuning, <strong>beats specialist models</strong> at segmentation, depth estimation, and surface normal prediction &mdash; all in zero-shot. The core claim: <strong>image generation is to vision what next-token prediction is to language</strong> &mdash; the right pretraining objective that develops powerful, general visual representations transferable to any task.</div>
+
+<!-- ==================== LEVEL 1 ==================== -->
+<div class="level l1 open" id="level1"><div class="level-header" onclick="toggle('level1')"><div class="level-dot"></div><h2>Level 1 &mdash; Beginner</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>Two roads in computer vision</h3>
+<p>For decades, computer vision has had <strong>two separate tracks</strong>:</p>
+<ul>
+<li><strong>Generative models</strong> &mdash; learn to <em>create</em> images (e.g., DALL-E, Stable Diffusion). They understand what things look like well enough to draw them.</li>
+<li><strong>Discriminative models</strong> &mdash; learn to <em>analyze</em> images (e.g., &ldquo;there&rsquo;s a cat at this location&rdquo;). They understand images well enough to label them.</li>
+</ul>
+<p>These two camps have mostly stayed separate. Generators make pretty pictures; analyzers do the &ldquo;real work&rdquo; of segmentation, depth estimation, etc. Vision Banana argues this split was a mistake.</p>
+
+<h3>The big idea: generation IS understanding</h3>
+<p>Think about what happened in language. Before GPT, NLP had separate specialist models for translation, summarization, sentiment analysis, etc. Then GPT showed: <strong>if you train a model to predict the next word, it develops such a deep understanding of language that it can do everything</strong>.</p>
+<p>Vision Banana makes the exact same argument for images:</p>
+
+<div class="card"><div class="card-label blue">THE LLM ANALOGY</div>
+<p><strong>Language:</strong> Next-token prediction &rarr; general language understanding &rarr; instruction-tune for any task<br>
+<strong>Vision:</strong> Image generation pretraining &rarr; general visual understanding &rarr; instruction-tune for any vision task</p>
+<p>A model that can <em>generate</em> realistic images must understand geometry, occlusion, materials, lighting, and semantics. That&rsquo;s everything you need for downstream vision tasks.</p>
+</div>
+
+<h3>How does it work?</h3>
+<p>The recipe is surprisingly simple:</p>
+<ol>
+<li><strong>Start with a powerful image generator</strong> &mdash; Nano Banana Pro, built on top of Google&rsquo;s Gemini 3 Pro (a multimodal transformer that can both understand and generate images)</li>
+<li><strong>Instruction-tune it</strong> &mdash; Show it input images paired with the desired output (e.g., segmentation masks, depth maps) and teach it to produce those outputs</li>
+<li><strong>Keep everything as images</strong> &mdash; All outputs are formatted as RGB images, so the model never leaves its comfort zone of generating images</li>
+</ol>
+
+<h3>The RGB trick: everything is an image</h3>
+<p>This is the cleverest part. Instead of designing task-specific output formats, Vision Banana encodes <em>every</em> vision task output as a standard RGB image:</p>
+
+<table><thead><tr><th>Task</th><th>What it predicts</th><th>RGB encoding</th></tr></thead><tbody>
+<tr><td><strong>Segmentation</strong></td><td>Which pixels belong to which object</td><td>Each object class gets a specific color defined in the text prompt (e.g., &ldquo;cat = red, dog = blue&rdquo;)</td></tr>
+<tr><td><strong>Depth</strong></td><td>How far away each pixel is</td><td>Continuous depth values mapped to RGB via a 3D Hilbert curve (a space-filling curve that preserves proximity)</td></tr>
+<tr><td><strong>Surface normals</strong></td><td>Which direction each surface faces</td><td>X, Y, Z normal components mapped directly to R, G, B channels</td></tr>
+</tbody></table>
+
+<p>Because the model already knows how to generate RGB images, it just needs to learn <em>which</em> RGB image to generate for each task. The generation machinery itself doesn&rsquo;t change.</p>
+
+<h3>What does it beat?</h3>
+<p>Vision Banana beats purpose-built specialist models that were specifically designed for each task:</p>
+
+<div class="result-row">
+<div class="result-box green-bg"><div class="result-number">&#10003;</div><div class="result-label">Beats SAM 3<br>(segmentation)</div></div>
+<div class="result-box green-bg"><div class="result-number">&#10003;</div><div class="result-label">Beats Depth Anything V3<br>(depth)</div></div>
+<div class="result-box green-bg"><div class="result-number">&#10003;</div><div class="result-label">Beats Lotus-2<br>(surface normals)</div></div>
+</div>
+<p>All with a <strong>single model</strong>, <strong>zero-shot</strong> (no task-specific training data from the target domain). The specialist models each took years of focused development.</p>
+
+<h3>And it still generates images!</h3>
+<p>A crucial detail: after instruction tuning for vision tasks, <strong>Vision Banana retains its image generation capability</strong>. A low mixing ratio of generation data during fine-tuning ensures the model doesn&rsquo;t &ldquo;forget&rdquo; how to create images. This is like a PhD student who learns medical imaging analysis but doesn&rsquo;t forget how to draw.</p>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>Vision Banana shows that the generative vs. discriminative split in computer vision may be a false dichotomy. A model trained to generate images develops such powerful internal representations that, with lightweight instruction tuning, it outperforms specialist models on analysis tasks &mdash; mirroring how LLMs unified NLP.</p></div>
+
+<div class="quiz" id="quiz-l1"><div class="quiz-title">Quiz &mdash; Level 1</div>
+<div class="q"><div class="q-text">1. Vision Banana draws an analogy between image generation and language modeling. What is the correct mapping?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">A) Image generation is like text classification &mdash; both assign labels to inputs</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,true)">B) Image generation pretraining is to vision what next-token prediction is to language &mdash; a universal pretraining objective</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">C) Image generators and LLMs both use the same transformer architecture, which is the key insight</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">D) Language models generate text and Vision Banana generates labels, using identical loss functions</button></li>
+</ul><div class="q-explain" id="ex-l1-0">The core analogy is about pretraining objectives: just as next-token prediction develops general language understanding transferable to any NLP task, image generation develops general visual understanding transferable to any vision task. The insight is about what the model learns during pretraining, not about architecture.</div></div>
+
+<div class="q"><div class="q-text">2. How does Vision Banana encode depth estimation output?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">A) As a single grayscale value per pixel, output directly as a floating-point number</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">B) As text tokens describing the distance of each object from the camera</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,true)">C) As an RGB image using a 3D Hilbert curve to map continuous depth values to colors</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">D) As a separate depth channel appended to the original image (RGBD format)</button></li>
+</ul><div class="q-explain" id="ex-l1-1">Vision Banana encodes all outputs as standard RGB images. For depth, it uses a 3D Hilbert curve &mdash; a space-filling curve that maps a 1D depth value to a 3D RGB color while preserving proximity (similar depth values get similar colors). This keeps the output format identical to what the model already knows how to generate.</div></div>
+
+<div class="q"><div class="q-text">3. Vision Banana generates synthetic training data for depth estimation. Why can this approach work when real-world depth data is expensive to collect?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',2,true)">A) 3D rendering engines provide perfect ground-truth depth for synthetic scenes, which transfers effectively to real images through the model&rsquo;s powerful pretrained representations</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">B) The model doesn&rsquo;t actually need depth data &mdash; it hallucinates plausible-looking depth maps without training</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">C) Real-world depth data from LiDAR sensors was secretly used but not disclosed in the paper</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">D) Depth estimation only works for indoor scenes where synthetic data is trivially generated</button></li>
+</ul><div class="q-explain" id="ex-l1-2">Synthetic 3D scenes come with perfect depth information for free (the renderer knows exact distances). The key insight is that the model&rsquo;s powerful pretrained representations bridge the sim-to-real gap &mdash; patterns learned from synthetic scenes transfer to real-world images because the underlying visual understanding is general.</div></div>
+
+<div class="q"><div class="q-text">4. After being instruction-tuned for vision tasks (segmentation, depth, normals), what happens to Vision Banana&rsquo;s original image generation capability?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">A) Generation quality drops dramatically because the model overwrites its creative knowledge with analytical knowledge</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">B) Generation capability is completely lost &mdash; a separate model is needed for image creation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,true)">C) Generation capability is retained by mixing in generation training data at a low ratio during fine-tuning</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">D) Generation capability improves because vision tasks teach the model new visual concepts</button></li>
+</ul><div class="q-explain" id="ex-l1-3">Vision Banana retains generation capability through a low mixing ratio of generation data during instruction tuning. This prevents catastrophic forgetting &mdash; the model learns to produce analytical outputs without losing its ability to create images.</div></div>
+
+<div class="q"><div class="q-text">5. What is most remarkable about Vision Banana beating SAM 3, Depth Anything V3, and Lotus-2?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">A) It uses 10&times; more training data than those specialist models</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,true)">B) A single generalist model outperforms three separate purpose-built specialist systems, each designed and optimized over years for their specific task</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">C) It runs 100&times; faster than the specialist models during inference</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">D) Those specialist models were known to be weak baselines that most recent papers already exceeded</button></li>
+</ul><div class="q-explain" id="ex-l1-4">SAM 3, Depth Anything V3, and Lotus-2 are state-of-the-art specialist systems, each carefully engineered for a single task. Vision Banana beating all three with one model demonstrates that powerful enough generation pretraining creates representations general enough to surpass specialists &mdash; echoing how GPT-class models displaced task-specific NLP systems.</div></div>
+
+<div class="score" id="score-l1"></div><button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button>
+</div>
+</div></div>
+
+<!-- ==================== LEVEL 2 ==================== -->
+<div class="level l2" id="level2"><div class="level-header" onclick="toggle('level2')"><div class="level-dot"></div><h2>Level 2 &mdash; Intermediate</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>The RGB parameterization &mdash; how to make everything an image</h3>
+<p>The central engineering insight of Vision Banana is parameterizing all vision outputs as RGB images. This keeps the model in its native output space. Let&rsquo;s break down each encoding:</p>
+
+<h3>Depth: the Hilbert curve encoding</h3>
+<p>Depth is a continuous scalar per pixel. Naively mapping it to grayscale (0&ndash;255) gives only <strong>8 bits of resolution</strong>. Vision Banana instead uses a <strong>3D Hilbert curve</strong> &mdash; a space-filling curve that maps a 1D value onto a 3D path through the RGB cube.</p>
+
+<div class="card"><div class="card-label blue">HILBERT CURVE MATH</div>
+<p>1. Apply a <strong>power transform</strong> to the raw depth to compress the dynamic range: <code>d&rsquo; = d<sup>&gamma;</sup></code></p>
+<p>2. Quantize <code>d&rsquo;</code> into one of <strong>2<sup>24</sup> = 16.7 million</strong> discrete levels (matching the full RGB gamut)</p>
+<p>3. Map the quantized index to an (R, G, B) triplet via the 3D Hilbert curve</p>
+<p>The key property: <strong>nearby depth values map to nearby colors</strong>. This &ldquo;locality preservation&rdquo; means small depth differences produce small color differences &mdash; which is critical because the image generator&rsquo;s loss function operates in pixel space. Without locality preservation, the model would be penalized equally for being &ldquo;one step off&rdquo; and &ldquo;completely wrong.&rdquo;</p>
+</div>
+<p>Compare: grayscale gives 256 levels of depth resolution. The Hilbert encoding gives <strong>16.7 million</strong> &mdash; a 65,536&times; increase in precision, all within a standard RGB image.</p>
+
+<h3>Surface normals: direct channel mapping</h3>
+<p>A surface normal is a 3D unit vector (n<sub>x</sub>, n<sub>y</sub>, n<sub>z</sub>) at each pixel, indicating which direction the surface faces. The encoding is elegantly simple:</p>
+<pre><code>R = (n_x + 1) / 2 &times; 255    // X-component &rarr; Red
+G = (n_y + 1) / 2 &times; 255    // Y-component &rarr; Green  
+B = (n_z + 1) / 2 &times; 255    // Z-component &rarr; Blue</code></pre>
+<p>Since normal components range from &minus;1 to +1, the linear rescaling maps them to 0&ndash;255. This is the standard normal-map encoding used in 3D graphics for decades &mdash; Vision Banana simply borrows it.</p>
+
+<h3>Segmentation: prompt-defined colors</h3>
+<p>For semantic and instance segmentation, the text prompt specifies which color maps to which class:</p>
+<pre><code>Prompt: "Segment this image. Use red (255,0,0) for person,
+         blue (0,0,255) for car, green (0,255,0) for tree."
+
+Output: An RGB image where each pixel is colored according
+        to its semantic class.</code></pre>
+<p>For <strong>instance segmentation</strong> (distinguishing <em>individual</em> objects of the same class), Vision Banana runs <strong>one class at a time</strong> &mdash; generating a separate mask per category. Each instance within that class gets a different shade (e.g., person 1 = bright red, person 2 = dark red). This per-class strategy avoids the combinatorial explosion of having to assign unique colors to potentially hundreds of instances simultaneously.</p>
+
+<h3>The instruction tuning recipe</h3>
+<p>Vision Banana instruction-tunes Nano Banana Pro (built on Gemini 3 Pro) with these key details:</p>
+<table><thead><tr><th>Component</th><th>Detail</th></tr></thead><tbody>
+<tr><td><strong>Base model</strong></td><td>Nano Banana Pro (Gemini 3 Pro multimodal transformer)</td></tr>
+<tr><td><strong>Training data</strong></td><td>Task-specific (input image, output RGB annotation) pairs</td></tr>
+<tr><td><strong>Depth data</strong></td><td>Primarily <em>synthetic</em> &mdash; rendered 3D scenes with perfect ground-truth depth</td></tr>
+<tr><td><strong>Generation retention</strong></td><td>Low mixing ratio of original generation data prevents forgetting</td></tr>
+<tr><td><strong>What&rsquo;s learned</strong></td><td>Output <em>formatting</em>, not visual understanding (the model already &ldquo;sees&rdquo; &mdash; it just learns to express what it sees in the right format)</td></tr>
+</tbody></table>
+
+<div class="card"><div class="card-label amber">FORMATTING VS. LEARNING</div>
+<p>This is the key distinction: instruction tuning teaches the model <em>how to express</em> its already-existing visual understanding in a specific output format. It doesn&rsquo;t teach the model to see &mdash; the generation pretraining already did that. This is directly analogous to how instruction-tuning an LLM teaches it to follow instructions, not to understand language.</p>
+</div>
+
+<h3>Metric depth with zero real-world data</h3>
+<p>One of the most surprising results: Vision Banana achieves <strong>metric (absolute) depth estimation</strong> using only synthetic training data and <strong>without any camera intrinsics</strong> (focal length, sensor size, etc.). Traditional depth estimation methods need camera parameters to convert relative depth to actual distances. Vision Banana learns to infer these implicitly from the image content itself &mdash; the model&rsquo;s generative pretraining has internalized enough about real-world geometry to know that a standard doorway is about 2 meters tall.</p>
+
+<h3>Mode-seeking vs. mode-averaging</h3>
+<p>Generative models have a structural advantage over discriminative models for pixel-level prediction:</p>
+<ul>
+<li><strong>Discriminative models</strong> (regression-based) minimize mean squared error, which <strong>averages across modes</strong>. At an ambiguous depth boundary, they predict the average of possible depths &rarr; blurry edges.</li>
+<li><strong>Generative models</strong> (sampling-based) pick <strong>one mode and commit</strong>. At an ambiguous boundary, they predict a specific sharp depth &rarr; crisp edges.</li>
+</ul>
+<p>This is why Vision Banana&rsquo;s depth maps look sharper than those from regression-based models &mdash; it&rsquo;s a fundamental property of how generative models produce outputs.</p>
+
+<h3>Computational cost</h3>
+<p>The elephant in the room: Vision Banana is <strong>expensive</strong>. Running a full generative model to produce a depth map or segmentation mask is orders of magnitude slower than a purpose-built discriminative model. SAM 3 or Depth Anything V3 can process images in milliseconds; Vision Banana requires the full diffusion/generation process. The paper argues this is an acceptable tradeoff for <em>quality</em> and <em>generality</em>, similar to how early LLMs were too slow for production but their quality advantage drove adoption.</p>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>Vision Banana&rsquo;s technical contribution is showing that the &ldquo;hard part&rdquo; of vision tasks is developing visual representations &mdash; and generation pretraining already does this. The instruction tuning is just formatting: teaching the model to express its existing knowledge as Hilbert-encoded depth, channel-mapped normals, or prompt-defined segmentation colors. The representations transfer because they were learned by modeling the full visual manifold.</p></div>
+
+<div class="quiz" id="quiz-l2"><div class="quiz-title">Quiz &mdash; Level 2</div>
+<div class="q"><div class="q-text">1. Why does Vision Banana use a 3D Hilbert curve instead of simple grayscale for encoding depth as an RGB image?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">A) Grayscale images can&rsquo;t be processed by the Gemini 3 Pro model &mdash; it only accepts 3-channel inputs</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,true)">B) The Hilbert curve provides 2<sup>24</sup> (16.7M) levels of depth resolution vs. 256 for grayscale, while preserving locality so nearby depths map to nearby colors</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">C) The Hilbert curve produces more visually appealing depth maps that are easier for humans to interpret</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">D) Grayscale encoding was tried first but caused gradient vanishing during backpropagation</button></li>
+</ul><div class="q-explain" id="ex-l2-0">The Hilbert curve provides 65,536&times; more depth resolution (2<sup>24</sup> vs. 2<sup>8</sup>) while crucially preserving locality &mdash; similar depth values produce similar RGB colors. This locality property is essential because the generation loss operates in pixel space: without it, the model couldn&rsquo;t learn that being &ldquo;close&rdquo; in depth should mean being &ldquo;close&rdquo; in color.</div></div>
+
+<div class="q"><div class="q-text">2. Vision Banana achieves metric depth estimation using only synthetic training data and no camera parameters. How is this possible?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">A) The model secretly uses EXIF metadata from images to recover focal length and sensor information</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,true)">B) The model&rsquo;s generative pretraining has internalized enough real-world geometry that it can implicitly infer absolute scale from scene content (e.g., a door is ~2m tall)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">C) Metric depth is predicted by a separate discriminative head that was appended after instruction tuning</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">D) The synthetic data includes randomized camera parameters that teach the model to handle all possible focal lengths</button></li>
+</ul><div class="q-explain" id="ex-l2-1">Having generated millions of images of real-world scenes during pretraining, the model has internalized the statistical regularities of natural scenes &mdash; the typical size of objects, the relationship between perspective cues and distance. This implicit world knowledge allows it to predict absolute depth without being told the camera parameters.</div></div>
+
+<div class="q"><div class="q-text">3. For instance segmentation, Vision Banana processes one class at a time rather than all classes simultaneously. Why?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">A) The model can only generate images with at most 3 distinct colors due to the RGB output constraint</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">B) Processing all classes simultaneously would require a larger model architecture than Gemini 3 Pro supports</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,true)">C) It avoids the combinatorial explosion of assigning unique colors to potentially hundreds of individual instances across many classes in a single pass</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">D) Per-class processing enables parallel execution on multiple GPUs for faster inference</button></li>
+</ul><div class="q-explain" id="ex-l2-2">A single image might contain dozens of instances across many classes. Assigning a unique color to each instance across all classes simultaneously would require the model to coordinate hundreds of distinct color assignments in one pass. By processing one class at a time, each pass only needs to distinguish instances within a single category (person 1, person 2, etc.), which is far simpler.</div></div>
+
+<div class="q"><div class="q-text">4. The paper argues that instruction tuning teaches &ldquo;formatting, not learning.&rdquo; What does this mean in practice?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">A) The instruction tuning data uses a specific JSON format that the model must learn to parse</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">B) The model learns new visual features during instruction tuning that weren&rsquo;t present during generation pretraining</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">C) Formatting means the model only changes its final output layer while all other weights are frozen</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,true)">D) The model already has the visual understanding from generation pretraining; instruction tuning just teaches it to express that knowledge in the right output format (Hilbert colors, normal maps, etc.)</button></li>
+</ul><div class="q-explain" id="ex-l2-3">The key claim is that generation pretraining builds deep visual representations that already encode depth, segmentation, and normal information. Instruction tuning doesn&rsquo;t teach the model to <em>see</em> depth &mdash; it teaches the model to <em>output</em> depth in Hilbert-curve-encoded RGB. This is analogous to how instruction-tuning an LLM teaches it to follow instructions, not to understand language.</div></div>
+
+<div class="q"><div class="q-text">5. Why do generative models produce sharper depth boundaries than discriminative regression models?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',4,true)">A) Generative models are mode-seeking: they commit to one specific depth value at boundaries rather than averaging possible values, producing crisp edges</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">B) Generative models use higher-resolution feature maps internally, capturing finer spatial details</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">C) Discriminative models deliberately smooth boundaries to reduce noise sensitivity in downstream applications</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">D) The diffusion process in generative models applies sharpening filters during the denoising steps</button></li>
+</ul><div class="q-explain" id="ex-l2-4">At a depth boundary (e.g., object edge), the true depth is bimodal &mdash; it could be the foreground or background value. Regression-based discriminative models minimize MSE by averaging both modes, producing a blurry intermediate value. Generative models sample from the distribution and commit to one mode, producing a sharp transition. This mode-seeking property is a structural advantage for pixel-level prediction tasks.</div></div>
+
+<div class="score" id="score-l2"></div><button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button>
+</div>
+</div></div>
+
+<!-- ==================== LEVEL 3 ==================== -->
+<div class="level l3" id="level3"><div class="level-header" onclick="toggle('level3')"><div class="level-dot"></div><h2>Level 3 &mdash; Expert</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>Intellectual lineage: Marigold &rarr; Lotus &rarr; Lotus-2 &rarr; Vision Banana</h3>
+<p>Vision Banana doesn&rsquo;t emerge from a vacuum. It sits at the end of a clear intellectual trajectory:</p>
+
+<table><thead><tr><th>Paper</th><th>Key idea</th><th>Limitation</th></tr></thead><tbody>
+<tr><td><strong>Marigold</strong> (2023)</td><td>Fine-tune a diffusion model (Stable Diffusion) for monocular depth. First to show generative representations transfer to geometric tasks.</td><td>Affine-invariant depth only (relative, not metric). Limited to depth. Slow multi-step diffusion inference.</td></tr>
+<tr><td><strong>Lotus</strong> (2024)</td><td>Reformulate as single-step &ldquo;noise prediction &rarr; annotation prediction.&rdquo; No iterative denoising needed. Faster and more accurate.</td><td>Still affine-invariant. Still limited to depth/normals. Still fine-tuning a UNet-based diffusion model.</td></tr>
+<tr><td><strong>Lotus-2</strong> (2025)</td><td>Extend Lotus to more tasks including segmentation. Better training recipes.</td><td>Still UNet-based (limited scale). Still reliant on diffusion model architecture. Still affine depth.</td></tr>
+<tr><td><strong>Vision Banana</strong> (2026)</td><td>Replace UNet diffusion with a full multimodal transformer (Gemini 3 Pro). Generation pretraining at scale. Metric depth. All tasks unified.</td><td>Computationally expensive. No video support. Potential hallucination.</td></tr>
+</tbody></table>
+
+<p>The key jump from Lotus-2 to Vision Banana is architectural: moving from a UNet-based diffusion model to a <strong>multimodal transformer</strong> that was pretrained at massive scale on both text and images. This is what enables the &ldquo;generation = pretraining&rdquo; thesis &mdash; the model has seen enough of the visual world during generation training to develop genuinely general representations.</p>
+
+<h3>Nano Banana Pro architecture</h3>
+<p>Vision Banana is built on <strong>Nano Banana Pro</strong>, which is itself built on <strong>Gemini 3 Pro</strong> &mdash; Google DeepMind&rsquo;s multimodal transformer. Key architectural properties:</p>
+<ul>
+<li><strong>Native multimodality:</strong> Text, image, and potentially other modalities are processed through a single transformer with shared attention layers. This is early fusion &mdash; modalities interact from the earliest layers.</li>
+<li><strong>Bidirectional image understanding + autoregressive generation:</strong> The model can both understand input images (bidirectional attention over image tokens) and generate new images (autoregressive or diffusion-based generation).</li>
+<li><strong>Scale:</strong> Gemini 3 Pro-scale parameters (exact count undisclosed, but likely hundreds of billions) give the model enough capacity to learn rich visual representations during generation pretraining.</li>
+</ul>
+
+<div class="card"><div class="card-label red">WHY MULTIMODAL TRANSFORMERS CHANGE THE GAME</div>
+<p>Previous generative-to-discriminative transfer (Marigold, Lotus) used <strong>UNet-based diffusion models</strong> designed primarily for generation. Their architecture &mdash; encoder-decoder with skip connections &mdash; wasn&rsquo;t designed for the kind of global reasoning needed for scene understanding.</p>
+<p>Multimodal transformers like Gemini 3 Pro have <strong>full self-attention across all tokens</strong> &mdash; every image patch can attend to every other image patch and to the text prompt. This gives them:</p>
+<ul>
+<li><strong>Global context:</strong> Understanding that a window on the 10th floor implies a building, which implies a scale for the depth map</li>
+<li><strong>Cross-modal reasoning:</strong> The text prompt &ldquo;segment cats as red&rdquo; requires understanding both the visual concept of &ldquo;cat&rdquo; and the output format &ldquo;red pixels&rdquo;</li>
+<li><strong>Scalability:</strong> Transformers scale with data and compute in ways that have proven extraordinarily effective for language &mdash; now being demonstrated for vision</li>
+</ul>
+</div>
+
+<h3>Noise prediction vs. annotation prediction vs. full generative pretraining</h3>
+<p>Three paradigms for using generative models in vision tasks:</p>
+
+<table><thead><tr><th>Approach</th><th>Training</th><th>Inference</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>Noise prediction</strong></td><td>Train diffusion model to denoise images. Fine-tune to predict task output from noisy version of ground truth.</td><td>Iterative denoising (10&ndash;50 steps)</td><td>Marigold</td></tr>
+<tr><td><strong>Annotation prediction</strong></td><td>Reformulate: predict clean annotation directly (no noise). Still uses diffusion model architecture.</td><td>Single forward pass</td><td>Lotus / Lotus-2</td></tr>
+<tr><td><strong>Full generative pretraining</strong></td><td>Pretrain a massive generative model on image generation at scale. Then instruction-tune for downstream tasks.</td><td>Full generation process</td><td>Vision Banana</td></tr>
+</tbody></table>
+
+<p>The distinction matters: Marigold and Lotus fine-tune <em>an existing diffusion model</em> (pretrained for generation) toward a specific task. Vision Banana argues that the generation pretraining itself is the valuable part &mdash; you just need a big enough model and enough data, and the representations will be general enough for any task.</p>
+
+<h3>Affine-invariant vs. metric depth</h3>
+<p>A critical technical distinction:</p>
+<ul>
+<li><strong>Affine-invariant depth:</strong> Predicts relative depth ordering and proportions, but with unknown scale and shift. If d is the true depth: <code>d_pred = a &middot; d + b</code> where a, b are arbitrary. Useful for some applications, but you can&rsquo;t extract real-world distances. This is what Marigold, Lotus, and Lotus-2 provide.</li>
+<li><strong>Metric depth:</strong> Predicts absolute depth in real-world units (meters). You can directly read off &ldquo;this pixel is 3.2 meters away.&rdquo; This is what Vision Banana achieves &mdash; without camera parameters.</li>
+</ul>
+<p>Going from affine to metric is a massive jump in difficulty. It requires the model to have internalized an understanding of real-world scale &mdash; which Vision Banana&rsquo;s generation pretraining provides. The model has seen millions of images and learned the statistical regularities of how the 3D world projects onto 2D images.</p>
+
+<h3>Implications for Meta&rsquo;s SAM franchise</h3>
+<p>This paper is a direct competitive threat to Meta&rsquo;s SAM (Segment Anything Model) line:</p>
+<ul>
+<li><strong>SAM 3</strong> is a specialist segmentation model &mdash; exactly the kind of approach Vision Banana argues is the &ldquo;old way&rdquo;</li>
+<li>If the &ldquo;generation = pretraining&rdquo; thesis holds, the competitive moat moves from <em>task-specific engineering</em> to <em>scale of generative pretraining</em></li>
+<li>Meta has strong generation capabilities (Emu, Chameleon) but hasn&rsquo;t yet unified them with discriminative tasks in the way Vision Banana proposes</li>
+<li>The paper implies that whoever has the best image generator also has the best vision backbone &mdash; a winner-take-all dynamic</li>
+</ul>
+
+<h3>Limitations acknowledged in the paper</h3>
+<ul>
+<li><strong>Inference cost:</strong> Orders of magnitude slower than specialist models. Not suitable for real-time applications like robotics or autonomous driving without significant optimization.</li>
+<li><strong>Hallucination risk:</strong> Generative models can &ldquo;hallucinate&rdquo; plausible-looking but incorrect outputs &mdash; a depth map might look sharp and confident while being wrong in absolute terms.</li>
+<li><strong>No video:</strong> All results are single-frame. Extending to video introduces temporal consistency challenges that the current approach doesn&rsquo;t address.</li>
+<li><strong>Closed model:</strong> Built on Gemini 3 Pro, which is not open-source. Reproducibility depends on access to comparable-scale multimodal generators.</li>
+</ul>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>Vision Banana represents the culmination of a clear research trajectory from Marigold through Lotus to full generative pretraining. The jump to a multimodal transformer at Gemini 3 Pro scale is what enables the &ldquo;generation = pretraining&rdquo; thesis to actually work &mdash; previous attempts with smaller UNet models could only go so far. The result challenges the entire specialist-model paradigm in computer vision.</p></div>
+
+<div class="quiz" id="quiz-l3"><div class="quiz-title">Quiz &mdash; Level 3</div>
+<div class="q"><div class="q-text">1. The intellectual lineage Marigold &rarr; Lotus &rarr; Lotus-2 &rarr; Vision Banana shows a clear progression. Which description correctly captures the key advance at each step?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">A) Marigold added segmentation, Lotus added depth, Lotus-2 added normals, Vision Banana unified them</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">B) Each step halved the model size while doubling accuracy, culminating in Vision Banana&rsquo;s tiny efficient model</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">C) Marigold used a UNet, Lotus used a ViT, Lotus-2 used a mixture of experts, Vision Banana used a diffusion transformer</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,true)">D) Marigold showed generative-to-geometric transfer; Lotus eliminated iterative denoising; Lotus-2 extended to more tasks; Vision Banana replaced UNet with massive multimodal transformer pretraining for metric depth and full task unification</button></li>
+</ul><div class="q-explain" id="ex-l3-0">Marigold demonstrated that diffusion model representations transfer to depth estimation. Lotus reformulated the task as single-step annotation prediction (no denoising). Lotus-2 extended to segmentation and normals. Vision Banana made the architectural leap to a multimodal transformer pretrained at massive scale, enabling metric depth and true task unification.</div></div>
+
+<div class="q"><div class="q-text">2. Vision Banana achieves metric depth while Marigold/Lotus provide only affine-invariant depth. What is the fundamental difference?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',1,true)">A) Affine-invariant depth predicts relative ordering with unknown scale and shift (d_pred = a&middot;d + b); metric depth predicts absolute real-world distances in meters without needing camera parameters</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">B) Metric depth uses LiDAR calibration data while affine depth uses stereo camera pairs</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">C) Affine depth works only indoors while metric depth works only outdoors, and Vision Banana combines both</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">D) The difference is purely in post-processing: metric depth applies a learned calibration function to affine predictions</button></li>
+</ul><div class="q-explain" id="ex-l3-1">Affine-invariant depth preserves relative ordering and proportions but has unknown scale (a) and shift (b). You can&rsquo;t read off &ldquo;3.2 meters&rdquo; from an affine prediction. Metric depth gives absolute distances. Vision Banana achieves this because its generation pretraining has internalized enough about real-world geometry to infer absolute scale from image content alone, without camera intrinsics.</div></div>
+
+<div class="q"><div class="q-text">3. Why does Vision Banana&rsquo;s multimodal transformer architecture (Gemini 3 Pro) provide a structural advantage over UNet-based diffusion models for scene understanding?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">A) UNet models can&rsquo;t generate images at resolutions above 512&times;512, limiting their applicability to high-res vision tasks</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">B) UNet skip connections cause gradient explosion during instruction tuning, which transformers avoid</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,true)">C) Full self-attention across all tokens enables global context reasoning (e.g., inferring building scale from a window on the 10th floor) and cross-modal reasoning between text prompts and visual content</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">D) Transformers are inherently faster than UNets, making Vision Banana practical for real-time applications</button></li>
+</ul><div class="q-explain" id="ex-l3-2">Full self-attention allows every image patch to attend to every other patch and the text prompt. This enables global reasoning (understanding that a 10th-floor window implies a tall building, which implies a specific depth scale) and cross-modal reasoning (mapping &ldquo;segment cats as red&rdquo; to the correct visual regions). UNet&rsquo;s encoder-decoder with skip connections has more limited receptive fields and no text integration.</div></div>
+
+<div class="q"><div class="q-text">4. Vision Banana argues it represents a paradigm shift comparable to GPT unifying NLP. Which criticism most effectively challenges this claim?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',3,true)">A) The inference cost is orders of magnitude higher than specialist models, making it impractical for the real-time applications (robotics, autonomous driving) where vision understanding matters most</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">B) The model only works on Google hardware and cannot be reproduced by other labs</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">C) SAM 3 actually outperforms Vision Banana on the majority of segmentation benchmarks</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">D) The paper does not compare against any discriminative baselines, making the claims unverifiable</button></li>
+</ul><div class="q-explain" id="ex-l3-3">The strongest counterargument is the compute tradeoff. GPT-class models succeeded partly because text generation latency was acceptable for chat interfaces. But many critical vision applications (real-time robotics, autonomous driving, AR/VR) require millisecond inference. If Vision Banana is 100&ndash;1000&times; slower than SAM 3, the quality advantage may not matter in production. This is a legitimate structural limitation, not just an engineering detail.</div></div>
+
+<div class="q"><div class="q-text">5. The paper acknowledges no video support. Which specific challenge makes extending Vision Banana to video particularly difficult?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">A) Video frames have different resolutions than still images, requiring architecture modifications</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">B) Video files are too large to fit in the model&rsquo;s context window</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">C) Current video generation models produce lower quality than image generation models</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,true)">D) Frame-by-frame processing produces temporally inconsistent predictions (flickering depth maps, unstable segmentation masks) because each frame is generated independently without temporal continuity constraints</button></li>
+</ul><div class="q-explain" id="ex-l3-4">Vision Banana generates each output frame independently. In video, this means depth maps, segmentation masks, and normals can flicker between frames &mdash; an object&rsquo;s predicted depth might jump erratically even when the object moves smoothly. Ensuring temporal consistency requires either explicit temporal modeling (attention across frames) or post-processing smoothing, neither of which the current approach provides.</div></div>
+
+<div class="score" id="score-l3"></div><button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button>
+</div>
+</div></div>
+
+<!-- ==================== LEVEL 4 ==================== -->
+<div class="level l4" id="level4"><div class="level-header" onclick="toggle('level4')"><div class="level-dot"></div><h2>Level 4 &mdash; Frontier</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>Three competing paradigms for vision pretraining</h3>
+<p>Vision Banana enters a three-way contest for how to build general-purpose visual representations:</p>
+
+<table><thead><tr><th>Paradigm</th><th>Core idea</th><th>Learns</th><th>Weak at</th></tr></thead><tbody>
+<tr><td><strong>CLIP</strong> (contrastive)</td><td>Align image and text embeddings via contrastive learning</td><td>Semantic concepts (WHAT is in the image)</td><td>Spatial/geometric understanding (WHERE things are, HOW DEEP they are)</td></tr>
+<tr><td><strong>DINOv2</strong> (self-supervised)</td><td>Learn visual features by predicting masked image patches</td><td>Dense local features good for matching and retrieval</td><td>Generation capability; may miss high-level semantics</td></tr>
+<tr><td><strong>Generative</strong> (Vision Banana)</td><td>Learn by generating images &mdash; must model the full visual manifold</td><td>Everything: semantics, geometry, materials, lighting, occlusion</td><td>Computational cost; potential hallucination</td></tr>
+</tbody></table>
+
+<p>Vision Banana&rsquo;s argument is that generation is the most information-rich pretraining objective. CLIP learns to <em>classify</em> (what), DINOv2 learns to <em>match</em> (which parts correspond), but generation must learn to <em>reconstruct</em> the entire visual world &mdash; geometry, physics, materials, and semantics all at once. This is the &ldquo;full manifold&rdquo; argument.</p>
+
+<h3>The Transfusion connection</h3>
+<p>Vision Banana and <strong>Transfusion</strong> (Meta, 2024) arrive at the same thesis from opposite directions:</p>
+
+<div class="card"><div class="card-label purple">SAME THESIS, OPPOSITE APPROACH</div>
+<p><strong>Transfusion:</strong> Start with a language model and add diffusion-based image generation as a co-training objective. Trains both objectives <em>simultaneously</em> from scratch on a unified architecture. The thesis: you can build one model that does language AND vision generation.</p>
+<p><strong>Vision Banana:</strong> Start with an already-trained image generator and instruction-tune it for discriminative vision tasks. The thesis: generation pretraining already gives you the representations needed for understanding.</p>
+<p>Both conclude that generation and understanding should be unified. Transfusion builds the unified model from day one; Vision Banana shows that an existing generator already has what&rsquo;s needed &mdash; you just need to unlock it with instruction tuning.</p>
+</div>
+
+<h3>What gets disrupted?</h3>
+<p>If Vision Banana&rsquo;s thesis is correct, the implications cascade across computer vision:</p>
+<ul>
+<li><strong>Specialist model research:</strong> Years-long efforts to build better segmentation models (SAM), depth models (Depth Anything), or normal estimation models may be rendered obsolete by a single generalist trained to generate images.</li>
+<li><strong>Training data collection:</strong> Instead of expensive per-task annotation (segmentation masks, depth sensor data), the key investment becomes <em>generation pretraining data</em> &mdash; which is just images, essentially unlimited and free.</li>
+<li><strong>Competitive moats:</strong> The moat shifts from task-specific engineering to scale of generation pretraining. Whoever has the biggest, best image generator wins at <em>all</em> vision tasks.</li>
+<li><strong>Research direction:</strong> Instead of &ldquo;how do we build a better depth estimator?&rdquo; the question becomes &ldquo;how do we build a better image generator?&rdquo; &mdash; a reframing of the entire research agenda.</li>
+</ul>
+
+<h3>Video Banana: the next frontier</h3>
+<p>The most obvious extension is <strong>&ldquo;Video Banana&rdquo;</strong> &mdash; applying the same thesis to video generation models:</p>
+<ul>
+<li><strong>Temporally consistent depth:</strong> A video generator that understands how scenes evolve over time should predict depth that is consistent across frames, solving the flickering problem.</li>
+<li><strong>Video segmentation &amp; tracking:</strong> A model that can generate coherent video inherently understands object persistence and motion &mdash; exactly what&rsquo;s needed for tracking.</li>
+<li><strong>Optical flow:</strong> Motion between frames is implicit in video generation &mdash; the model must know where things move to generate the next frame.</li>
+</ul>
+<p>The challenge: video generation models are even more expensive than image generation models, and temporal consistency in generation is itself an unsolved problem at the frontier.</p>
+
+<h3>Does understanding require generation?</h3>
+<p>The deepest philosophical question raised by this paper: <strong>is generation a necessary condition for understanding?</strong></p>
+<ul>
+<li><strong>Vision Banana&rsquo;s position:</strong> Generation is sufficient (and possibly optimal) for developing visual understanding. The act of learning to create images forces the model to learn everything about the visual world.</li>
+<li><strong>Counter-argument:</strong> Humans understand many things they cannot generate. A blind person can develop remarkable spatial reasoning from auditory cues alone. Understanding may not require generation &mdash; it may just correlate with it because both require rich internal representations.</li>
+<li><strong>Pragmatic view:</strong> Whether or not generation is <em>necessary</em>, it appears to be an extremely effective pretraining strategy. The &ldquo;old recipe&rdquo; (collect task-specific data &rarr; train specialist model) is being replaced by the &ldquo;new recipe&rdquo; (pretrain a massive generator &rarr; instruction-tune for any task).</li>
+</ul>
+
+<h3>Knowledge distillation for deployment</h3>
+<p>The practical path forward for deploying Vision Banana&rsquo;s insights: <strong>knowledge distillation</strong>. Train a massive generative model (the teacher), use it to produce high-quality predictions on large-scale unlabeled data, then train a fast discriminative model (the student) on those predictions.</p>
+<p>This gives you the best of both worlds: the quality of generative pretraining with the speed of a discriminative model. It&rsquo;s the same pattern that worked for language (GPT-4 &rarr; distilled smaller models) and could be the way Vision Banana&rsquo;s insights actually reach production.</p>
+
+<h3>Final scorecard</h3>
+<table><thead><tr><th>Dimension</th><th>Score</th><th>Notes</th></tr></thead><tbody>
+<tr><td><strong>Novelty</strong></td><td>8/10</td><td>The thesis (generation = pretraining for vision) isn&rsquo;t brand new (Marigold started it), but the scale and completeness of the demonstration is unprecedented.</td></tr>
+<tr><td><strong>Impact</strong></td><td>9/10</td><td>If correct, this reshapes the entire computer vision research agenda. The &ldquo;specialist model&rdquo; paradigm may be ending.</td></tr>
+<tr><td><strong>Reproducibility</strong></td><td>3/10</td><td>Built on closed-source Gemini 3 Pro. No open weights. Hard to reproduce without comparable-scale multimodal generators.</td></tr>
+<tr><td><strong>Technical depth</strong></td><td>7/10</td><td>Clever RGB encodings (Hilbert curve), solid experimental design, but the method itself is simple &mdash; the power comes from scale.</td></tr>
+<tr><td><strong>Writing</strong></td><td>8/10</td><td>Clear exposition, good framing of the generative-vs-discriminative debate. Strong analogies to LLM trajectory.</td></tr>
+<tr><td><strong>Longevity</strong></td><td>8/10</td><td>The generation-as-pretraining thesis will likely endure as a core principle, even if specific methods evolve. Video extension is the obvious next step.</td></tr>
+</tbody></table>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>Vision Banana is to computer vision what GPT-1 was to NLP &mdash; not necessarily the final form, but the proof of concept that changes the research direction. The specialist-model era may be winding down. The key open questions: Can video generators achieve the same unification? Can distillation make this practical? And does Meta (with SAM, Chameleon, and Transfusion) respond by unifying its own generation and understanding stacks?</p></div>
+
+<div class="quiz" id="quiz-l4"><div class="quiz-title">Quiz &mdash; Level 4</div>
+<div class="q"><div class="q-text">1. Three vision pretraining paradigms compete: CLIP (contrastive), DINOv2 (self-supervised), and generative (Vision Banana). What is the generative paradigm&rsquo;s claimed fundamental advantage over the other two?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">A) Generative models are faster at inference because they use smaller architectures than CLIP or DINOv2</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">B) Generative models use supervised labels while CLIP and DINOv2 are fully unsupervised, giving them higher quality training signal</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,true)">C) CLIP learns WHAT (semantics) and DINOv2 learns dense local features, but generation must learn the full visual manifold &mdash; geometry, physics, materials, lighting, semantics, and occlusion simultaneously</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">D) Generative models produce output images that can be directly evaluated by humans, while CLIP and DINOv2 produce abstract embeddings</button></li>
+</ul><div class="q-explain" id="ex-l4-0">The core argument is about information richness of the pretraining objective. CLIP optimizes for semantic alignment (what&rsquo;s in the image matches what the text says), and DINOv2 optimizes for patch-level consistency. Generation requires modeling the complete visual world &mdash; you can&rsquo;t generate a realistic image without understanding geometry, lighting, materials, occlusion, and semantics simultaneously. This &ldquo;full manifold&rdquo; argument is why Vision Banana claims generation is the superior pretraining objective.</div></div>
+
+<div class="q"><div class="q-text">2. Vision Banana and Transfusion both argue for unifying generation and understanding. How do their approaches fundamentally differ?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">A) Transfusion uses discrete image tokens while Vision Banana uses continuous diffusion; the architectures are otherwise identical</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">B) Vision Banana trains jointly on text and images while Transfusion trains on images only</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">C) Transfusion is a Google model and Vision Banana is a Meta model, so the difference is primarily compute budget</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,true)">D) Transfusion trains unified generation + language objectives simultaneously from scratch; Vision Banana takes an existing image generator and instruction-tunes it for understanding tasks post-hoc</button></li>
+</ul><div class="q-explain" id="ex-l4-1">Transfusion (Meta) builds a single model with both next-token prediction (for text) and diffusion (for images) trained simultaneously from the start. Vision Banana (Google) takes an already-trained image generator and adds vision understanding capabilities through instruction tuning afterward. Same destination (unified generation + understanding), different routes (co-training vs. post-hoc tuning of an existing generator).</div></div>
+
+<div class="q"><div class="q-text">3. Vision Banana claims generative pretraining exploits unlimited unlabeled data as its key advantage. Why is this considered a paradigm-level advantage over specialist approaches?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',2,true)">A) Specialist models need expensive task-specific annotations (segmentation masks, depth sensor data) that are fundamentally limited in scale, while generation pretraining uses raw images &mdash; essentially unlimited and free &mdash; yet develops transferable representations</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">B) Unlabeled data is higher quality than labeled data because human annotators introduce systematic biases</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">C) Generative models can be trained on synthetic data exclusively, eliminating all privacy concerns from real-world data</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">D) The advantage is not about data scale but about the Hilbert curve encoding, which makes any unlabeled image usable for depth estimation</button></li>
+</ul><div class="q-explain" id="ex-l4-2">This mirrors the key advantage of LLMs over supervised NLP: labeled data is expensive and limited, but raw text (or images) is effectively infinite. If generation pretraining develops representations that transfer to downstream tasks, then the bottleneck shifts from &ldquo;how much labeled data can we collect?&rdquo; to &ldquo;how much compute can we throw at generation?&rdquo; &mdash; and compute scales far more readily than annotation.</div></div>
+
+<div class="q"><div class="q-text">4. A hypothetical &ldquo;Video Banana&rdquo; extends Vision Banana to video. Which set of tasks would most directly benefit from video generation pretraining?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">A) Image classification, style transfer, and super-resolution &mdash; tasks where temporal context provides richer features</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">B) Text-to-image generation, 3D reconstruction, and audio-visual synchronization</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,true)">C) Temporally consistent depth, object tracking, and video segmentation &mdash; tasks requiring understanding of how scenes evolve over time</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">D) Document OCR, medical imaging diagnosis, and satellite image analysis</button></li>
+</ul><div class="q-explain" id="ex-l4-3">Video generation must model temporal continuity &mdash; how objects move, persist, and interact over time. This directly maps to: temporally consistent depth (no flickering), tracking (understanding object persistence), and video segmentation (consistent object boundaries across frames). These are exactly the tasks where per-frame processing fails and temporal understanding is essential.</div></div>
+
+<div class="q"><div class="q-text">5. Vision Banana&rsquo;s inference cost is orders of magnitude higher than specialist models. What is the most promising approach for deploying its quality advantages in production systems?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',4,true)">A) Knowledge distillation: use the generative model as a teacher to label massive unlabeled datasets, then train a fast discriminative student model on those labels</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">B) Hardware acceleration: build custom chips specifically designed for generative vision models</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">C) Caching: pre-compute outputs for all possible input images and store them in a lookup table</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">D) Quantization: reduce the model to 1-bit weights, which eliminates the speed gap entirely</button></li>
+</ul><div class="q-explain" id="ex-l4-4">Knowledge distillation is the standard pattern for deploying large, slow, high-quality models: use the big model to generate high-quality labels for massive amounts of unlabeled data, then train a small, fast model on those labels. This gives you the generative model&rsquo;s quality advantage at the discriminative model&rsquo;s speed &mdash; the same pattern that enabled deployment of GPT-class knowledge into smaller, faster LLMs.</div></div>
+
+<div class="score" id="score-l4"></div><button class="reset-btn" id="reset-l4" onclick="resetQuiz('l4')">Try again</button>
+</div>
+</div></div>
+
+<footer style="margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:.8rem;color:var(--text2)">Built as a learning project. Paper retains its original license.</footer>
+</div>
+
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('open')}
+const state={};
+function ans(btn,level,qi,correct){
+  const key=level+'-'+qi;
+  if(state[key])return;
+  state[key]=true;
+  const q=btn.closest('.q');
+  const btns=q.querySelectorAll('.q-btn');
+  btns.forEach(b=>{b.disabled=true;if(b===btn){b.classList.add(correct?'correct':'incorrect')}});
+  if(!correct){btns.forEach(b=>{if(b!==btn&&b.onclick.toString().includes('true')){b.classList.add('reveal')}})}
+  const ex=document.getElementById('ex-'+key);if(ex)ex.classList.add('show');
+  if(!state[level+'-count'])state[level+'-count']=0;
+  if(!state[level+'-total'])state[level+'-total']=0;
+  state[level+'-count']++;
+  if(correct)state[level+'-total']++;
+  if(state[level+'-count']===5){
+    const s=document.getElementById('score-'+level);
+    const t=state[level+'-total'];
+    s.textContent='Score: '+t+'/5'+(t>=4?' — Passed! ✓':' — Try again');
+    s.className='score show '+(t>=4?'pass':'fail');
+    document.getElementById('reset-'+level).classList.add('show');
+  }
+}
+function resetQuiz(level){
+  for(let i=0;i<5;i++){delete state[level+'-'+i]}
+  delete state[level+'-count'];delete state[level+'-total'];
+  const quiz=document.getElementById('quiz-'+level);
+  quiz.querySelectorAll('.q-btn').forEach(b=>{b.disabled=false;b.classList.remove('correct','incorrect','reveal')});
+  quiz.querySelectorAll('.q-explain').forEach(e=>e.classList.remove('show'));
+  document.getElementById('score-'+level).className='score';
+  document.getElementById('reset-'+level).classList.remove('show');
+}
+</script>
+</body>
+</html>
