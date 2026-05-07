@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seedance 2.0 &mdash; Advancing Video Generation for World Complexity</title>
+<meta name="description" content="Four-level explainer: Seedance 2.0 — ByteDance's dual-branch diffusion transformer that co-generates audio and video, accepts 15 multimodal references, and beat Sora 2, Veo 3.1, and Kling 3.0 in blind human evaluation.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0;--purple:#8250df;--purple-bg:#fbefff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129;--purple:#bc8cff;--purple-bg:#2a1a3a}}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem}.back{display:inline-block;font-size:.875rem;color:var(--accent);text-decoration:none;margin-bottom:1.5rem}.back:hover{text-decoration:underline}h1{font-size:1.6rem;font-weight:700;line-height:1.3;margin-bottom:.75rem}.paper-info{font-size:.875rem;color:var(--text2);margin-bottom:.5rem}.paper-info a{color:var(--accent);text-decoration:none}.paper-info a:hover{text-decoration:underline}.tldr{font-size:.9rem;color:var(--text2);padding:1rem 1.25rem;background:var(--bg2);border-radius:8px;margin-bottom:2rem;border-left:3px solid var(--accent)}.level{margin-bottom:2.5rem;border:1px solid var(--border);border-radius:10px;overflow:hidden}.level-header{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;cursor:pointer;background:var(--bg2);user-select:none;border-bottom:1px solid var(--border)}.level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.l1 .level-dot{background:#2da44e}.l2 .level-dot{background:#bf8700}.l3 .level-dot{background:#cf222e}.l4 .level-dot{background:var(--purple)}.level-header h2{font-size:1rem;font-weight:600;margin:0;flex:1}.chevron{font-size:.8rem;color:var(--text3);transition:transform .2s}.level.open .chevron{transform:rotate(180deg)}.level-body{display:none;padding:1.5rem 1.25rem}.level.open .level-body{display:block}h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}.level-body>h3:first-child{margin-top:0}p{margin-bottom:.75rem}ul,ol{margin:0 0 .75rem 1.25rem}li{margin-bottom:.25rem}strong{font-weight:600}em{font-style:italic}code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--code-bg);padding:1px 5px;border-radius:3px}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;margin:.75rem 0;font-size:.8rem;line-height:1.5}pre code{background:none;padding:0}table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.875rem}th{text-align:left;font-weight:600;padding:.5rem .75rem;border-bottom:2px solid var(--border);font-size:.8rem}td{padding:.5rem .75rem;border-bottom:1px solid var(--border)}tr:last-child td{border-bottom:none}.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0}.card-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}.card-label.green{color:var(--green)}.card-label.amber{color:#bf8700}.card-label.red{color:var(--red)}.card-label.blue{color:var(--accent)}.card-label.purple{color:var(--purple)}.card p:last-child{margin-bottom:0}.takeaway{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0}.takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.35rem}.takeaway p:last-child{margin-bottom:0}.result-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.75rem 0}.result-box{text-align:center;padding:1rem;border-radius:8px}.result-box.green-bg{background:var(--green-bg);border:1px solid var(--green)}.result-box.amber-bg{background:#fff8c5;border:1px solid #bf8700}.result-box.red-bg{background:var(--red-bg);border:1px solid var(--red)}@media(prefers-color-scheme:dark){.result-box.amber-bg{background:#2a2000;border-color:#bf8700}}.result-number{font-size:1.75rem;font-weight:700;line-height:1}.result-box.green-bg .result-number{color:var(--green)}.result-box.amber-bg .result-number{color:#bf8700}.result-box.red-bg .result-number{color:var(--red)}.result-label{font-size:.75rem;color:var(--text2);margin-top:.25rem}.quiz{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1.5rem}.quiz-title{font-weight:600;font-size:.9rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}.q{margin-bottom:1.25rem}.q:last-of-type{margin-bottom:.5rem}.q-text{font-weight:500;font-size:.9rem;margin-bottom:.5rem}.q-options{list-style:none;padding:0;margin:0}.q-btn{display:block;width:100%;text-align:left;padding:.5rem .85rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);transition:border-color .12s,background .12s}.q-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg)}.q-btn:disabled{cursor:default}.q-btn:disabled:hover{border-color:inherit;background:inherit}.q-btn.correct{border-color:var(--green)!important;background:var(--green-bg)!important}.q-btn.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;opacity:.7}.q-btn.reveal{border-color:var(--green)!important;background:var(--green-bg)!important}.q-explain{display:none;font-size:.8rem;color:var(--text2);margin:.4rem 0 0;padding:.5rem .85rem;border-left:2px solid var(--border)}.q-explain.show{display:block}.score{display:none;padding:.85rem 1rem;border-radius:6px;font-weight:600;font-size:.9rem;margin-top:.75rem}.score.show{display:block}.score.pass{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}.score.fail{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}.reset-btn{display:none;margin-top:.5rem;padding:.4rem 1rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.8rem;font-family:inherit;color:var(--text)}.reset-btn.show{display:inline-block}.reset-btn:hover{border-color:var(--accent);background:var(--accent-bg)}@media(max-width:600px){.result-row{grid-template-columns:1fr}.container{padding:1.5rem 1rem 4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back" href="../index.html">&larr; Back to all papers</a>
+<h1>Seedance 2.0: Advancing Video Generation for World Complexity</h1>
+<p class="paper-info">Team Seedance + ~170 co-authors &mdash; ByteDance &mdash; arXiv, April 2026</p>
+<p class="paper-info"><a href="https://arxiv.org/abs/2604.14148">&#128196; Paper (arXiv)</a></p>
+<div class="tldr"><strong>TL;DR:</strong> Seedance 2.0 is a <strong>dual-branch diffusion transformer</strong> that co-generates audio and video in a single forward pass, accepts <strong>up to 15 multimodal reference inputs</strong> (9 images + 3 videos + 3 audio tracks), supports <strong>V2V editing</strong> and <strong>multi-shot narrative generation</strong>, and beat Sora 2, Veo 3.1, and Kling 3.0 in blind human evaluation &mdash; all while costing ~$0.14 per 15-second clip.</div>
+
+<!-- ==================== LEVEL 1 ==================== -->
+<div class="level l1 open" id="level1"><div class="level-header" onclick="toggle('level1')"><div class="level-dot"></div><h2>Level 1 &mdash; Beginner</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>What Seedance 2.0 does</h3>
+<p>Seedance 2.0 generates video <em>with synchronized audio</em> from text descriptions and multimodal references. You can feed it images (character faces, environments), video clips (motion patterns, camera moves), and audio tracks (music, voice) &mdash; and it produces a coherent clip where all of these come together.</p>
+
+<h3>The old way vs. the Seedance way</h3>
+<div class="card"><div class="card-label blue">PARADIGM SHIFT</div>
+<p><strong>Before Seedance 2.0:</strong> Generate video first &rarr; add audio separately afterward. Audio and video are disconnected systems, so lips don&rsquo;t match speech, footsteps don&rsquo;t match walking, and music doesn&rsquo;t match scene transitions.</p>
+<p><strong>Seedance 2.0:</strong> Generate audio and video <strong>together</strong> in a single process. Both share information during generation, so a character&rsquo;s lip movements and their speech are created in the same forward pass.</p>
+</div>
+
+<h3>Five key innovations</h3>
+
+<p><strong>1. Dual-branch diffusion transformer.</strong> Two parallel generation pipelines &mdash; one for video, one for audio &mdash; that communicate with each other during generation via cross-attention. This is NOT &ldquo;make a video, then add a soundtrack.&rdquo;</p>
+
+<p><strong>2. Multimodal reference system.</strong> Most video models accept a text prompt and maybe one image. Seedance 2.0 accepts up to <strong>9 images + 3 video clips + 3 audio tracks</strong> simultaneously. This lets you control character appearance (images), motion style (video refs), and rhythm/pacing (audio refs) all at once.</p>
+
+<p><strong>3. Physics-aware motion synthesis.</strong> Previous models generated plausible motion for <em>individual</em> subjects, but multi-agent interactions broke down. Seedance 2.0 handles figure skating pairs with synchronized jumps, basketball collisions, and correct momentum transfer between objects.</p>
+
+<p><strong>4. Video-to-video (V2V) editing.</strong> Don&rsquo;t like the output? Feed the generated video back with an edit prompt (&ldquo;make it nighttime&rdquo;) and the model modifies it while preserving camera movement, timing, and spatial layout &mdash; iterative refinement rather than starting from scratch.</p>
+
+<p><strong>5. Multi-shot narrative generation.</strong> Other models generate one isolated clip at a time. Seedance 2.0 generates structured multi-shot sequences with camera transition planning, subject consistency across shots, and narrative flow.</p>
+
+<h3>Competitive landscape (early 2026)</h3>
+<table><thead><tr><th></th><th>Seedance 2.0</th><th>Sora 2</th><th>Veo 3.1</th><th>Kling 3.0</th></tr></thead><tbody>
+<tr><td><strong>Focus</strong></td><td>Control</td><td>Realism</td><td>Cinema</td><td>Reliability</td></tr>
+<tr><td><strong>Max refs</strong></td><td>15 inputs</td><td>Limited</td><td>Limited</td><td>Limited</td></tr>
+<tr><td><strong>Audio</strong></td><td>Joint gen</td><td>Post-hoc</td><td>Native</td><td>Basic</td></tr>
+<tr><td><strong>V2V edit</strong></td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td><strong>Multi-shot</strong></td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td><strong>Max res</strong></td><td>2K</td><td>1080p</td><td>4K</td><td>4K@60fps</td></tr>
+<tr><td><strong>Cost/clip</strong></td><td>~$0.14</td><td>$5&ndash;18</td><td>Variable</td><td>~$0.50</td></tr>
+</tbody></table>
+
+<h3>The ByteDance ecosystem</h3>
+<p>Seedance 2.0 sits within ByteDance&rsquo;s broader Seed team stack:</p>
+<ul>
+<li><strong>Images:</strong> Seedream 2.0 &rarr; 3.0 &rarr; 4.0 (text-to-image)</li>
+<li><strong>Video:</strong> PixelDance &rarr; Seedance 1.0 &rarr; 1.5 &rarr; 2.0</li>
+<li><strong>Editing:</strong> SeedEdit &rarr; SeedEdit 3.0</li>
+<li><strong>Training:</strong> RewardDance, DanceGRPO (RLHF for video)</li>
+</ul>
+<p>All components feed into each other &mdash; the image model improves frame quality; the RLHF pipeline aligns generation with human preferences.</p>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>Seedance 2.0&rsquo;s defining bet is <strong>director-level control</strong> &mdash; reference conditioning, V2V editing, multi-shot sequences. It won the market not by generating the most photorealistic single frame, but by giving creators the most control over the output.</p></div>
+
+<div class="quiz" id="quiz-l1"><div class="quiz-title">Quiz &mdash; Level 1</div>
+
+<div class="q"><div class="q-text">1. What is the fundamental architectural difference between Seedance 2.0&rsquo;s approach to audio-video generation and most prior video models?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">A) Seedance 2.0 generates audio first, then conditions video generation on the audio track</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">B) Seedance 2.0 uses a single diffusion branch that outputs both audio and video in the same tensor</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,true)">C) Seedance 2.0 uses a dual-branch diffusion transformer where audio and video are co-generated in parallel branches that share information through cross-attention, rather than generating video first and adding audio post-hoc</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">D) Seedance 2.0 uses a GAN-based architecture for audio and a diffusion model for video</button></li>
+</ul><div class="q-explain" id="ex-l1-0">The dual-branch architecture has two parallel DiT pipelines (one for video, one for audio) that communicate during generation via cross-attention. This means audio and video influence each other as they are created, producing naturally synchronized output rather than stitching them together afterward.</div></div>
+
+<div class="q"><div class="q-text">2. Seedance 2.0&rsquo;s multimodal reference system accepts up to 15 simultaneous inputs. What types of references can be provided?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',1,true)">A) Up to 9 images, 3 video clips, and 3 audio tracks &mdash; enabling control over composition/style (images), motion patterns (video), and rhythm/pacing (audio)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">B) Up to 15 text prompts that are concatenated and processed together</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">C) Up to 9 video clips, 3 images, and 3 text documents</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">D) Up to 15 images only, with no video or audio reference support</button></li>
+</ul><div class="q-explain" id="ex-l1-1">The reference system supports three modalities: images (up to 9, for appearance/style/composition), video clips (up to 3, for motion patterns and camera trajectories), and audio tracks (up to 3, for rhythm and pacing). No other production model offers comparable depth of multimodal reference input.</div></div>
+
+<div class="q"><div class="q-text">3. What specific problem in multi-agent scenes does Seedance 2.0&rsquo;s physics-aware motion synthesis address?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">A) Previous models couldn&rsquo;t generate any motion at all &mdash; subjects were static</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,true)">B) Previous models produced plausible individual motions but failed when subjects needed to physically interact &mdash; collisions, force transfer, and coordinated movements broke down</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">C) Previous models could only generate motion for a single subject per video</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">D) Previous models generated perfect physics but couldn&rsquo;t handle text prompts</button></li>
+</ul><div class="q-explain" id="ex-l1-2">Prior video models could animate individual subjects convincingly, but multi-agent interactions &mdash; like synchronized figure skating, basketball collisions, or realistic force transfer &mdash; produced artifacts. Seedance 2.0&rsquo;s physics-aware generation specifically targets interaction fidelity between subjects.</div></div>
+
+<div class="q"><div class="q-text">4. How does V2V editing change the creative workflow compared to other video generation models?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">A) V2V editing is slower than regenerating from scratch and mainly used for debugging</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">B) V2V editing only works for changing audio tracks, not visual content</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,true)">C) V2V editing enables iterative refinement &mdash; feeding an existing video back with a modification prompt while preserving camera movement, timing, and spatial layout</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">D) V2V editing is identical to image inpainting and works the same way</button></li>
+</ul><div class="q-explain" id="ex-l1-3">V2V editing moves the workflow from &ldquo;one-shot luck&rdquo; to iterative refinement. Creators feed an existing generated video back with targeted prompts (&ldquo;make it nighttime&rdquo;), and the model modifies it while preserving structure. This is analogous to iterative editing in image generation, extended to the temporal domain.</div></div>
+
+<div class="q"><div class="q-text">5. In the competitive landscape of video generation models (early 2026), what is Seedance 2.0&rsquo;s primary trade-off compared to Kling 3.0?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">A) Seedance 2.0 is open source while Kling 3.0 is proprietary</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,true)">B) Seedance 2.0 offers deeper control and multimodal reference capabilities but has lower maximum resolution (2K vs 4K@60fps) and a higher skill ceiling that rewards experienced operators</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">C) Seedance 2.0 is cheaper but produces lower quality across all dimensions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">D) Seedance 2.0 only works with English prompts while Kling 3.0 supports multiple languages</button></li>
+</ul><div class="q-explain" id="ex-l1-4">Seedance 2.0 offers unmatched control depth (15 reference inputs, V2V editing, multi-shot), but the trade-off is lower maximum resolution (2K vs Kling&rsquo;s 4K@60fps) and a steeper learning curve. It &ldquo;looks excellent in the hands of a strong creative operator and unnecessarily difficult for a casual user.&rdquo;</div></div>
+
+<div class="score" id="score-l1"></div><button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button>
+</div>
+</div></div>
+
+<!-- ==================== LEVEL 2 ==================== -->
+<div class="level l2" id="level2"><div class="level-header" onclick="toggle('level2')"><div class="level-dot"></div><h2>Level 2 &mdash; Intermediate</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>Diffusion Transformers (DiT): the architecture under the hood</h3>
+<p>Seedance 2.0 is built on a <strong>Diffusion Transformer (DiT)</strong> backbone &mdash; not a U-Net. This architectural choice is now universal across the frontier:</p>
+<ul>
+<li><strong>U-Net era (2022&ndash;2024):</strong> Stable Diffusion 1.x/2.x, DALL-E 2. Encoder-decoder CNNs with skip connections. Scales poorly beyond ~1B params.</li>
+<li><strong>DiT era (2025&ndash;2026):</strong> FLUX, Seedance 2.0, Sora 2, Veo 3.1. Pure transformer on latent patches. Scales efficiently to 10B+.</li>
+</ul>
+
+<div class="card"><div class="card-label blue">HOW DiT WORKS</div>
+<p><strong>1. Encode:</strong> Video frames &rarr; VAE encoder &rarr; latent space (spatial ~8&times; downsample, temporal ~4&times;)</p>
+<p><strong>2. Patchify:</strong> Divide latent into fixed-size patches &mdash; each becomes a &ldquo;token&rdquo; (like a word in an LLM)</p>
+<p><strong>3. Noise:</strong> Add Gaussian noise to latent patches (forward diffusion)</p>
+<p><strong>4. Denoise:</strong> Transformer predicts noise to remove, conditioned on timestep, text, and references. Repeat for T steps (typically 20&ndash;50).</p>
+<p><strong>5. Decode:</strong> Clean latent &rarr; VAE decoder &rarr; pixel-space video</p>
+</div>
+
+<h3>Dual-branch cross-attention: how audio and video talk</h3>
+<p>The two branches aren&rsquo;t just separate models glued together &mdash; they communicate during generation:</p>
+<pre><code>  ┌─────────── SHARED CONDITIONING ───────────┐
+  │  Text embedding + Reference features       │
+  │  + Timestep embedding                      │
+  └─────────┬─────────────────┬────────────────┘
+            │                 │
+     ┌──────▼──────┐   ┌─────▼───────┐
+     │  VIDEO DiT  │◄─►│  AUDIO DiT  │
+     │  blocks     │   │  blocks     │
+     └──────┬──────┘   └─────┬───────┘
+            │                 │
+     ┌──────▼──────┐   ┌─────▼───────┐
+     │  Video VAE  │   │  Audio VAE  │
+     │  Decoder    │   │  Decoder    │
+     └──────┬──────┘   └─────┬───────┘
+            │                 │
+       Video frames     Stereo audio</code></pre>
+<p>At select transformer blocks, each branch attends to the other&rsquo;s intermediate representations. The video branch can signal &ldquo;glass hits the floor at frame 47&rdquo; and the audio branch generates the impact sound at the same moment. This is <strong>not</strong> post-hoc alignment &mdash; the branches influence each other during denoising.</p>
+
+<h3>Reference encoding pipeline</h3>
+<p>How do 15 different inputs get processed into conditioning signals?</p>
+<ul>
+<li><strong>Image references (up to 9):</strong> Each image &rarr; CLIP/SigLIP vision encoder &rarr; feature vectors encoding appearance, style, composition. Injected via cross-attention in video DiT blocks. Multiple images compose scenes: face (identity), environment (setting), clothing (wardrobe).</li>
+<li><strong>Video references (up to 3):</strong> Each video &rarr; temporal encoder &rarr; motion features. Extracts <em>motion patterns</em> (camera trajectories, dance style), not pixel content.</li>
+<li><strong>Audio references (up to 3):</strong> Each audio &rarr; mel spectrogram &rarr; audio encoder &rarr; features encoding rhythm, pacing, timbre. Injected into <em>both</em> branches (guides audio style AND video pacing).</li>
+<li><strong>Text prompt:</strong> Text &rarr; T5/CLIP text encoder &rarr; embeddings. Global conditioning via cross-attention in all blocks.</li>
+</ul>
+<p>The model uses <strong>learned attention weights</strong> to prioritize references: image refs dominate appearance, video refs dominate motion, audio refs dominate pacing, text dominates semantics.</p>
+
+<h3>Three-stage training pipeline</h3>
+<div class="card"><div class="card-label purple">TRAINING STAGES</div>
+<p><strong>Stage 1 &mdash; Pretraining:</strong> Standard diffusion loss (predict noise). Massive paired video-audio dataset. Produces a base model that generates plausible video+audio.</p>
+<p><strong>Stage 2 &mdash; Supervised Fine-Tuning (SFT):</strong> Train on human-selected high-quality examples and professional content. Raises output quality baseline.</p>
+<p><strong>Stage 3 &mdash; RLHF via RewardDance + DanceGRPO:</strong> Generate videos &rarr; human evaluators rank on visual quality, motion quality, audio sync, prompt adherence, aesthetics &rarr; train a multi-head video reward model &rarr; use DanceGRPO (Group Relative Policy Optimization) to align the generator with human preferences. DanceGRPO replaces the expensive critic network with group-average reward as baseline &mdash; generate N videos, rank them, update policy to increase probability of above-average generations.</p>
+</div>
+
+<h3>V2V editing: the technical mechanism</h3>
+<p>V2V extends SDEdit (Meng et al. 2022) to video. The key idea: control edit strength through <strong>noise level</strong>.</p>
+<ul>
+<li>Encode existing video &rarr; clean latent z<sub>0</sub></li>
+<li>Add partial noise: z<sub>0</sub> &rarr; z<sub>t</sub> (for some t &lt; T)</li>
+<li>Small t (low noise) = minor edits (color, style). Large t (high noise) = major edits (objects, scene).</li>
+<li>Denoise from z<sub>t</sub> with new conditioning (edit prompt) &rarr; z<sub>0</sub>&prime; (edited video)</li>
+<li>Structural preservation via attention injection from source video&rsquo;s self-attention maps + temporal consistency enforcement.</li>
+</ul>
+
+<h3>Seedance 2.0 Fast</h3>
+<p>A distilled variant: the standard model runs ~50 denoising steps; the Fast variant runs 4&ndash;8 steps via consistency or progressive distillation. This is ~5&ndash;10&times; faster with slight quality degradation, targeting real-time previews and rapid prototyping.</p>
+
+<h3>VAE design</h3>
+<p><strong>Video VAE:</strong> Compresses raw video (~8&times; spatial, ~4&times; temporal). A 720p 10-second video goes from millions of pixel values to thousands of latent values (100&ndash;500&times; compression). The DiT operates only in this latent space.</p>
+<p><strong>Audio VAE:</strong> Converts audio waveform &rarr; mel spectrogram &rarr; compressed audio latent. The audio DiT denoises in this space.</p>
+<p><strong>Joint alignment:</strong> Video and audio latents are temporally aligned &mdash; audio timestep t corresponds to video timestep t, enabling frame-accurate sync through cross-attention.</p>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>The technical foundation is: DiT backbone (scalable transformers on latent patches), dual-branch cross-attention (joint audio-video generation), multi-pathway reference encoding (15 inputs to conditioning signals), three-stage training (pretrain &rarr; SFT &rarr; RLHF), and SDEdit-based V2V editing. Each piece serves Seedance 2.0&rsquo;s core design philosophy: <strong>maximum creative control</strong>.</p></div>
+
+<div class="quiz" id="quiz-l2"><div class="quiz-title">Quiz &mdash; Level 2</div>
+
+<div class="q"><div class="q-text">1. Seedance 2.0 uses a DiT rather than a U-Net backbone. What is the fundamental reason the field converged on DiT for frontier video generation?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">A) DiT uses less memory than U-Net, making it cheaper to run</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">B) DiT produces higher resolution output than U-Net by default</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">C) DiT can only process video, while U-Net can only process images</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,true)">D) DiT treats noisy latent patches as tokens with transformer attention, scaling efficiently to billions of parameters &mdash; unlike U-Nets whose CNN architecture hits diminishing returns at scale</button></li>
+</ul><div class="q-explain" id="ex-l2-0">The key advantage of DiT is scalability. Treating latent patches as tokens and applying standard transformer attention allows the architecture to scale efficiently to 10B+ parameters, following the same scaling laws that benefited LLMs. U-Nets rely on CNN architectures that hit diminishing returns beyond ~1B parameters.</div></div>
+
+<div class="q"><div class="q-text">2. How do the dual branches share information during generation?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',1,true)">A) Cross-attention at select transformer blocks, where each branch attends to the other&rsquo;s intermediate representations &mdash; allowing video to signal visual events and audio to generate corresponding sounds at the same frame</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">B) The branches share all parameters and weights, so they are effectively the same model</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">C) The audio branch receives the fully generated video as input and produces audio to match</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">D) Both branches output to a shared pixel buffer that merges their results at the final step</button></li>
+</ul><div class="q-explain" id="ex-l2-1">At select transformer blocks, cross-attention layers let each branch attend to the other&rsquo;s intermediate representations. This bidirectional communication during denoising means the video branch can signal visual events (glass breaking at frame 47) and the audio branch generates matching sounds at the exact frame.</div></div>
+
+<div class="q"><div class="q-text">3. DanceGRPO modifies standard PPO for the video domain. What is the key computational trick?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">A) GRPO skips the reward model and uses human evaluators in real-time</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">B) GRPO generates only one video per training step instead of multiple</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,true)">C) GRPO replaces the learned critic network with group average reward as baseline &mdash; generate N videos, rank them, update policy to increase probability of above-average generations</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">D) GRPO uses text-only rewards as a proxy for video quality</button></li>
+</ul><div class="q-explain" id="ex-l2-2">Standard PPO requires training a separate critic (value) network, which is prohibitively expensive for video where each &ldquo;sample&rdquo; is a full video generation. GRPO avoids this by using the group average reward as the baseline: generate N videos, score them all with the reward model, and update the policy to favor above-average generations.</div></div>
+
+<div class="q"><div class="q-text">4. In V2V editing, why does the amount of noise added to the source latent control edit strength?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">A) More noise makes the model run faster, so edits appear instantaneous</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">B) Noise is just regularization &mdash; the text prompt alone controls changes</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">C) Noise serves as a random seed determining which pixels are affected</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,true)">D) Low noise preserves most source structure (minor edits), high noise destroys more original content (major edits) &mdash; the model denoises with new conditioning to fill in desired changes while preserving whatever survived</button></li>
+</ul><div class="q-explain" id="ex-l2-3">This is the SDEdit principle: adding noise destroys information in the latent. Low noise destroys little (preserving structure for minor style/color edits), while high noise destroys more (allowing major changes like object replacement). The model then denoises with the new edit prompt to fill in the desired changes.</div></div>
+
+<div class="q"><div class="q-text">5. When generating a video with a face image, dance video, and song as references, how does the model prioritize?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">A) All references are weighted equally</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">B) Only the text prompt matters; references are just style transfer</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">C) The model uses only one reference type at a time</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,true)">D) Separate encoder pathways integrated via learned cross-attention &mdash; image refs dominate appearance/identity, video refs dominate motion/camera, audio refs dominate pacing/rhythm</button></li>
+</ul><div class="q-explain" id="ex-l2-4">Each reference type goes through its own encoder pathway (vision encoder for images, temporal encoder for video, mel spectrogram encoder for audio) and is integrated via learned cross-attention weights. The model naturally learns that image references are most informative for appearance, video references for motion, and audio references for temporal pacing.</div></div>
+
+<div class="score" id="score-l2"></div><button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button>
+</div>
+</div></div>
+
+<!-- ==================== LEVEL 3 ==================== -->
+<div class="level l3" id="level3"><div class="level-header" onclick="toggle('level3')"><div class="level-dot"></div><h2>Level 3 &mdash; Expert</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>Lineage: PixelDance &rarr; Seedance 1.0 &rarr; 1.5 &rarr; 2.0</h3>
+<p>Each generation kept prior innovations and added a new capability axis:</p>
+<table><thead><tr><th>Version</th><th>Key change</th><th>Added</th><th>Still missing</th></tr></thead><tbody>
+<tr><td><strong>PixelDance</strong></td><td>U-Net diffusion</td><td>Early multi-shot research</td><td>Low res, no audio, no refs</td></tr>
+<tr><td><strong>1.0 (Jun 2025)</strong></td><td>U-Net &rarr; DiT</td><td>Multi-shot storytelling, fast inference (5s 1080p in 41.4s on L20)</td><td>No audio, limited refs, no V2V</td></tr>
+<tr><td><strong>1.5 (late 2025)</strong></td><td>Quality refinement</td><td>Better motion, temporal consistency, longer duration</td><td>Still no audio, limited refs</td></tr>
+<tr><td><strong>2.0 (Feb 2026)</strong></td><td>Modality expansion</td><td>Dual-branch audio, 15-input refs, V2V editing, physics-aware interaction, Fast variant</td><td>Max 2K, 15s limit</td></tr>
+</tbody></table>
+<p>The progression &mdash; architecture switch, quality refinement, modality expansion &mdash; reveals a strategy of building compound advantages rather than pivoting.</p>
+
+<h3>The audio reality gap: paper vs. product</h3>
+<p>An important nuance about this paper &mdash; and about AI papers in general:</p>
+<div class="card"><div class="card-label amber">PAPER vs PRODUCT</div>
+<p><strong>The paper says:</strong> &ldquo;Seedance 2.0 supports direct generation of audio-video content.&rdquo; Architecture: dual-branch DiT with audio + video branches.</p>
+<p><strong>Independent reviewers report:</strong> &ldquo;Seedance 2.0 does not generate audio natively&rdquo; in deployed products (SitePoint, multiple comparisons).</p>
+<p><strong>What&rsquo;s likely happening:</strong> The architecture <em>supports</em> audio co-generation, but ByteDance hasn&rsquo;t fully deployed it across all product surfaces. Possible reasons include audio quality not meeting production bar, legal concerns around audio IP (even more fraught than video), selective regional availability (Chinese platforms vs. international), or the paper describing what the model <em>can</em> do while products ship subsets of capabilities.</p>
+<p>This is a common gap in AI: <strong>capability readiness &ne; product readiness</strong>. Papers describe architectures; products ship subsets.</p>
+</div>
+
+<h3>Deep comparison: Veo 3 vs. Seedance 2.0</h3>
+<p>These models represent fundamentally different bets on the future of video generation:</p>
+<table><thead><tr><th></th><th>Veo 3</th><th>Seedance 2.0</th></tr></thead><tbody>
+<tr><td><strong>Philosophy</strong></td><td>Describe &rarr; get complete clip</td><td>Show + direct &rarr; get exactly what you want</td></tr>
+<tr><td><strong>Control model</strong></td><td>Text-prompt centric</td><td>Reference-driven</td></tr>
+<tr><td><strong>Audio</strong></td><td>Integrated pipeline (dialogue, SFX, music)</td><td>Dual-branch (not fully deployed)</td></tr>
+<tr><td><strong>Strength</strong></td><td>Photorealism, native audio</td><td>Control depth, stylistic range</td></tr>
+<tr><td><strong>Weakness</strong></td><td>Limited reference conditioning</td><td>Audio not shipped in all products</td></tr>
+<tr><td><strong>Target user</strong></td><td>Social/explainer creators</td><td>Directors, animators, post-heavy pipelines</td></tr>
+<tr><td><strong>Analogy</strong></td><td>Canva</td><td>Photoshop</td></tr>
+</tbody></table>
+<p>Veo 3 optimizes for <strong>ease of use</strong>. Seedance 2.0 optimizes for <strong>control</strong>. The fundamental split: prompt-driven vs. reference-driven creative workflows.</p>
+
+<h3>Why video RLHF is harder than text RLHF</h3>
+<p>RewardDance/DanceGRPO must overcome challenges that don&rsquo;t exist in text alignment:</p>
+<ul>
+<li><strong>Cost per sample:</strong> Text: generate in ~1s for ~$0.01. Video: generate in ~60s for ~$0.50&ndash;5.00. Video RLHF is 50&ndash;500&times; more expensive per comparison.</li>
+<li><strong>Multi-dimensional quality:</strong> Text quality is somewhat one-dimensional (helpful/not). Video has 7+ orthogonal dimensions: visual quality, motion physics, temporal consistency, audio sync, prompt adherence, aesthetics, reference fidelity. RewardDance uses a <strong>multi-head reward model</strong> with separate prediction heads per dimension.</li>
+<li><strong>Temporal evaluation:</strong> Humans evaluate text linearly but video holistically. The reward model must learn <em>both</em> frame-level and sequence-level quality.</li>
+<li><strong>Reward hacking:</strong> Text RLHF hacking: verbose, confident-sounding but wrong answers. Video RLHF hacking: overly smooth motion (avoids artifacts by removing detail), static scenes (fewer frames = fewer errors), desaturated colors, short durations. DanceGRPO&rsquo;s group-relative approach reduces this by requiring the model to be <em>relatively</em> better than its own alternatives.</li>
+</ul>
+
+<h3>The IP firestorm</h3>
+<p>The controversy surrounding Seedance 2.0 has structural implications for the entire field:</p>
+<ul>
+<li><strong>Feb 12, 2026:</strong> Seedance 2.0 released</li>
+<li><strong>Feb 13:</strong> Brad Pitt / Tom Cruise fight clip goes viral; Disney cease-and-desist; MPA denounces &ldquo;massive infringement&rdquo;</li>
+<li><strong>Feb 15:</strong> Paramount/Skydance alleges infringement (Star Trek, South Park, Dora the Explorer)</li>
+<li><strong>Feb 16:</strong> ByteDance promises safeguards</li>
+<li><strong>Mar 16:</strong> US Senators demand Seedance shutdown</li>
+</ul>
+<p>Key questions raised: Did ByteDance train on copyrighted video without license? (Almost certainly &mdash; but so did most competitors.) Is V2V transformation &ldquo;generation&rdquo; or &ldquo;editing&rdquo;? (Legally unresolved.) The Brad Pitt/Cruise fight may have used a reference video of stuntmen on a green screen, raising questions about what counts as AI-generated vs. AI-edited content.</p>
+
+<h3>State-of-the-art convergence</h3>
+<div class="card"><div class="card-label green">CONVERGENCE (everyone agrees)</div>
+<p>&bull; DiT &gt; U-Net for video generation &bull; Latent space diffusion (pixel space too expensive) &bull; RLHF improves video quality &bull; Multi-modal conditioning is the future &bull; Iterative editing &gt; one-shot generation</p>
+</div>
+<div class="card"><div class="card-label red">OPEN PROBLEMS (unsolved)</div>
+<p>&bull; Duration: nobody does &gt;20s well &bull; Resolution: 4K@60fps generation at quality &bull; Real-time: no model generates video in real-time &bull; Consistency: characters change across long sequences &bull; Copyright: training data legality unresolved &bull; Audio quality: native audio is adequate, not professional</p>
+</div>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>Seedance 2.0&rsquo;s evolution from PixelDance reveals a compound-advantage strategy. The audio gap between paper and product illustrates a universal tension in AI. The Veo 3 comparison reveals a fundamental fork between prompt-driven and reference-driven paradigms. And the IP controversy previews a legal reckoning that will shape the entire industry.</p></div>
+
+<div class="quiz" id="quiz-l3"><div class="quiz-title">Quiz &mdash; Level 3</div>
+
+<div class="q"><div class="q-text">1. What was the most significant architectural change at each stage of the Seedance lineage?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',0,true)">A) 1.0 switched from U-Net to DiT and added multi-shot storytelling; 1.5 refined motion quality; 2.0 added dual-branch audio, 15-input multimodal references, and V2V editing &mdash; each generation kept prior innovations and added a new capability axis</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">B) Each version was built from scratch with no shared components</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">C) 1.0 introduced audio, 1.5 added references, 2.0 improved resolution</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">D) All three versions use the same architecture with only training data differences</button></li>
+</ul><div class="q-explain" id="ex-l3-0">The lineage follows a clear pattern: 1.0 = architecture switch (U-Net &rarr; DiT) + multi-shot; 1.5 = quality refinement; 2.0 = modality expansion (+ audio) + control depth (refs, V2V). Each generation preserved prior capabilities while adding a new axis, building compound advantage.</div></div>
+
+<div class="q"><div class="q-text">2. Independent reviewers report Seedance 2.0 does NOT generate audio natively in deployed products, despite the paper describing dual-branch audio-video architecture. What is the most likely explanation?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">A) The reviewers are wrong &mdash; Seedance 2.0 generates audio in all products</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">B) ByteDance never built audio generation; the paper is theoretical</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,true)">C) The architecture supports audio co-generation, but ByteDance hasn&rsquo;t fully deployed it &mdash; the paper describes what the model can do, while products ship subsets of capabilities based on quality thresholds, legal concerns, and regional availability</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">D) Audio generation only works for English-language content</button></li>
+</ul><div class="q-explain" id="ex-l3-1">This illustrates the common gap between research papers and shipped products. The architecture supports joint audio-video generation, but deployment decisions consider quality bar, legal risk (audio IP is highly litigated), regional considerations, and strategic timing. Papers describe capabilities; products ship subsets.</div></div>
+
+<div class="q"><div class="q-text">3. Video RLHF is fundamentally harder than text RLHF. What specific challenge does DanceGRPO&rsquo;s group-relative approach address that standard PPO does not?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">A) DanceGRPO generates more videos per training step than PPO</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,true)">B) Standard PPO requires a learned critic network &mdash; prohibitively expensive for video &mdash; while DanceGRPO replaces the critic with group-relative ranking (generate N, use group average as baseline), also reducing reward hacking since models must be relatively better than their own alternatives</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">C) DanceGRPO uses text-only evaluation as a proxy for video quality</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">D) DanceGRPO eliminates the need for human evaluators entirely</button></li>
+</ul><div class="q-explain" id="ex-l3-2">PPO requires training a separate value (critic) network, which means generating videos to train that critic too &mdash; doubling the already massive compute cost. GRPO sidesteps this by using the group average reward as baseline. The group-relative comparison also reduces reward hacking, since the model must beat its own alternatives rather than just maximize an absolute score.</div></div>
+
+<div class="q"><div class="q-text">4. What is the core philosophical divergence between Veo 3 and Seedance 2.0?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">A) Veo 3 generates video while Seedance only edits existing video</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">B) Both models have identical architectures but different training data</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">C) Veo 3 is open source while Seedance 2.0 is proprietary</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,true)">D) Veo 3 optimizes for ease-of-use with text-prompt-centric generation, while Seedance 2.0 optimizes for director-level control through reference conditioning &mdash; the Canva vs Photoshop divide applied to video generation</button></li>
+</ul><div class="q-explain" id="ex-l3-3">Veo 3 bets on &ldquo;describe and get&rdquo; &mdash; text prompts as the primary interface, with integrated audio for complete clips. Seedance 2.0 bets on &ldquo;show and direct&rdquo; &mdash; reference conditioning as the primary interface, giving professionals fine-grained control. Different paradigms for different users.</div></div>
+
+<div class="q"><div class="q-text">5. The Seedance 2.0 IP controversy has implications beyond headlines. What structural issue does it expose about the entire AI video generation field?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',4,true)">A) Training on copyrighted video without license is likely universal across frontier models &mdash; Seedance made it visible by being too good at reproducing specific actors and styles, previewing a legal reckoning that all video generation companies will eventually face</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">B) Only ByteDance used copyrighted data; other companies have fully licensed training sets</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">C) The controversy was fabricated by competitors to slow ByteDance&rsquo;s market entry</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">D) The IP issue only applies to Chinese companies due to differences in copyright law</button></li>
+</ul><div class="q-explain" id="ex-l3-4">At internet scale, curating a copyright-clean video training set is nearly impossible. Seedance made the problem visible because its output quality was high enough to convincingly reproduce specific celebrities and copyrighted content. The same training data practices are widespread &mdash; the legal questions raised apply to the entire industry, not just ByteDance.</div></div>
+
+<div class="score" id="score-l3"></div><button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button>
+</div>
+</div></div>
+
+<!-- ==================== LEVEL 4 ==================== -->
+<div class="level l4" id="level4"><div class="level-header" onclick="toggle('level4')"><div class="level-dot"></div><h2>Level 4 &mdash; Frontier</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>&ldquo;Video generation models as world simulators&rdquo; &mdash; was OpenAI right?</h3>
+<p>OpenAI&rsquo;s original Sora technical report (February 2024) claimed that video generation models are <strong>world simulators</strong> &mdash; that generating physically plausible video requires learning an internal model of the world.</p>
+
+<div class="card"><div class="card-label blue">EVIDENCE FOR</div>
+<p>&bull; Seedance 2.0 generates physics-aware interactions &bull; Veo 3 produces correct gravity, cloth dynamics, fluid physics &bull; Vision Banana (Google DeepMind, 2026) showed generators <em>understand</em> what they generate &bull; Objects persist across frames (basic world modeling)</p>
+</div>
+<div class="card"><div class="card-label red">EVIDENCE AGAINST</div>
+<p>&bull; Models hallucinate impossible physics at distribution boundaries &bull; No model maintains consistency beyond ~20 seconds &bull; Long-range causal reasoning fails (if A happens at t=0, consequence B at t=60 is missed) &bull; No model simulates <em>novel</em> physics &mdash; only patterns seen in training data &bull; Models can&rsquo;t answer &ldquo;what happens next?&rdquo; interactively</p>
+</div>
+<p>The nuanced answer: video generators are <strong>pattern matchers of world dynamics</strong>, not simulators. They learned statistical regularities of how the visual world behaves and can interpolate within that distribution, but they fail on extrapolation. A model generating &ldquo;a ball falls and bounces&rdquo; replicates what bouncing <em>looks like</em>, not the physics of elasticity.</p>
+
+<h3>Sora&rsquo;s fate is instructive</h3>
+<p>Sora launched December 2024 and was <strong>discontinued in 2026</strong> (both app and API). Why?</p>
+<ul>
+<li>The &ldquo;world simulator&rdquo; framing raised expectations beyond what the product delivered</li>
+<li>The business model didn&rsquo;t work ($5&ndash;18 per clip)</li>
+<li>Competitors (Seedance, Veo, Kling) offered better cost-performance ratios</li>
+<li>Without reference conditioning, Sora couldn&rsquo;t serve professional creative workflows</li>
+</ul>
+<p>The lesson: the best <em>research</em> doesn&rsquo;t always win the market. Seedance won not because it was a better &ldquo;world simulator&rdquo; but because it gave creators better <strong>control</strong> at a fraction of the cost.</p>
+
+<h3>The &ldquo;Video Banana&rdquo; hypothesis: generation &rarr; understanding</h3>
+<p>Vision Banana (Google DeepMind, April 2026) proved that image generation pretraining develops latent image understanding. The natural extension:</p>
+<div class="card"><div class="card-label purple">THE HYPOTHESIS</div>
+<p>If Seedance 2.0 can generate temporally consistent motion (&rarr; it &ldquo;knows&rdquo; optical flow), physics-aware interactions (&rarr; dynamics), consistent 3D scenes (&rarr; depth over time), and persistent objects (&rarr; tracking), then instruction-tuning it for perception should unlock video object segmentation, temporally consistent depth, action recognition, and optical flow prediction.</p>
+</div>
+<p><strong>Why this hasn&rsquo;t happened yet:</strong></p>
+<ul>
+<li><strong>Compute:</strong> Video models are 10&ndash;100&times; more expensive to instruction-tune than image models</li>
+<li><strong>Evaluation:</strong> Temporal perception benchmarks are harder to construct and standardize</li>
+<li><strong>Inference cost:</strong> Running a full video generator for perception is impractical vs. lightweight discriminative models</li>
+<li><strong>Causal reasoning gap:</strong> Generating plausible visual sequences &ne; learning true temporal causality</li>
+</ul>
+<p>But the trajectory is clear: image generation &rarr; image understanding (2026, Vision Banana); video generation &rarr; video understanding (predicted 2027&ndash;2028).</p>
+
+<h3>The economics that actually matter</h3>
+<table><thead><tr><th>Category</th><th>Traditional production</th><th>AI generation (2026)</th></tr></thead><tbody>
+<tr><td>30-second commercial</td><td>$50K&ndash;$500K</td><td>~$1&ndash;5</td></tr>
+<tr><td>Corporate explainer</td><td>$5K&ndash;$50K</td><td>~$0.50&ndash;2</td></tr>
+<tr><td>Social media clip</td><td>$500&ndash;$5K</td><td>~$0.14</td></tr>
+<tr><td>Timeline</td><td>Days to weeks</td><td>Seconds to minutes</td></tr>
+</tbody></table>
+<p>The disruption is not <em>replacement</em> of high-end production but <em>expansion</em> of a new category: video that was previously too expensive to make. Personalized product videos, hundreds of A/B-tested ad variants, real-time localized content &mdash; the addressable market of &ldquo;video that didn&rsquo;t exist because it cost too much&rdquo; vastly exceeds the current video production market.</p>
+
+<h3>Convergence map: how papers connect</h3>
+<div class="card"><div class="card-label purple">THE TRAJECTORY</div>
+<p><strong>Transfusion</strong> (2024) showed generation objectives can unify modalities (text + image in one model).</p>
+<p><strong>DALL-E 3</strong> (2023) showed text-visual alignment is the key bottleneck (better captions &rarr; better images).</p>
+<p><strong>Vision Banana</strong> (2026) showed generation IS understanding &mdash; image generators develop latent perception capabilities.</p>
+<p><strong>Seedance 2.0</strong> (2026) showed video generation can be controlled AND aligned with human preferences via RLHF.</p>
+<p><strong>What comes next:</strong> Video Transfusion (one model for text + image + video), Video Banana (video generation &rarr; video understanding), persistent world models (long-form narrative), interactive generation (real-time, conditioned on user actions), and ultimately the unification &mdash; one model that generates AND understands text, images, video, audio, and 3D.</p>
+</div>
+
+<h3>Scorecard</h3>
+<table><thead><tr><th>Dimension</th><th>Score</th><th>Notes</th></tr></thead><tbody>
+<tr><td><strong>Novelty</strong></td><td>8/10</td><td>Dual-branch DiT and 15-input reference system are genuinely new; V2V editing extends prior work</td></tr>
+<tr><td><strong>Impact</strong></td><td>9/10</td><td>#1 on Artificial Analysis leaderboard; triggered Hollywood IP firestorm; forced competitors to respond</td></tr>
+<tr><td><strong>Reproducibility</strong></td><td>4/10</td><td>Closed-source, no weights, enormous compute requirements; paper is a &ldquo;model card,&rdquo; not a recipe</td></tr>
+<tr><td><strong>Technical depth</strong></td><td>6/10</td><td>Model card format means limited architectural detail; training specifics largely omitted</td></tr>
+<tr><td><strong>Writing</strong></td><td>6/10</td><td>Clear but brief; reads as marketing-adjacent in places; ~170 authors &mdash; coordination over depth</td></tr>
+<tr><td><strong>Longevity</strong></td><td>7/10</td><td>Dual-branch audio-video and reference conditioning will influence the next generation; specific model will be surpassed within a year</td></tr>
+</tbody></table>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>Seedance 2.0 represents the moment video generation became a controllable creative tool rather than a novelty. The convergence of DiT architectures, RLHF alignment, and multimodal reference conditioning points toward a future where generation and understanding merge across all modalities. The open frontiers &mdash; duration, resolution, real-time, and interactive generation &mdash; define the next chapter.</p></div>
+
+<div class="quiz" id="quiz-l4"><div class="quiz-title">Quiz &mdash; Level 4</div>
+
+<div class="q"><div class="q-text">1. OpenAI&rsquo;s Sora was framed as a &ldquo;world simulator&rdquo; and shut down in 2026. What is the most accurate characterization of why video generation models are NOT true world simulators?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">A) They lack sufficient training data to model the physical world</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">B) They are too slow to simulate physics in real-time</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,true)">C) They are pattern matchers that learned statistical regularities of visual dynamics and can interpolate within that distribution, but cannot extrapolate to novel physics, maintain long-range causal consistency, or reason from first principles</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">D) They can only generate static images, not dynamic video sequences</button></li>
+</ul><div class="q-explain" id="ex-l4-0">Video generators replicate what the world LOOKS like, not how it WORKS. They learned statistical patterns from training data and can interpolate convincingly, but they cannot simulate novel physics, maintain causal consistency over long sequences, or reason from first principles &mdash; all hallmarks of a true world simulator.</div></div>
+
+<div class="q"><div class="q-text">2. Sora launched in late 2024 and shut down in 2026, while Seedance 2.0 dominated the market. What was the fundamental strategic reason Seedance won?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',1,true)">A) Seedance optimized for creator CONTROL (reference conditioning, V2V editing, multi-shot) while Sora optimized for raw quality &mdash; professionals chose controllability because they need to direct the output, and Seedance&rsquo;s 100&times; lower price made iteration practical</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">B) Seedance had better marketing and a larger advertising budget</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">C) Sora was technically inferior in every dimension to Seedance 2.0</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">D) Sora was only available in the United States while Seedance was available globally</button></li>
+</ul><div class="q-explain" id="ex-l4-1">Sora produced impressive standalone clips but offered limited creative control. Seedance 2.0 provided reference conditioning, V2V editing, and multi-shot sequences &mdash; workflow features that professionals actually need. Combined with ~$0.14/clip (vs. $5&ndash;18 for Sora), Seedance made iterative creative work practical.</div></div>
+
+<div class="q"><div class="q-text">3. The &ldquo;Video Banana&rdquo; hypothesis predicts video generators should develop latent video understanding capabilities. What is the primary barrier?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">A) Video generation models don&rsquo;t learn any spatial or temporal representations during training</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">B) No one has proposed the idea yet</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">C) Legal restrictions on video AI prevent any research in this area</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,true)">D) Video models are 10&ndash;100&times; more expensive to instruction-tune than image models, combined with lack of standardized temporal perception benchmarks and the gap between generating plausible sequences and learning true causal temporal reasoning</button></li>
+</ul><div class="q-explain" id="ex-l4-2">Vision Banana&rsquo;s instruction-tuning cost was feasible for images. For video, the same approach requires 10&ndash;100&times; more compute per fine-tuning run, standardized temporal benchmarks don&rsquo;t yet exist, and it remains an open question whether visual plausibility implies genuine causal understanding.</div></div>
+
+<div class="q"><div class="q-text">4. Looking across Transfusion, DALL-E 3, Vision Banana, and Seedance 2.0, what unifying trajectory do they collectively point toward?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">A) Separate specialist models will always outperform unified approaches</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,true)">B) Generative training is converging as the universal pretraining objective &mdash; Transfusion unified text+image generation, DALL-E 3 showed text-visual alignment is key, Vision Banana proved generation creates understanding, Seedance 2.0 demonstrated controllable human-aligned video generation &mdash; pointing toward a single model that generates AND understands text, images, video, and audio</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">C) Video generation is fundamentally different from image generation and requires completely separate approaches</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">D) The trajectory is toward smaller, mobile-friendly models that sacrifice quality for efficiency</button></li>
+</ul><div class="q-explain" id="ex-l4-3">Each paper adds a piece to the convergence story: unified cross-modal generation (Transfusion), text-visual alignment as bottleneck (DALL-E 3), generation enabling understanding (Vision Banana), and human-aligned controllable video (Seedance 2.0). The trajectory points toward unified foundation models for generation AND understanding across all modalities.</div></div>
+
+<div class="q"><div class="q-text">5. What was the most important lesson from Seedance 2.0&rsquo;s market success for the field of AI video generation?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">A) Raw photorealism is the only metric that matters for commercial success</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">B) Audio generation must be perfect before a video model can succeed commercially</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,true)">C) Creator control features (reference conditioning, V2V editing, multi-shot) plus aggressive pricing matter more than raw generation quality &mdash; tools integrated into existing creative workflows with deep control win over technically impressive but less controllable systems</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">D) The best research always wins the market regardless of product strategy</button></li>
+</ul><div class="q-explain" id="ex-l4-4">Seedance 2.0 beat competitors that arguably had better raw quality (Veo 3 for photorealism, Sora for physics) by offering deeper creative control and dramatically lower cost. The lesson: controllability and workflow integration beat benchmark scores. Creators need to <em>direct</em> the output, not just <em>describe</em> it.</div></div>
+
+<div class="score" id="score-l4"></div><button class="reset-btn" id="reset-l4" onclick="resetQuiz('l4')">Try again</button>
+</div>
+</div></div>
+
+</div>
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('open')}
+var quizState={};
+function ans(btn,quizId,qIdx,correct){
+  if(!quizState[quizId])quizState[quizId]={answered:0,correct:0,total:5};
+  var s=quizState[quizId],q=btn.closest('.q'),btns=q.querySelectorAll('.q-btn');
+  if(btn.classList.contains('correct')||btn.classList.contains('incorrect'))return;
+  btns.forEach(function(b){b.disabled=true});
+  if(correct){btn.classList.add('correct');s.correct++}
+  else{btn.classList.add('incorrect');btns.forEach(function(b){if(b!==btn&&b.getAttribute('onclick').indexOf('true')!==-1)b.classList.add('reveal')})}
+  var ex=document.getElementById('ex-'+quizId+'-'+qIdx);if(ex)ex.classList.add('show');
+  s.answered++;
+  if(s.answered===s.total){
+    var sc=document.getElementById('score-'+quizId);
+    sc.textContent=s.correct+'/'+s.total+(s.correct>=4?' — Excellent!':(s.correct>=3?' — Good':' — Review the material'));
+    sc.className='score show '+(s.correct>=4?'pass':'fail');
+    document.getElementById('reset-'+quizId).classList.add('show');
+  }
+}
+function resetQuiz(quizId){
+  quizState[quizId]={answered:0,correct:0,total:5};
+  var quiz=document.getElementById('quiz-'+quizId);
+  quiz.querySelectorAll('.q-btn').forEach(function(b){b.disabled=false;b.classList.remove('correct','incorrect','reveal')});
+  quiz.querySelectorAll('.q-explain').forEach(function(e){e.classList.remove('show')});
+  document.getElementById('score-'+quizId).classList.remove('show');
+  document.getElementById('reset-'+quizId).classList.remove('show');
+}
+</script>
+</body>
+</html>
