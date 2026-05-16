@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GIM: Evaluating Models via Tasks that Integrate Multiple Cognitive Domains</title>
+<meta name="description" content="Four-level explainer: GIM-Eval — 820 expert-authored problems measuring integration density across 7 cognitive categories, with IRT 2PL calibration. Key finding: best human+AI centaur (θ=2.26) beats best pure LLM (θ=2.16) — but operator skill, not model choice, is the differentiating variable.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0;--purple:#8250df;--purple-bg:#fbefff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129;--purple:#bc8cff;--purple-bg:#2a1a3a}}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem}.back{display:inline-block;font-size:.875rem;color:var(--accent);text-decoration:none;margin-bottom:1.5rem}.back:hover{text-decoration:underline}h1{font-size:1.6rem;font-weight:700;line-height:1.3;margin-bottom:.75rem}.paper-info{font-size:.875rem;color:var(--text2);margin-bottom:.5rem}.paper-info a{color:var(--accent);text-decoration:none}.paper-info a:hover{text-decoration:underline}.tldr{font-size:.9rem;color:var(--text2);padding:1rem 1.25rem;background:var(--bg2);border-radius:8px;margin-bottom:2rem;border-left:3px solid var(--accent)}.level{margin-bottom:2.5rem;border:1px solid var(--border);border-radius:10px;overflow:hidden}.level-header{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;cursor:pointer;background:var(--bg2);user-select:none;border-bottom:1px solid var(--border)}.level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.l1 .level-dot{background:#2da44e}.l2 .level-dot{background:#bf8700}.l3 .level-dot{background:#cf222e}.l4 .level-dot{background:var(--purple)}.level-header h2{font-size:1rem;font-weight:600;margin:0;flex:1}.chevron{font-size:.8rem;color:var(--text3);transition:transform .2s}.level.open .chevron{transform:rotate(180deg)}.level-body{display:none;padding:1.5rem 1.25rem}.level.open .level-body{display:block}h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}.level-body>h3:first-child{margin-top:0}p{margin-bottom:.75rem}ul,ol{margin:0 0 .75rem 1.25rem}li{margin-bottom:.25rem}strong{font-weight:600}em{font-style:italic}code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--code-bg);padding:1px 5px;border-radius:3px}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;margin:.75rem 0;font-size:.8rem;line-height:1.5}pre code{background:none;padding:0}table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.875rem}th{text-align:left;font-weight:600;padding:.5rem .75rem;border-bottom:2px solid var(--border);font-size:.8rem}td{padding:.5rem .75rem;border-bottom:1px solid var(--border)}tr:last-child td{border-bottom:none}.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0}.card-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}.card-label.green{color:var(--green)}.card-label.amber{color:#bf8700}.card-label.red{color:var(--red)}.card-label.blue{color:var(--accent)}.card-label.purple{color:var(--purple)}.card p:last-child{margin-bottom:0}.takeaway{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0}.takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.35rem}.takeaway p:last-child{margin-bottom:0}.result-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.75rem 0}.result-box{text-align:center;padding:1rem;border-radius:8px}.result-box.green-bg{background:var(--green-bg);border:1px solid var(--green)}.result-box.amber-bg{background:#fff8c5;border:1px solid #bf8700}.result-box.red-bg{background:var(--red-bg);border:1px solid var(--red)}@media(prefers-color-scheme:dark){.result-box.amber-bg{background:#2a2000;border-color:#bf8700}}.result-number{font-size:1.75rem;font-weight:700;line-height:1}.result-box.green-bg .result-number{color:var(--green)}.result-box.amber-bg .result-number{color:#bf8700}.result-box.red-bg .result-number{color:var(--red)}.result-label{font-size:.75rem;color:var(--text2);margin-top:.25rem}.quiz{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1.5rem}.quiz-title{font-weight:600;font-size:.9rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}.q{margin-bottom:1.25rem}.q:last-of-type{margin-bottom:.5rem}.q-text{font-weight:500;font-size:.9rem;margin-bottom:.5rem}.q-options{list-style:none;padding:0;margin:0}.q-btn{display:block;width:100%;text-align:left;padding:.5rem .85rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);transition:border-color .12s,background .12s}.q-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg)}.q-btn:disabled{cursor:default}.q-btn:disabled:hover{border-color:inherit;background:inherit}.q-btn.correct{border-color:var(--green)!important;background:var(--green-bg)!important}.q-btn.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;opacity:.7}.q-btn.reveal{border-color:var(--green)!important;background:var(--green-bg)!important}.q-explain{display:none;font-size:.8rem;color:var(--text2);margin:.4rem 0 0;padding:.5rem .85rem;border-left:2px solid var(--border)}.q-explain.show{display:block}.score{display:none;padding:.85rem 1rem;border-radius:6px;font-weight:600;font-size:.9rem;margin-top:.75rem}.score.show{display:block}.score.pass{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}.score.fail{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}.reset-btn{display:none;margin-top:.5rem;padding:.4rem 1rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.8rem;font-family:inherit;color:var(--text)}.reset-btn.show{display:inline-block}.reset-btn:hover{border-color:var(--accent);background:var(--accent-bg)}@media(max-width:600px){.result-row{grid-template-columns:1fr}.container{padding:1.5rem 1rem 4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back" href="../index.html">&larr; Back to all papers</a>
+<h1>GIM: Evaluating Models via Tasks that Integrate Multiple Cognitive Domains</h1>
+<p class="paper-info">Rohit Patel, Danielle Belgrave, Erin Grant, Tom Zahavy, Jessica B. Hamrick, Kevin McClain et al. &mdash; March 2026</p>
+<p class="paper-info"><a href="https://github.com/facebookresearch/gim">&#128187; Code (GitHub)</a></p>
+<div class="tldr"><strong>TL;DR:</strong> 820 expert-authored problems (~11 person-hours each) measuring <strong>integration density</strong> &mdash; the ability to coordinate multiple cognitive operations simultaneously &mdash; across 7 categories, calibrated with IRT 2PL psychometrics, evaluated across 47 model configurations. Key finding: the best human+AI centaur (&theta;=2.26) beats the best pure LLM (GPT-5.4 Pro, &theta;=2.16), but operator skill at directing AI is the differentiating variable, not model choice.</div>
+
+<!-- ==================== LEVEL 1 ==================== -->
+<div class="level l1 open" id="level1"><div class="level-header" onclick="toggle('level1')"><div class="level-dot"></div><h2>Level 1 &mdash; Beginner</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>Why existing benchmarks fail</h3>
+<p>Most AI benchmarks test one thing at a time &mdash; math questions, reading comprehension, code generation. Models have gotten so good at these that the benchmarks saturate:</p>
+
+<div class="card"><div class="card-label red">THE SATURATION PROBLEM</div>
+<pre><code>MMLU (2020):    GPT-4 hit 86.4% → benchmark dead
+GSM8K (2021):   Multiple models hit 95%+ → benchmark dead
+HumanEval:      Solved → benchmark dead
+
+Each lasted ~2-3 years before saturation.
+The community is running out of single-domain tests.</code></pre>
+</div>
+
+<p>Real-world intelligence doesn&rsquo;t work in isolated domains. A doctor diagnosing a patient combines medical knowledge, visual interpretation of scans, probabilistic reasoning, communication, and temporal sequencing &mdash; all simultaneously. GIM measures that kind of <strong>integration</strong>.</p>
+
+<h3>Integration density: the core idea</h3>
+
+<pre><code>SINGLE-DOMAIN PROBLEM:
+  "What is 15% of 240?"
+  → One cognitive operation: arithmetic
+  → Models ace this
+
+INTEGRATION-DENSE PROBLEM (GIM-style):
+  A 1955 ZIP code problem:
+  "Given a historical postal routing map from 1955, 
+   determine which modern ZIP codes correspond to 
+   the original routing zones, accounting for the 
+   fact that ZIP codes weren't introduced until 1963."
+  
+  → World Knowledge (postal history)
+  → Temporal Reasoning (1955 vs 1963 timeline)
+  → Spatial Reasoning (map interpretation)
+  → Quantitative Reasoning (zone calculations)
+  → Language (parsing the complex prompt)
+  
+  = 5 cognitive operations, all SIMULTANEOUSLY required.
+  Fail at ANY ONE and you get the wrong answer.</code></pre>
+
+<p>GIM&rsquo;s thesis: <strong>integration density</strong> &mdash; how many cognitive operations must be coordinated simultaneously &mdash; is the right axis of difficulty for measuring intelligence.</p>
+
+<h3>The benchmark at a glance</h3>
+
+<div class="result-row">
+<div class="result-box green-bg"><div class="result-number">820</div><div class="result-label">Expert-authored problems</div></div>
+<div class="result-box amber-bg"><div class="result-number">47</div><div class="result-label">Model configurations tested</div></div>
+</div>
+
+<div class="result-row">
+<div class="result-box green-bg"><div class="result-number">7</div><div class="result-label">Cognitive categories</div></div>
+<div class="result-box amber-bg"><div class="result-number">246</div><div class="result-label">Human+AI centaur participants</div></div>
+</div>
+
+<h3>The 7 cognitive categories</h3>
+
+<pre><code>LR  Linguistic Reasoning       Language structure, ambiguity
+QR  Quantitative Reasoning      Math, logic, formal systems
+SI  Spatial &amp; Intuitive         Visual patterns, 3D reasoning
+WK  World Knowledge             Facts, history, science
+LN  Lateral &amp; Novel Thinking    Creative problem-solving
+PR  Procedural Reasoning        Multi-step processes, algorithms
+CT  Constraints &amp; Puzzles       Rule satisfaction, optimization</code></pre>
+
+<p>Each problem maps to a primary category but requires drawing from multiple categories simultaneously. That&rsquo;s the point &mdash; integration, not isolation.</p>
+
+<h3>The wolf-goat-cabbage variant &mdash; a GIM-style problem</h3>
+
+<div class="card"><div class="card-label blue">EXAMPLE PROBLEM</div>
+<pre><code>CLASSIC VERSION (every model aces this):
+  A farmer must transport a wolf, goat, and cabbage 
+  across a river. The boat holds the farmer + 1 item.
+  Wolf eats goat if left alone. Goat eats cabbage.
+
+GIM VARIANT (integration-dense):
+  Same setup, but:
+  - The boat has a WEIGHT LIMIT of 150 kg
+  - The farmer weighs 80 kg
+  - Wolf: 90 kg, Goat: 40 kg, Cabbage: 30 kg
+  - The farmer can carry items on his back (limit: 50 kg)
+  - It's raining: the river rises 10 cm per crossing
+  - After 5 crossings, the boat can't make it back
+
+  Now you need:
+  CT  Constraint satisfaction (weight limits)
+  QR  Arithmetic (weight calculations per trip)
+  PR  Procedural reasoning (optimal crossing sequence)
+  SI  Spatial/intuitive (river level visualization)
+  LR  Language parsing (complex multi-constraint prompt)
+
+  The FAMILIAR framing activates memorized solutions.
+  The ADDED constraints invalidate those solutions.
+  The model must DETECT the invalidation.
+  Then REASON through a novel path.</code></pre>
+</div>
+
+<h3>The centaur finding &mdash; the headline result</h3>
+
+<pre><code>THE LEADERBOARD (simplified):
+  Best centaur (human+AI):     θ = 2.26
+  Best pure LLM (GPT-5.4 Pro): θ = 2.16
+  Average centaur:              θ = 0.11
+  Worst centaur:                θ = -1.80
+
+THE INSIGHT:
+  Best centaur BEATS best pure LLM.
+  But average centaur is MID-PACK.
+  
+  The 2.15-logit gap between top and average 
+  centaur EXCEEDS the gap between best and worst models.
+  
+  → It's not the AI that matters most.
+  → It's the OPERATOR'S SKILL at directing the AI.
+
+ORIGIN: Kasparov's freestyle chess (2005):
+  "A weak human + machine + better PROCESS was superior 
+   to a strong computer alone and, more remarkably, 
+   superior to a strong human + machine + inferior process."
+  — Garry Kasparov, Deep Thinking (2017)
+
+  21 years later, GIM quantitatively confirms this 
+  with LLMs instead of chess engines.</code></pre>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>GIM argues that difficulty isn&rsquo;t about harder math or more obscure knowledge &mdash; it&rsquo;s about how many cognitive operations must be coordinated simultaneously. And when humans pair with AI, the human&rsquo;s skill at directing the AI matters more than which AI they choose.</p></div>
+
+<div class="quiz" id="quiz-l1"><div class="quiz-title">Quiz &mdash; Level 1</div>
+
+<div class="q"><div class="q-text">1. Why have benchmarks like MMLU and GSM8K become less useful for evaluating frontier models?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">A) The benchmarks were poorly designed from the start</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">B) Models memorized the specific test questions through data contamination</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">C) The benchmarks test too many cognitive skills at once</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,true)">D) They test single cognitive domains where models have reached near-ceiling performance &mdash; multiple models scoring 90%+ means the benchmark can no longer differentiate strong from strongest</button></li>
+</ul><div class="q-explain" id="ex-l1-0">Single-domain benchmarks saturate because frontier models master individual skills (arithmetic, reading comprehension, coding) relatively quickly. GIM&rsquo;s thesis is that integration &mdash; combining multiple skills simultaneously &mdash; is what remains difficult.</div></div>
+
+<div class="q"><div class="q-text">2. What is &ldquo;integration density&rdquo; as GIM defines it?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">A) The number of training examples needed to learn a concept</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,true)">C) The number of distinct cognitive operations that must be coordinated simultaneously to solve a problem &mdash; higher integration density means more operations must succeed together, and failure in any one operation means failure overall</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">B) The ratio of correct to incorrect answers on a benchmark</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">D) The number of model parameters divided by the number of test questions</button></li>
+</ul><div class="q-explain" id="ex-l1-1">Integration density is GIM&rsquo;s core concept: harder problems require more cognitive operations working together. A simple math problem has low integration density (one operation). The 1955 ZIP code problem has high integration density (5+ operations simultaneously).</div></div>
+
+<div class="q"><div class="q-text">3. In the GIM centaur study, what was the most surprising finding about human+AI teams?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',2,true)">A) The gap between the best and average human+AI operators (2.15 logits) was larger than the gap between the best and worst models &mdash; proving that the human operator&rsquo;s skill at directing the AI matters more than which AI they use</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">B) All human+AI teams performed worse than pure AI</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">C) The AI ignored human guidance in most cases</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">D) Human+AI teams only outperformed on language tasks</button></li>
+</ul><div class="q-explain" id="ex-l1-2">The best centaur (&theta;=2.26) beat the best pure LLM (&theta;=2.16), but the average centaur (&theta;=0.11) was mid-pack. The operator skill gap (2.15 logits) exceeded the model gap, confirming Kasparov&rsquo;s 2005 freestyle chess finding: process beats raw power.</div></div>
+
+<div class="q"><div class="q-text">4. How does GIM&rsquo;s wolf-goat-cabbage variant differ from the classic version, and why does that difference matter?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">A) It uses different animals, making the problem unrecognizable</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,true)">D) It adds weight limits, time pressure, and physical constraints to the familiar puzzle &mdash; the familiar structure activates memorized solutions which the added constraints then invalidate, forcing the model to detect the invalidation and reason through a novel path</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">C) It simply asks the same question in a more complex sentence</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">B) It removes all constraints, making the problem trivially easy</button></li>
+</ul><div class="q-explain" id="ex-l1-3">The variant is specifically designed to weaponize familiarity. The model recognizes the classic puzzle and retrieves the memorized solution &mdash; but that solution doesn&rsquo;t work with weight limits and rising water. The model must detect this and switch to novel reasoning. That&rsquo;s integration density in action.</div></div>
+
+<div class="q"><div class="q-text">5. GIM tested 47 model configurations. What does &ldquo;configuration&rdquo; mean in this context?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">A) Different hardware setups (GPUs, TPUs, CPUs)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,true)">B) The same model at different thinking-budget levels (OFF, Low, Medium, High, X-High) &mdash; a single model family like GPT-5.4 appears as multiple configurations, revealing that thinking budget spans 0.7&ndash;1.2 logits within a model family, comparable to gaps between entire model families</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">C) Different prompt templates applied to the same model</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">D) Models trained on different subsets of the GIM problems</button></li>
+</ul><div class="q-explain" id="ex-l1-4">Configuration = model + thinking budget. The thinking budget variation within a single model family is as consequential as choosing a different model entirely. This finding has major cost implications for deployment: Medium thinking gets ~90% of max performance at ~10% of the compute cost.</div></div>
+
+<div class="score" id="score-l1"></div><button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button>
+</div>
+
+</div></div>
+
+<!-- ==================== LEVEL 2 ==================== -->
+<div class="level l2" id="level2"><div class="level-header" onclick="toggle('level2')"><div class="level-dot"></div><h2>Level 2 &mdash; Intermediate</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>IRT 2PL: the psychometric engine</h3>
+<p>GIM doesn&rsquo;t use raw accuracy. It uses <strong>Item Response Theory (2-Parameter Logistic)</strong> &mdash; the same statistical framework used in standardized tests like the GRE and GMAT &mdash; to jointly estimate model ability and problem quality.</p>
+
+<pre><code>P(correct | θ, a_j, b_j) = 1 / (1 + exp(-a_j(θ - b_j)))
+
+Where:
+  θ    = model ability (the score we care about)
+  b_j  = difficulty of problem j (higher = harder)
+  a_j  = discrimination of problem j
+         (how sharply it separates strong from weak)
+
+HIGH a_j: Problem sharply separates good from bad models.
+          Strong models get it right, weak ones don't.
+          = A GOOD test question.
+
+LOW a_j:  Random performance regardless of ability.
+          Even strong models sometimes fail, weak ones succeed.
+          = A NOISY or POORLY DESIGNED question.
+
+WHY 2PL &gt; RAW ACCURACY:
+  Raw accuracy: 80% on easy problems = 80% on hard ones
+  IRT:          80% on hard problems ≫ 80% on easy ones
+  
+  IRT also DOWNWEIGHTS noisy questions (low a_j).
+  A question that strong models randomly fail doesn't 
+  drag their score down — because IRT knows it's noisy.</code></pre>
+
+<h3>Rubric scoring with confidence weights</h3>
+<p>Each GIM problem has a detailed rubric &mdash; median 6 criteria per problem. The LLM judge scores each criterion independently, with a confidence weight:</p>
+
+<pre><code>Score for problem j, model i:
+  s_ij = Σ (c_k × r_k) / Σ c_k
+
+Where:
+  r_k = rubric criterion k score (0 or 1)
+  c_k = judge's confidence in that criterion (0-1)
+
+EXAMPLE — The 1955 ZIP Code Problem:
+  Criterion 1: Correctly identifies ZIP codes didn't 
+               exist in 1955           → r=1, c=0.95
+  Criterion 2: Maps routing zones to modern codes  
+                                       → r=1, c=0.70
+  Criterion 3: Accounts for zone boundary changes  
+                                       → r=0, c=0.85
+  Criterion 4: Shows temporal reasoning chain      
+                                       → r=1, c=0.90
+  Criterion 5: Final answer correct    → r=0, c=0.95
+  Criterion 6: Acknowledges ambiguity  → r=1, c=0.60
+
+  Weighted score: (0.95+0.70+0+0.90+0+0.60) /
+                  (0.95+0.70+0.85+0.90+0.95+0.60)
+                = 3.15 / 4.95 = 0.636
+
+The confidence weights let the judge express uncertainty.
+Criterion 2 (c=0.70): judge isn't sure if the mapping 
+is correct. That uncertainty is built into the score.</code></pre>
+
+<h3>The LLM judge setup</h3>
+
+<pre><code>PRIMARY JUDGE:    Gemini 3 Flash (structured output)
+CROSS-VALIDATION: GPT 5.4
+
+Agreement metrics:
+  Pearson r  = 0.922 per prompt
+  Cohen's κ  = 0.815 per rubric criterion
+
+SCALE:
+  47 configs × 820 problems × 5 epochs = ~192,700 runs
+  Each run × ~6 rubric criteria = ~1.15 million judgments
+
+No human panel could do this at this scale.
+The cross-validation between model FAMILIES 
+(not just model versions) is the key defense 
+against self-preference bias.</code></pre>
+
+<h3>The 7 categories and 18 sub-categories</h3>
+
+<table><thead><tr><th>Category</th><th>Sub-categories</th><th>Multimodal %</th></tr></thead><tbody>
+<tr><td><strong>LR</strong> Linguistic</td><td>Semantic, Pragmatic, Temporal</td><td>12.3%</td></tr>
+<tr><td><strong>QR</strong> Quantitative</td><td>Algebraic, Probabilistic, Geometric</td><td>28.7%</td></tr>
+<tr><td><strong>SI</strong> Spatial &amp; Intuitive</td><td>Visual, Spatial, Physical</td><td>59.5%</td></tr>
+<tr><td><strong>WK</strong> World Knowledge</td><td>Historical, Scientific, Cultural</td><td>15.8%</td></tr>
+<tr><td><strong>LN</strong> Lateral &amp; Novel</td><td>Creative, Analogical</td><td>8.2%</td></tr>
+<tr><td><strong>PR</strong> Procedural</td><td>Sequential, Conditional</td><td>22.4%</td></tr>
+<tr><td><strong>CT</strong> Constraints</td><td>Optimization, Satisfiability</td><td>18.9%</td></tr>
+</tbody></table>
+
+<p>Note: SI has by far the highest multimodal percentage (59.5%). This matters for understanding model specialization profiles later.</p>
+
+<h3>Thinking-level gain matrix</h3>
+
+<pre><code>THINKING BUDGET    |  θ RANGE      |  COST MULTIPLIER
+───────────────────┼───────────────┼─────────────────
+OFF                |  -1.5 to 0.2  |  1×
+Low                |  -0.5 to 0.8  |  ~5×
+Medium             |   0.3 to 1.4  |  ~15×
+High               |   0.8 to 1.9  |  ~40×
+X-High             |   1.2 to 2.2  |  ~100×
+
+WITHIN-FAMILY SPREAD:
+  GPT-5.4:     OFF → X-High spans ~1.2 logits
+  Gemini 3.1:  OFF → X-High spans ~0.9 logits
+  Claude 4.6:  OFF → X-High spans ~1.1 logits
+  
+  BETWEEN-FAMILY spread (all at same thinking):
+  At Medium:   ~0.7 logit range across all families
+  
+  Within-family ≈ between-family
+  → Configuration is AS IMPORTANT as model choice</code></pre>
+
+<h3>Centaur methodology</h3>
+
+<pre><code>PARTICIPANTS: 246 humans + AI
+SETUP:
+  - Free tool choice (any model, any number of models)
+  - Free process choice (how to use the tools)
+  - Same GIM problems as pure-model evaluation
+  - 5 response epochs, same as model evaluation
+  
+CONSTRAINT: Participants could NOT just copy-paste 
+the model's answer. They had to demonstrate they 
+understood and could evaluate the response.
+
+RESULTS:
+  Best centaur:     θ = 2.26
+  75th percentile:  θ = 1.45
+  Median:           θ = 0.87
+  25th percentile:  θ = 0.11
+  Worst centaur:    θ = -1.80
+  
+  For comparison:
+  Best pure LLM:    θ = 2.16 (GPT-5.4 Pro, X-High)
+  
+  TOP CENTAUR BEAT BEST LLM.
+  But MEDIAN centaur scored below GPT-5.4 at Medium.</code></pre>
+
+<h3>Per-category specialization profiles</h3>
+
+<pre><code>Per-category θ is within 0.2-0.3 logits of overall θ 
+for ALL frontier models. The profiles are remarkably flat.
+
+Small peaks:
+  Muse Spark:       SI (Spatial &amp; Intuitive) +0.3
+  GPT 5.4 Pro:      CT (Constraints/Puzzles) +0.2
+  Claude 4.6 Opus:  LR-Temporal              +0.25
+  Gemini 3.1 Pro:   QR (Quantitative)        +0.15
+
+IMPLICATION: Pretraining produces generalists.
+Specialization is marginal, not architectural.</code></pre>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>GIM&rsquo;s IRT 2PL framework extracts far more signal per problem than raw accuracy. The discrimination parameter (a_j) identifies which problems actually separate strong from weak models, and the confidence-weighted rubric scoring propagates judge uncertainty through the entire pipeline. The result: 820 precision instruments instead of 15,000 noisy thermometers.</p></div>
+
+<div class="quiz" id="quiz-l2"><div class="quiz-title">Quiz &mdash; Level 2</div>
+
+<div class="q"><div class="q-text">1. In IRT 2PL, the discrimination parameter a_j measures how sharply a problem separates strong from weak models. Why does GIM prefer high-a_j items over simply adding more problems?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">A) High-a_j problems are easier to author and cheaper to produce</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">B) Low-a_j problems always have incorrect rubrics</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,true)">C) High-a_j problems extract maximum information per item &mdash; they cleanly separate strong from weak models, while low-a_j items add noise (strong models randomly fail, weak ones randomly succeed), so 820 high-discrimination problems give more signal than 15,000 noisy ones</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">D) The IRT framework requires exactly 820 problems to converge</button></li>
+</ul><div class="q-explain" id="ex-l2-0">IRT automatically downweights noisy (low-a_j) problems. A benchmark full of low-discrimination items would need vastly more problems to achieve the same measurement precision. GIM&rsquo;s 820 high-quality items, calibrated by expert authors and verified for discrimination, extract dense signal per problem.</div></div>
+
+<div class="q"><div class="q-text">2. The rubric scoring uses confidence weights c_k for each criterion. What specific problem do these weights solve?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',1,true)">A) They let the LLM judge express uncertainty per criterion &mdash; when the judge isn&rsquo;t sure whether a response meets criterion k, a low c_k reduces that criterion&rsquo;s impact on the total score, preventing confident-but-wrong judgments from carrying the same weight as high-confidence correct ones</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">B) They make the scoring faster by skipping low-confidence criteria</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">C) They weight criteria by how many models got them right</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">D) They normalize scores across different problem categories</button></li>
+</ul><div class="q-explain" id="ex-l2-1">Confidence weights are a principled way to handle the reality that LLM judges are imperfect. On some criteria, the judge can clearly tell if a response is correct; on others, it&rsquo;s uncertain. The weights propagate that uncertainty through the score rather than treating all judgments as equally reliable.</div></div>
+
+<div class="q"><div class="q-text">3. The thinking-level gain matrix shows that within-family &theta; spread (~0.9&ndash;1.2 logits from OFF to X-High) is comparable to between-family spread (~0.7 logits at the same thinking level). What is the practical implication?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">A) All models are equally capable, so model choice doesn&rsquo;t matter</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">B) Thinking budgets should always be set to X-High for best results</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">C) Models without thinking capability are fundamentally broken</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,true)">D) The thinking-budget configuration decision is as consequential as the model-choice decision &mdash; evidence from token cost scaling that models naturally allocate more computation to harder problems, making thinking budget a behavioral indicator of the difficulty axis, not just a performance dial</button></li>
+</ul><div class="q-explain" id="ex-l2-2">If switching from Medium to X-High thinking gives a comparable &theta; boost to switching model families entirely, then for deployment decisions the compute-budget allocation question is just as important as the model-selection question. And the exponential cost curve means Medium is often the sweet spot.</div></div>
+
+<div class="q"><div class="q-text">4. Per-category model profiles are remarkably flat (within 0.2&ndash;0.3 logits of overall &theta;). What does this flatness imply about model architecture?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">A) Models are undertrained and need more domain-specific data</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,true)">B) Modern pretraining produces fundamentally generalist models &mdash; the stable, flat profiles across all 7 categories suggest a single underlying ability dimension rather than domain-specific modules, with specialization peaks (like Muse Spark&rsquo;s SI +0.3) being marginal effects of training data composition rather than architectural differences</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">C) The 7 categories are actually measuring the same thing</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">D) The IRT model is miscalibrated and can&rsquo;t detect real specialization</button></li>
+</ul><div class="q-explain" id="ex-l2-3">If models had real architectural specialization, you&rsquo;d see jagged profiles &mdash; high on some categories, low on others. The flatness suggests that pretraining on diverse data produces a general-purpose capability that transfers uniformly across cognitive domains. The small peaks (Muse Spark on SI) are real but marginal.</div></div>
+
+<div class="q"><div class="q-text">5. In the centaur study, the best human+AI team (&theta;=2.26) beat GPT-5.4 Pro at X-High (&theta;=2.16), but the median centaur (&theta;=0.87) scored below the same model at Medium thinking. What does this imply?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">A) Most humans are worse than AI at all cognitive tasks</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">B) The centaur study had too few participants to be reliable</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,true)">C) Operator skill at directing AI is the differentiating variable &mdash; the 2.15-logit gap between top and average centaurs exceeds the gap between best and worst models, meaning human+AI pairing is only valuable when the human is skilled at orchestrating the AI&rsquo;s capabilities</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">D) The centaur participants were not given enough time to complete the problems</button></li>
+</ul><div class="q-explain" id="ex-l2-4">This echoes Kasparov&rsquo;s 2005 freestyle chess finding: weak human + machine + better process beats strong human + machine + inferior process. The AI is powerful, but the human&rsquo;s ability to direct it &mdash; knowing when to trust it, when to override it, how to decompose problems for it &mdash; is what unlocks centaur-level performance.</div></div>
+
+<div class="score" id="score-l2"></div><button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button>
+</div>
+
+</div></div>
+
+<!-- ==================== LEVEL 3 ==================== -->
+<div class="level l3" id="level3"><div class="level-header" onclick="toggle('level3')"><div class="level-dot"></div><h2>Level 3 &mdash; Expert</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>The 11 person-hours problem &mdash; why benchmark design is expensive</h3>
+
+<pre><code>MOST BENCHMARKS:
+  Scrape existing data (MMLU: exam questions)
+  Or auto-generate (GSM8K: template math problems)
+  Or crowdsource (cheap, fast, noisy)
+  
+  Cost per problem: minutes to ~1 hour
+  Quality: variable. Contamination: likely.
+
+GIM'S APPROACH:
+  820 original, expert-authored problems
+  ~11 person-hours per problem
+  = ~9,000 total person-hours (~4 person-years)
+  
+  Each problem goes through:
+  1. Design: author crafts problem requiring 
+     specific cognitive integration
+  2. Rubric: median 6 criteria, each with 
+     independent scoring guidelines
+  3. Anti-memorization check: verify the problem 
+     can't be solved by recalling known answers
+  4. Difficulty calibration: test against models 
+     to ensure it discriminates well
+  5. Category labeling: primary + secondary domains
+  6. Multimodal assets: images/PDFs where needed
+
+THE SCALE TRADE-OFF:
+  820 problems × 11 hours = boutique benchmark
+  MMLU has 15,000+ questions
+  
+  But GIM's 820 problems with IRT calibration 
+  extract MORE signal per problem than MMLU's 15K.
+  Each GIM problem is a precision instrument.
+  MMLU problems are mass-produced thermometers.</code></pre>
+
+<h3>The contamination defense &mdash; three layers deep</h3>
+
+<pre><code>LAYER 1: PUBLIC/PRIVATE SPLIT (615/205)
+
+  Independently estimate θ on each split:
+  θ_public vs. θ_private
+  
+  Correlation: r ≈ 0.98
+  
+  If a model trained on leaked public problems:
+  θ_public &gt;&gt; θ_private → contamination detected
+  
+  r ≈ 0.98 means: no model shows suspicious 
+  divergence between public and private scores.
+
+LAYER 2: LEAVE-ONE-MODEL-OUT (LOMO)
+
+  Remove model X from IRT calibration entirely.
+  Re-estimate item parameters (a_j, b_j) without X.
+  Re-estimate X's θ using recalibrated parameters.
+  
+  Recovery: within 0.087 logits of full estimate.
+  
+  Why this matters: if one model's data is 
+  distorting the calibration (e.g., it memorized 
+  specific items, skewing their difficulty), LOMO 
+  would show large recovery errors for that model.
+
+LAYER 3: ORIGINAL CONTENT
+
+  All 820 problems are ORIGINAL.
+  Not scraped from exams, textbooks, or the web.
+  Not in any training corpus (probably).
+  
+  Hard to contaminate what wasn't on the internet.
+
+WHAT THIS DOESN'T CATCH:
+  Post-publication contamination IS possible.
+  The private split is the ongoing defense —
+  it should never be released.</code></pre>
+
+<h3>The LLM judge problem &mdash; can you trust the grader?</h3>
+
+<pre><code>THE FUNDAMENTAL TENSION:
+  You're evaluating LLMs using... an LLM.
+  If the judge is biased, every score is biased.
+
+WHERE LLM JUDGES FAIL:
+
+  1. SELF-PREFERENCE BIAS
+     Gemini judging a Gemini response: might score higher.
+     Defense: cross-validation with DIFFERENT model family.
+     κ = 0.815 suggests agreement is real, not shared bias.
+  
+  2. RUBRIC INTERPRETATION DRIFT
+     Judge might interpret criterion #3 differently 
+     for response A vs. response B.
+     Defense: structured output + per-criterion scoring.
+  
+  3. FORMAT SENSITIVITY
+     Well-formatted responses scored higher regardless 
+     of correctness.
+     Defense: confidence weights c_i.
+     But format bias could be confident AND wrong.
+  
+  4. CEILING EFFECTS
+     Gemini 3 Flash is BELOW the frontier models 
+     it's judging. Could it miss subtle excellence?
+
+THE HONEST ASSESSMENT:
+  LLM judges are the best scalable option.
+  ~1.15 million individual judgments — no human 
+  panel could do this.
+  
+  Cross-validation is genuinely reassuring.
+  But the fundamental circularity (LLMs grading LLMs) 
+  remains an unsolved epistemological problem.</code></pre>
+
+<h3>The thinking-token economy</h3>
+
+<pre><code>TOTAL COMPUTE: 3.6 billion tokens, ~10²¹ FLOPs
+
+COST PER θ LOGIT GAINED (illustrative):
+  OFF → Low:      ~$0.01 per 0.001θ improvement
+  Low → Medium:   ~$0.10 per 0.001θ improvement
+  Medium → High:  ~$1.00 per 0.001θ improvement
+  High → X-High:  ~$100  per 0.001θ improvement
+
+THE DEPLOYMENT IMPLICATION:
+  Medium thinking: ~90% of max performance at ~10% cost
+  X-High thinking: last ~10% at ~90% of total cost
+  
+  For products serving billions: Medium or Low.
+  For benchmarks / bragging rights: X-High.
+  
+  The same cost curve applies to media perception.
+  At Instagram-scale (billions of images/day), the 
+  thinking-budget trade-off determines infrastructure 
+  cost in the billions of dollars range.</code></pre>
+
+<h3>What GIM reveals about model architecture</h3>
+
+<pre><code>1. PRETRAINING PRODUCES GENERALISTS
+   Flat per-category profiles. No architecture 
+   creates domain-specific cognitive modules.
+
+2. SPECIALIZATION IS MARGINAL
+   Muse Spark's SI +0.3 may reflect generation-pretrained 
+   visual representations (the Vision Banana thesis).
+
+3. THINKING-DISABLED IS A BINARY BREAK
+   Non-thinking models cluster at the bottom.
+   NOT a gradual degradation — it's qualitative.
+   Chain-of-thought is a capability, not a boost.
+
+4. QUANTIZATION MATTERS
+   Gemma 4 31B: bf16 &gt; fp8 &gt; fp4
+   Each precision step costs ~0.15 logits.
+   
+   Quantizing for deployment speed has a 
+   MEASURABLE cost in reasoning quality.</code></pre>
+
+<h3>GIM&rsquo;s limitations &mdash; what it can&rsquo;t measure</h3>
+
+<pre><code>ACKNOWLEDGED BY THE PAPER:
+  ✗ No audio or video modalities (text + images only)
+  ✗ No multi-turn interaction
+  ✗ No tool use (code execution, web search)
+  ✗ No time pressure / real-time constraints
+  ✗ No creative generation evaluation
+
+NOT ACKNOWLEDGED BUT REAL:
+  ✗ Single-session only — can't measure learning
+  ✗ English-centric
+  ✗ Static problems — real integration happens 
+    over EVOLVING contexts
+  ✗ Scale of integration — GIM tests 3-6 operations; 
+    real expert work may require 20-50
+  ✗ The embodied gap — 2D images, not 3D environments
+
+COMPARE WITH EMBODIED NAV EVAL:
+  Both papers solved evaluation for ONE layer.
+  Embodied Nav: navigation eval, not manipulation + social
+  GIM: cognitive integration, not multi-turn + embodied
+  
+  The FULL evaluation framework doesn't exist yet.</code></pre>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>GIM&rsquo;s three-layer contamination defense, IRT-based quality filtering, and confidence-weighted rubric scoring represent the current state of the art in benchmark design. But the epistemological circularity of LLM judges and the single-dimension limitation (integration density alone) remain fundamental open problems.</p></div>
+
+<div class="quiz" id="quiz-l3"><div class="quiz-title">Quiz &mdash; Level 3</div>
+
+<div class="q"><div class="q-text">1. GIM&rsquo;s contamination defense has three layers: public/private split (r&asymp;0.98), LOMO validation (0.087 logit recovery), and original content. What specific type of contamination can the public/private split detect that the other two layers cannot?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',0,true)">A) Post-publication contamination &mdash; if a model is specifically trained on leaked GIM public problems after release, it will show &theta;_public significantly higher than &theta;_private, a divergence that original content can&rsquo;t prevent (since the problems now exist on the internet) and LOMO can&rsquo;t detect (since LOMO only checks calibration stability, not item-specific memorization)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">B) Contamination from similar but non-identical problems in the training data</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">C) Contamination from the LLM judge sharing training data with the models being evaluated</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">D) Contamination from models memorizing the IRT parameters themselves</button></li>
+</ul><div class="q-explain" id="ex-l3-0">The public/private split is specifically designed to catch post-publication leakage. If future model training incorporates leaked public GIM problems, the public-set performance inflates while the private-set performance remains unaffected. The correlation r&asymp;0.98 serves as the ongoing canary.</div></div>
+
+<div class="q"><div class="q-text">2. GIM uses an LLM judge (Gemini 3 Flash) cross-validated with GPT 5.4, achieving Cohen&rsquo;s &kappa; = 0.815. What is the most fundamental unresolved problem with this approach?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">A) LLM judges are too slow to evaluate all responses within the compute budget</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">B) Cohen&rsquo;s &kappa; = 0.815 means 18.5% of judgments are wrong, invalidating all results</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">C) LLM judges can only evaluate multiple-choice questions, not open-ended responses</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,true)">D) The epistemological circularity &mdash; you&rsquo;re using LLMs to evaluate LLMs, and while cross-validation between model families reduces self-preference bias and high inter-judge agreement (&kappa;=0.815) is reassuring, the fundamental problem remains: if both judges share systematic blind spots (e.g., format bias, ceiling effects), the agreement metric itself becomes unreliable</button></li>
+</ul><div class="q-explain" id="ex-l3-1">High inter-rater agreement between two biased judges doesn&rsquo;t prove the judgments are correct &mdash; it proves the judges agree. If both Gemini and GPT systematically score well-formatted responses higher or can&rsquo;t recognize excellence beyond their own capability, the &kappa; statistic validates shared blindness, not accuracy.</div></div>
+
+<div class="q"><div class="q-text">3. The thinking-token economy shows exponentially increasing cost per marginal &theta; improvement. What does this imply for deploying AI at Instagram-scale media perception (billions of images per day)?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">A) All production deployments should use X-High thinking since quality matters most</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,true)">B) Medium thinking is likely the deployment sweet spot &mdash; the 10&times; cost difference between Medium and X-High translates to billions of dollars in infrastructure at Instagram-scale volumes, for a marginal quality gain that most users won&rsquo;t notice, making the thinking-budget decision as consequential as the model-choice decision for real product economics</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">C) Thinking budget doesn&rsquo;t affect perception quality, only reasoning tasks</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">D) The cost curve will flatten as hardware improves, making this trade-off irrelevant</button></li>
+</ul><div class="q-explain" id="ex-l3-2">The diminishing-returns curve means that at massive scale, the infrastructure cost of the last 10% of quality is roughly 10&times; the cost of the first 90%. For products serving billions of users, the thinking-budget configuration is a billion-dollar infrastructure decision, not just a model tuning knob.</div></div>
+
+<div class="q"><div class="q-text">4. Muse Spark shows a +0.3 peak on Spatial &amp; Intuitive tasks &mdash; the category with 59.5% multimodal items. What might explain this specific specialization?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">A) Muse Spark was specifically fine-tuned on GIM&rsquo;s Spatial &amp; Intuitive problems</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">B) The Spatial &amp; Intuitive category is simply easier, inflating all models&rsquo; scores</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,true)">C) If Muse Spark has generation-pretrained visual representations, its spatial/intuitive strength could be evidence for the thesis that generation pretraining builds richer visual representations which transfer to perception tasks &mdash; giving it an edge on the category that demands visual understanding, while text-primary categories show no such advantage</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">D) The +0.3 peak is within standard error and not statistically meaningful</button></li>
+</ul><div class="q-explain" id="ex-l3-3">The Vision Banana thesis (image generators are generalist vision learners) predicts exactly this: models with generation pretraining develop richer visual representations that transfer to perception. Muse Spark&rsquo;s SI advantage on the most visual category is consistent with this hypothesis, though not conclusive.</div></div>
+
+<div class="q"><div class="q-text">5. Both GIM-Eval and the Embodied Navigation Eval paper identify the same meta-limitation. What is it, and what would resolving it require?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">A) Both benchmarks need more problems to be statistically valid</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">B) Both benchmarks use the wrong metrics &mdash; SPL and IRT should be replaced</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">C) The limitation is English-only evaluation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,true)">D) Both solved evaluation for a single dimension in isolation &mdash; GIM measures static cognitive integration but not multi-turn, embodied, or creative reasoning, while the navigation paper measures spatial efficiency but not manipulation or social navigation &mdash; resolving this requires a unified framework that tests integration ACROSS these dimensions simultaneously</button></li>
+</ul><div class="q-explain" id="ex-l3-4">Each benchmark is excellent within its scope but blind outside it. The hardest real-world tasks require spatial + cognitive + social + creative integration as one challenge. Neither benchmark measures that, and no existing benchmark does either. The full evaluation framework is an open research problem.</div></div>
+
+<div class="score" id="score-l3"></div><button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button>
+</div>
+
+</div></div>
+
+<!-- ==================== LEVEL 4 ==================== -->
+<div class="level l4" id="level4"><div class="level-header" onclick="toggle('level4')"><div class="level-dot"></div><h2>Level 4 &mdash; Frontier</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>Test-time compute: GIM confirms the AlphaGo curve</h3>
+
+<pre><code>ALPHAGO (2016):
+  More MCTS simulations → better move quality
+  But: logarithmic returns after ~1,600 sims
+  Going from 1,600 → 160,000 sims (100×) 
+  gives ~10% improvement in win rate
+
+GIM (2026):
+  More thinking tokens → higher θ
+  But: logarithmic returns after Medium
+  Going from Medium → X-High (~10× compute)
+  gives ~10% improvement in θ
+
+SAME CURVE. SAME DIMINISHING RETURNS.
+10 years apart, completely different domains.
+
+This suggests a FUNDAMENTAL LAW:
+  Test-time compute follows logarithmic returns.
+  The first N tokens of "thinking" give you most 
+  of the value. Each subsequent N gives less.
+  
+  This isn't a model limitation — it may be a 
+  property of problem complexity itself.</code></pre>
+
+<h3>Centaur product implications</h3>
+
+<pre><code>THE PRODUCT SPECTRUM:
+
+MASS-MARKET (billions of users):
+  Average user = average centaur = θ ≈ 0.11
+  Pure LLM at Medium = θ ≈ 1.2
+  
+  → PURE LLM MODE IS BETTER for mass-market.
+  → Average users make the AI WORSE by interfering.
+  → The product should HIDE the complexity.
+
+POWER USERS (expert operators):
+  Skilled operator = top centaur = θ ≈ 2.26
+  Best pure LLM = θ ≈ 2.16
+  
+  → CENTAUR MODE IS BETTER for power users.
+  → The product should EXPOSE the controls.
+  → Thinking budget, model selection, tool choice.
+
+THE DESIGN QUESTION FOR MEDIA AI:
+  If you're building media generation for billions:
+  Pure LLM mode for the default experience.
+  Centaur controls for the power-user tier.
+  
+  The centaur finding doesn't mean EVERYONE should 
+  have AI copilots. It means the RIGHT PEOPLE 
+  should have the RIGHT controls.</code></pre>
+
+<h3>Integration density as ONE axis &mdash; what&rsquo;s missing</h3>
+
+<pre><code>GIM'S THESIS:
+  Integration density = the right difficulty axis
+
+THE CRITIQUE:
+  It's ONE axis. Important? Yes. Sufficient? No.
+
+MISSING AXES:
+  1. DEPTH — How many levels of abstraction 
+     must be traversed? Integration can be shallow 
+     (many operations, all at surface level) or deep 
+     (few operations, but each requires meta-reasoning).
+  
+  2. NOVELTY — Can the model solve problems with 
+     NO structural similarity to training data?
+     GIM's problems are novel but structured.
+     True novelty = no template at all.
+  
+  3. ABSTRACTION — Can the model identify the 
+     underlying principle rather than pattern-match?
+     Integration might be solvable by chaining 
+     pattern matches without true understanding.
+  
+  4. CREATIVITY — Can the model produce something 
+     genuinely new, not just combine existing elements?
+     GIM can't measure this because rubric scoring 
+     requires a known-correct answer.
+
+THE HONEST MAP:
+  GIM measures: integration (one dimension)
+  We also need: depth, novelty, abstraction, creativity
+  Each is an independent axis.
+  No existing benchmark covers more than one well.
+
+THE PERCEPTION-GENERATION CONNECTION:
+  For media AI, the missing axes matter:
+  - Depth: understanding nested visual narratives
+  - Novelty: generating truly original compositions
+  - Abstraction: grasping style vs. content
+  - Creativity: the thing that makes art art
+  
+  GIM's integration axis captures coordination.
+  But the FULL picture of intelligence requires 
+  all five axes measured simultaneously.</code></pre>
+
+<h3>The contamination time bomb</h3>
+
+<pre><code>GIM'S CURRENT DEFENSE:
+  Original content + public/private split + LOMO
+
+THE FUTURE THREAT:
+  As GIM becomes influential, model trainers will 
+  encounter GIM-style problems in the wild.
+  
+  Not direct contamination — INDIRECT:
+  Blog posts analyzing GIM problems.
+  Study guides for GIM-style reasoning.
+  Synthetic training data designed to improve 
+  on GIM-like tasks.
+
+  The private split catches DIRECT leakage.
+  It CANNOT catch indirect capability transfer.
+  
+LOMO AS CALIBRATION INTEGRITY CHECK:
+  LOMO's 0.087-logit recovery proves no single model 
+  is distorting the calibration today.
+  But as more models train specifically to do well 
+  on integration-dense tasks, the DISTRIBUTION 
+  of model abilities shifts, and item parameters 
+  (a_j, b_j) may need recalibration.
+  
+THE META-LESSON:
+  Every benchmark has a half-life.
+  GIM's is longer than most (original content, 
+  private split, IRT calibration).
+  But it's not infinite.</code></pre>
+
+<h3>Convergence map across the paper arc</h3>
+
+<pre><code>THE ARC OF EVALUATION:
+
+  Embodied Nav (2018):  "How do we measure navigation?"
+  → SPL + goal taxonomy + generalization regimes
+  → Solved: one-dimension spatial evaluation
+  
+  MMLU (2020) → MMMU (2023) → MMMU-Pro (2024):
+  "How do we measure knowledge?"
+  → Multi-domain accuracy + hardening against shortcuts
+  → Partially solved: knowledge with anti-gaming
+  
+  GIM (2026): "How do we measure INTEGRATION?"
+  → IRT 2PL + integration density + centaur study
+  → Solved: one-dimension cognitive integration
+  
+  MISSING (2026+): "How do we measure EVERYTHING?"
+  → Unified: spatial + cognitive + creative + embodied
+  → Unsolved
+
+GIM FILLS THE "HOW TO MEASURE" GAP:
+  The papers studied so far address:
+  - HOW TO BUILD: Transfusion, Chameleon, DALL-E 3, 
+    Seedance 2.0
+  - HOW IT UNDERSTANDS: Vision Banana
+  - HOW TO SEARCH: AlphaGo, AlphaZero
+  - HOW TO PREDICT: AlphaFold 2
+  - HOW TO EVALUATE: GIM-Eval, Embodied Nav
+
+  GIM sits at the intersection of building and 
+  evaluating — it measures whether what we build 
+  actually achieves integrated intelligence.
+
+THE CENTAUR BRIDGE:
+  GIM's centaur finding connects evaluation to product:
+  
+  1955 (chess) → 2005 (freestyle) → 2026 (GIM centaur)
+  
+  Each generation confirms: human+machine+process &gt; 
+  machine alone, IF the human has the right skill.
+  
+  For media AI: the question isn't "will AI replace 
+  human creators?" — it's "which human operators will 
+  unlock capabilities no pure AI can reach?"</code></pre>
+
+<h3>Scorecard</h3>
+<table><thead><tr><th>Dimension</th><th>Score</th><th>Notes</th></tr></thead><tbody>
+<tr><td><strong>Novelty</strong></td><td>9/10</td><td>Integration density as THE difficulty axis is genuinely new; centaur study is unprecedented at this scale</td></tr>
+<tr><td><strong>Impact</strong></td><td>9/10</td><td>Redefines how we think about benchmark difficulty; centaur findings have direct product implications</td></tr>
+<tr><td><strong>Reproducibility</strong></td><td>8/10</td><td>Code released; IRT methodology well-documented; private split prevents full replication by design</td></tr>
+<tr><td><strong>Technical Depth</strong></td><td>9/10</td><td>IRT 2PL, 3-layer contamination defense, confidence-weighted rubrics, LOMO validation</td></tr>
+<tr><td><strong>Writing</strong></td><td>7/10</td><td>Dense and thorough; could be more accessible to non-psychometrics audiences</td></tr>
+<tr><td><strong>Longevity</strong></td><td>8/10</td><td>Integration density concept will endure; specific problem set has a contamination half-life</td></tr>
+</tbody></table>
+
+<div class="takeaway"><div class="takeaway-label">Final takeaway</div><p>GIM&rsquo;s deepest contribution isn&rsquo;t the leaderboard &mdash; it&rsquo;s the <strong>integration density thesis</strong> and the <strong>centaur finding</strong>. Integration density reframes how we think about what makes problems hard. The centaur finding, echoing Kasparov&rsquo;s 2005 freestyle chess result with quantitative rigor, has immediate product implications: for mass-market AI, hide the controls; for expert tools, expose them. The right human+AI pairing isn&rsquo;t a nice-to-have &mdash; it&rsquo;s the actual product differentiator.</p></div>
+
+<div class="quiz" id="quiz-l4"><div class="quiz-title">Quiz &mdash; Level 4</div>
+
+<div class="q"><div class="q-text">1. GIM&rsquo;s thinking-token economy shows the same logarithmic diminishing returns as AlphaGo&rsquo;s MCTS simulations (2016). What does this parallel suggest?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">A) GIM was designed to replicate AlphaGo&rsquo;s results</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">B) Both systems use the same underlying algorithm</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,true)">C) Test-time compute may follow a fundamental law &mdash; the same logarithmic diminishing-returns curve appearing across chess (MCTS simulations), Go (AlphaGo), and language (thinking tokens) suggests this is a property of problem complexity itself, not a limitation of any particular architecture</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">D) The parallel is coincidental and has no deeper significance</button></li>
+</ul><div class="q-explain" id="ex-l4-0">When the same mathematical pattern (logarithmic returns on test-time compute) appears independently across chess engines, Go networks, and LLMs over a decade, it&rsquo;s unlikely to be architectural coincidence. It suggests that problems have an inherent complexity ceiling that additional computation can only approach asymptotically.</div></div>
+
+<div class="q"><div class="q-text">2. The centaur finding has direct product design implications. For a media AI product serving billions of users, what&rsquo;s the correct product strategy?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',1,true)">A) Pure LLM mode for mass-market (average users make AI worse by interfering), centaur controls for power users (skilled operators unlock capabilities beyond pure LLM) &mdash; because the centaur finding shows human+AI pairing is only valuable when the human has high operator skill</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">B) Always use centaur mode since human+AI beats pure AI</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">C) Remove all human involvement since AI performs more consistently</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">D) Let each user choose their own mode without guidance</button></li>
+</ul><div class="q-explain" id="ex-l4-1">The centaur finding is nuanced: the BEST centaurs beat the best LLMs, but the AVERAGE centaur underperforms pure LLM at Medium thinking. For a mass-market product, most users are average operators. The product should default to pure LLM mode and progressively reveal controls for users who demonstrate operator skill.</div></div>
+
+<div class="q"><div class="q-text">3. GIM argues integration density is the right axis for measuring difficulty. What are the strongest critiques of this single-axis thesis?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">A) Integration density is unmeasurable and therefore unfalsifiable</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">B) Single-domain problems are actually harder than integration problems</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">C) The critique is that IRT can&rsquo;t model integration at all</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,true)">D) Integration is ONE axis among several &mdash; it misses depth (levels of abstraction), novelty (zero-template problems), abstraction (principle vs. pattern), and creativity (generating genuinely new outputs) &mdash; each is an independent difficulty dimension, and GIM&rsquo;s rubric-based scoring fundamentally can&rsquo;t assess creative generation since it requires known-correct answers</button></li>
+</ul><div class="q-explain" id="ex-l4-2">Integration density is a real and important axis, but claiming it&rsquo;s THE axis of difficulty ignores at least four other independent dimensions. A truly comprehensive difficulty framework would need to measure integration, depth, novelty, abstraction, and creativity simultaneously &mdash; and no benchmark currently does.</div></div>
+
+<div class="q"><div class="q-text">4. GIM&rsquo;s public/private split (r&asymp;0.98) and LOMO validation (0.087 logit recovery) serve different purposes. What would a divergence in EACH metric indicate?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">A) Both metrics detect the same type of contamination</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,true)">B) Public/private divergence (r dropping below ~0.90) would indicate item-level contamination &mdash; a model memorized specific public problems. LOMO divergence (recovery error &gt;&gt; 0.087) would indicate calibration distortion &mdash; one model&rsquo;s anomalous performance is skewing the difficulty/discrimination estimates for the entire benchmark</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">C) Public/private divergence means the problems are too easy; LOMO divergence means they&rsquo;re too hard</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">D) Neither metric can detect real contamination; they&rsquo;re only for statistical validation</button></li>
+</ul><div class="q-explain" id="ex-l4-3">These are complementary diagnostics. The public/private split is a canary for item-level memorization (did a model see specific problems?). LOMO is a canary for systemic calibration distortion (is one model warping the difficulty curve for everyone?). Together they form a two-level defense with distinct failure modes.</div></div>
+
+<div class="q"><div class="q-text">5. Across the arc of papers studied (Transfusion through GIM-Eval), what specific gap does GIM fill in the overall research landscape?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">A) GIM fills the &ldquo;how to build&rdquo; gap by proposing a new model architecture</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">B) GIM fills the &ldquo;how to train&rdquo; gap by introducing a new loss function</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,true)">C) GIM fills the &ldquo;how to measure&rdquo; gap &mdash; the building papers (Transfusion, Chameleon, DALL-E 3, Seedance 2.0) show how to build, the understanding papers (Vision Banana) show how models learn, the search/predict papers (AlphaGo, AlphaZero, AlphaFold 2) show how to solve, but GIM and Embodied Nav are the only papers that address whether what we build actually achieves its goal</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">D) GIM doesn&rsquo;t fill any gap; it merely replicates what MMLU already measured</button></li>
+</ul><div class="q-explain" id="ex-l4-4">The paper arc has building papers, understanding papers, and solving papers &mdash; but evaluation papers are the rarest and most impactful category. GIM sits at the intersection of building and evaluating, measuring whether the models we build achieve integrated intelligence. Without rigorous evaluation, building is just engineering without a compass.</div></div>
+
+<div class="score" id="score-l4"></div><button class="reset-btn" id="reset-l4" onclick="resetQuiz('l4')">Try again</button>
+</div>
+
+</div></div>
+
+</div>
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('open')}
+var quizState={};
+function ans(btn,quizId,qIdx,correct){
+  if(!quizState[quizId])quizState[quizId]={answered:0,correct:0,total:5};
+  var s=quizState[quizId],q=btn.closest('.q'),btns=q.querySelectorAll('.q-btn');
+  if(btn.classList.contains('correct')||btn.classList.contains('incorrect'))return;
+  btns.forEach(function(b){b.disabled=true});
+  if(correct){btn.classList.add('correct');s.correct++}
+  else{btn.classList.add('incorrect');btns.forEach(function(b){if(b!==btn&&b.getAttribute('onclick').indexOf('true')!==-1)b.classList.add('reveal')})}
+  var ex=document.getElementById('ex-'+quizId+'-'+qIdx);if(ex)ex.classList.add('show');
+  s.answered++;
+  if(s.answered===s.total){
+    var sc=document.getElementById('score-'+quizId);
+    sc.textContent=s.correct+'/'+s.total+(s.correct>=4?' — Excellent!':(s.correct>=3?' — Good':' — Review the material'));
+    sc.className='score show '+(s.correct>=4?'pass':'fail');
+    document.getElementById('reset-'+quizId).classList.add('show');
+  }
+}
+function resetQuiz(quizId){
+  quizState[quizId]={answered:0,correct:0,total:5};
+  var quiz=document.getElementById('quiz-'+quizId);
+  quiz.querySelectorAll('.q-btn').forEach(function(b){b.disabled=false;b.classList.remove('correct','incorrect','reveal')});
+  quiz.querySelectorAll('.q-explain').forEach(function(e){e.classList.remove('show')});
+  document.getElementById('score-'+quizId).classList.remove('show');
+  document.getElementById('reset-'+quizId).classList.remove('show');
+}
+</script>
+</body>
+</html>
