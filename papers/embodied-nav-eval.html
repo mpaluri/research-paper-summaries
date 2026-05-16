@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>On Evaluation of Embodied Navigation Agents</title>
+<meta name="description" content="Four-level explainer: On Evaluation of Embodied Navigation Agents — the consensus standards document that defined SPL, the PointGoal/ObjectGoal/AreaGoal taxonomy, and evaluation protocols that shaped the entire field of embodied AI.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0;--purple:#8250df;--purple-bg:#fbefff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129;--purple:#bc8cff;--purple-bg:#2a1a3a}}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem}.back{display:inline-block;font-size:.875rem;color:var(--accent);text-decoration:none;margin-bottom:1.5rem}.back:hover{text-decoration:underline}h1{font-size:1.6rem;font-weight:700;line-height:1.3;margin-bottom:.75rem}.paper-info{font-size:.875rem;color:var(--text2);margin-bottom:.5rem}.paper-info a{color:var(--accent);text-decoration:none}.paper-info a:hover{text-decoration:underline}.tldr{font-size:.9rem;color:var(--text2);padding:1rem 1.25rem;background:var(--bg2);border-radius:8px;margin-bottom:2rem;border-left:3px solid var(--accent)}.level{margin-bottom:2.5rem;border:1px solid var(--border);border-radius:10px;overflow:hidden}.level-header{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;cursor:pointer;background:var(--bg2);user-select:none;border-bottom:1px solid var(--border)}.level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.l1 .level-dot{background:#2da44e}.l2 .level-dot{background:#bf8700}.l3 .level-dot{background:#cf222e}.l4 .level-dot{background:var(--purple)}.level-header h2{font-size:1rem;font-weight:600;margin:0;flex:1}.chevron{font-size:.8rem;color:var(--text3);transition:transform .2s}.level.open .chevron{transform:rotate(180deg)}.level-body{display:none;padding:1.5rem 1.25rem}.level.open .level-body{display:block}h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}.level-body>h3:first-child{margin-top:0}p{margin-bottom:.75rem}ul,ol{margin:0 0 .75rem 1.25rem}li{margin-bottom:.25rem}strong{font-weight:600}em{font-style:italic}code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--code-bg);padding:1px 5px;border-radius:3px}pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;margin:.75rem 0;font-size:.8rem;line-height:1.5}pre code{background:none;padding:0}table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.875rem}th{text-align:left;font-weight:600;padding:.5rem .75rem;border-bottom:2px solid var(--border);font-size:.8rem}td{padding:.5rem .75rem;border-bottom:1px solid var(--border)}tr:last-child td{border-bottom:none}.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0}.card-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}.card-label.green{color:var(--green)}.card-label.amber{color:#bf8700}.card-label.red{color:var(--red)}.card-label.blue{color:var(--accent)}.card-label.purple{color:var(--purple)}.card p:last-child{margin-bottom:0}.takeaway{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0}.takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.35rem}.takeaway p:last-child{margin-bottom:0}.result-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.75rem 0}.result-box{text-align:center;padding:1rem;border-radius:8px}.result-box.green-bg{background:var(--green-bg);border:1px solid var(--green)}.result-box.amber-bg{background:#fff8c5;border:1px solid #bf8700}.result-box.red-bg{background:var(--red-bg);border:1px solid var(--red)}@media(prefers-color-scheme:dark){.result-box.amber-bg{background:#2a2000;border-color:#bf8700}}.result-number{font-size:1.75rem;font-weight:700;line-height:1}.result-box.green-bg .result-number{color:var(--green)}.result-box.amber-bg .result-number{color:#bf8700}.result-box.red-bg .result-number{color:var(--red)}.result-label{font-size:.75rem;color:var(--text2);margin-top:.25rem}.quiz{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1.5rem}.quiz-title{font-weight:600;font-size:.9rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}.q{margin-bottom:1.25rem}.q:last-of-type{margin-bottom:.5rem}.q-text{font-weight:500;font-size:.9rem;margin-bottom:.5rem}.q-options{list-style:none;padding:0;margin:0}.q-btn{display:block;width:100%;text-align:left;padding:.5rem .85rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);transition:border-color .12s,background .12s}.q-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg)}.q-btn:disabled{cursor:default}.q-btn:disabled:hover{border-color:inherit;background:inherit}.q-btn.correct{border-color:var(--green)!important;background:var(--green-bg)!important}.q-btn.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;opacity:.7}.q-btn.reveal{border-color:var(--green)!important;background:var(--green-bg)!important}.q-explain{display:none;font-size:.8rem;color:var(--text2);margin:.4rem 0 0;padding:.5rem .85rem;border-left:2px solid var(--border)}.q-explain.show{display:block}.score{display:none;padding:.85rem 1rem;border-radius:6px;font-weight:600;font-size:.9rem;margin-top:.75rem}.score.show{display:block}.score.pass{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}.score.fail{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}.reset-btn{display:none;margin-top:.5rem;padding:.4rem 1rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.8rem;font-family:inherit;color:var(--text)}.reset-btn.show{display:inline-block}.reset-btn:hover{border-color:var(--accent);background:var(--accent-bg)}@media(max-width:600px){.result-row{grid-template-columns:1fr}.container{padding:1.5rem 1rem 4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back" href="../index.html">&larr; Back to all papers</a>
+<h1>On Evaluation of Embodied Navigation Agents</h1>
+<p class="paper-info">Peter Anderson, Angel Chang, Devendra Singh Chaplot, Alexey Dosovitskiy, Saurabh Gupta, Vladlen Koltun, Jana Kosecka, Jitendra Malik, Roozbeh Mottaghi, Manolis Savva, Amir R. Zamir &mdash; Multi-institution &mdash; July 2018</p>
+<p class="paper-info"><a href="https://arxiv.org/abs/1807.06757">&#128196; Paper (arXiv)</a></p>
+<div class="tldr"><strong>TL;DR:</strong> A consensus standards document from the field&rsquo;s top researchers that defined <strong>SPL</strong> (Success weighted by inverse Path Length) as the universal navigation metric, established the <strong>PointGoal/ObjectGoal/AreaGoal</strong> taxonomy, standardized generalization protocols, and produced <strong>7 recommendations</strong> that became the foundation for Habitat and every major embodied navigation benchmark since 2018 &mdash; all in a 7-page paper with zero figures, zero tables, and one equation.</div>
+
+<!-- ==================== LEVEL 1 ==================== -->
+<div class="level l1 open" id="level1"><div class="level-header" onclick="toggle('level1')"><div class="level-dot"></div><h2>Level 1 &mdash; Beginner</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>The problem: nobody could compare anything</h3>
+<p>Between 2016 and 2018, embodied navigation exploded &mdash; agents learning to navigate 3D environments from visual input. But every lab was doing it differently:</p>
+
+<div class="card"><div class="card-label red">THE CHAOS</div>
+<pre><code>Lab A: "Our agent reaches the goal 80% of the time!"
+Lab B: "Our agent reaches the goal 75% of the time!"
+
+Sounds like A wins, right? Except:
+
+- Lab A counts "success" if the agent passes WITHIN 3 METERS
+  of the goal, even accidentally, even if it keeps walking
+
+- Lab B counts "success" only if the agent STOPS at the goal
+  and SIGNALS it's done
+
+- Lab A measures distance as straight-line (through walls)
+  Lab B measures distance along navigable paths
+
+- Lab A trained in the TEST environment for 100 hours
+  Lab B had ZERO prior exposure to the test environment
+
+These results are COMPLETELY INCOMPARABLE.</code></pre>
+</div>
+
+<p>It&rsquo;s like comparing marathon times when one runner&rsquo;s marathon is 26.2 miles and the other&rsquo;s is 20 miles on a downhill course.</p>
+
+<h3>What this paper is</h3>
+<p>A working group of the field&rsquo;s top researchers convened to fix this. They produced <strong>7 consensus recommendations</strong> covering task definitions, generalization measurement, evaluation metrics, and simulation standards.</p>
+
+<h3>The three goal types</h3>
+<div class="card"><div class="card-label blue">GOAL TAXONOMY</div>
+<pre><code>POINTGOAL: "Go to coordinates (5.2, 3.1)"
+  Agent gets: target location in meters
+  Challenge: path planning in cluttered space
+  Analogy: GPS navigation with turn-by-turn
+
+OBJECTGOAL: "Find the refrigerator"
+  Agent gets: object category name
+  Challenge: path planning + world knowledge
+  ("kitchens are usually near dining rooms")
+  Analogy: "Where did I leave my keys?"
+
+AREAGOAL: "Go to the kitchen"
+  Agent gets: room/area category name
+  Challenge: path planning + area recognition
+  Analogy: Navigating a hotel you've never been in</code></pre>
+</div>
+
+<p>Each goal type can be specified different ways &mdash; coordinates, category labels, images, or natural language (&ldquo;go to the room with the big window&rdquo;).</p>
+
+<h3>The SPL metric &mdash; the paper&rsquo;s most consequential contribution</h3>
+<p>Before this paper, most teams reported <strong>success rate</strong> alone. But success rate ignores efficiency:</p>
+
+<pre><code>AGENT A: Reaches goal 100% of the time.
+         Takes 500 meters to travel a 10-meter path.
+         Success rate: 100% (looks great!)
+
+AGENT B: Reaches goal 80% of the time.
+         When successful, takes near-optimal paths.
+         Success rate: 80% (looks worse?)
+
+Which is actually better? You can't tell from success rate alone.</code></pre>
+
+<p>SPL (Success weighted by inverse Path Length) fixes this:</p>
+
+<pre><code>SPL = (1/N) &times; &Sigma; S&#7522; &times; (&ell;&#7522; / max(p&#7522;, &ell;&#7522;))
+
+Where:
+  N  = number of test episodes
+  S&#7522; = 1 if agent succeeded, 0 if not
+  &ell;&#7522; = shortest possible path (geodesic)
+  p&#7522; = path the agent actually took
+
+EXAMPLES:
+  100% success, always optimal paths  &rarr; SPL = 1.0
+  100% success, always 2&times; optimal     &rarr; SPL = 0.5
+  50% success, always optimal paths    &rarr; SPL = 0.5
+  50% success, always 2&times; optimal      &rarr; SPL = 0.25
+
+SPL punishes BOTH failure AND inefficiency.
+One number that captures what you actually care about.</code></pre>
+
+<p>SPL became <strong>the</strong> standard metric. Every embodied navigation paper since 2018 reports it.</p>
+
+<h3>The 7 recommendations</h3>
+<div class="card"><div class="card-label green">CONSENSUS RECOMMENDATIONS</div>
+<pre><code>EVALUATION:
+  #1  DONE ACTION &mdash; Agent must explicitly signal "I'm done."
+      No accidental goal-reaching counts as success.
+
+  #2  GEODESIC DISTANCE &mdash; Measure shortest navigable path,
+      not straight-line through walls.
+
+  #3  SPL AS PRIMARY METRIC &mdash; Report success AND efficiency
+      in one number.
+
+SIMULATION:
+  #4  CONTINUOUS STATE SPACES &mdash; No grid worlds.
+      Agents move in continuous 3D space.
+
+  #5  SI UNITS &mdash; Distance 1 = 1 meter. Period.
+
+  #6  SIM-TO-REAL SOFTWARE &mdash; Open-source code to deploy
+      trained agents onto physical robots.
+
+ARCHITECTURE:
+  #7  INTERNAL REPRESENTATION MATTERS &mdash; Study what mental
+      map the agent builds, not just its success rate.</code></pre>
+</div>
+
+<h3>The generalization spectrum</h3>
+<p>One of the paper&rsquo;s key insights &mdash; how much has the agent seen the test environment before?</p>
+
+<pre><code>REGIME 1: ZERO PRIOR EXPLORATION
+  Agent drops into a completely novel environment.
+  Must navigate from scratch using only general knowledge.
+  = The hardest, most impressive regime.
+
+REGIME 2: PRE-RECORDED EXPLORATION
+  Agent watches a recording of someone else exploring.
+  Builds a mental model from observation, then navigates.
+  = Moderate difficulty.
+
+REGIME 3: TIME-LIMITED SELF-EXPLORATION
+  Agent gets a budget (e.g., 500m of movement) to freely
+  explore the environment before navigation episodes.
+  = Easier, but exploration budget is a quantified variable.
+
+THE KEY: this must be REPORTED EXPLICITLY.
+A paper claiming "80% success" means nothing if you
+don't know which regime it's using.</code></pre>
+
+<h3>Why this paper matters</h3>
+<p>This is a <strong>7-page document with zero figures, zero tables, and one equation</strong>. And it reshaped an entire field.</p>
+
+<pre><code>BEFORE THIS PAPER (2016&ndash;2018):
+  Every lab had its own task definitions
+  Metrics were incomparable
+  "State of the art" was meaningless
+
+AFTER THIS PAPER (2019+):
+  SPL became universal
+  PointGoal/ObjectGoal/AreaGoal became standard vocabulary
+  Habitat platform built around these recommendations
+  Annual Habitat Challenge uses this exact framework
+  500+ citations and counting</code></pre>
+
+<div class="takeaway"><div class="takeaway-label">Key takeaway</div><p>The direct line: this paper &rarr; Habitat (the dominant embodied AI simulation platform) &rarr; every major navigation benchmark since 2019. Several co-authors went on to build Habitat, implementing every single recommendation from this document.</p></div>
+
+<div class="quiz" id="quiz-l1"><div class="quiz-title">Quiz &mdash; Level 1</div>
+
+<div class="q"><div class="q-text">1. The paper identifies a critical flaw in how many teams measured navigation success before standardization. What was it, and how did the paper fix it?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',0,true)">A) Teams counted episodes as &ldquo;successful&rdquo; if the agent passed near the goal at any point &mdash; even accidentally, even without stopping &mdash; and the paper introduced the mandatory DONE action requiring agents to explicitly signal task completion, so only intentional arrival counts</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">B) Teams used too many test episodes, inflating statistical significance</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">C) Teams allowed agents to use GPS, which made all navigation trivial</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">D) Teams measured success in pixels instead of meters</button></li>
+</ul><div class="q-explain" id="ex-l1-0">Without the DONE action requirement, a random-walk agent in a small apartment could stumble within range of the goal and get credit for &ldquo;success.&rdquo; The DONE action forces the agent to both navigate to the goal AND recognize it has arrived.</div></div>
+
+<div class="q"><div class="q-text">2. SPL (Success weighted by inverse Path Length) became the standard metric for embodied navigation. What makes it superior to reporting success rate alone?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">A) SPL is faster to compute and requires fewer test episodes</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">B) SPL gives higher scores, making papers easier to publish</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,true)">C) SPL captures both success AND efficiency in a single number &mdash; an agent that reaches the goal 100% of the time but takes wildly inefficient paths scores only 0.5, the same as an agent that takes optimal paths but succeeds only 50% of the time</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">D) SPL measures only path efficiency and ignores whether the agent actually reached the goal</button></li>
+</ul><div class="q-explain" id="ex-l1-1">SPL weights each success by how close to optimal the path was. This prevents gaming success rate through brute-force exploration &mdash; wandering everywhere until you stumble on the goal might give 100% success rate but would score poorly on SPL.</div></div>
+
+<div class="q"><div class="q-text">3. The paper insists on geodesic distance rather than Euclidean distance. Why does this distinction matter for indoor navigation?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">A) Geodesic distance is always shorter than Euclidean distance</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,true)">B) Euclidean (straight-line) distance ignores walls and obstacles &mdash; an agent might be 1 meter from the goal in straight-line distance but separated by a wall, making it actually far away in navigable terms</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">C) Euclidean distance cannot be computed in 3D environments</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">D) Geodesic distance is simpler to calculate and requires less computational overhead</button></li>
+</ul><div class="q-explain" id="ex-l1-2">In cluttered indoor environments, straight-line distance is meaningless. An agent on the other side of a wall may be 1 meter away by Euclidean distance but 12 meters away by the actual navigable path through a doorway. Geodesic distance reflects the true difficulty of reaching the goal.</div></div>
+
+<div class="q"><div class="q-text">4. The paper defines three goal types: PointGoal, ObjectGoal, and AreaGoal. How do they differ in cognitive demands?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">A) They are three names for the same task with different difficulty levels</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">B) PointGoal requires only language understanding, while ObjectGoal requires vision</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">C) All three require the same capabilities but differ only in the size of the success region</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,true)">D) PointGoal requires only path planning, ObjectGoal additionally requires visual recognition and world knowledge about typical object locations, and AreaGoal requires recognizing room types and understanding spatial layout &mdash; each successive type adds cognitive demands</button></li>
+</ul><div class="q-explain" id="ex-l1-3">The taxonomy creates a clear difficulty gradient. PointGoal tells you exactly where to go (pure navigation). ObjectGoal tells you what to find but not where (navigation + recognition + world knowledge). AreaGoal tells you what kind of space to reach (navigation + scene understanding).</div></div>
+
+<div class="q"><div class="q-text">5. The paper emphasizes that agents&rsquo; prior exposure to test environments must be explicitly reported. Why is this critical?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',4,true)">A) Without specifying the generalization regime, a reported success rate is meaningless because an agent trained extensively in the exact test environment is doing memorization, not navigation, and its results are incomparable to an agent navigating a completely novel space</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">B) Prior exploration always improves results, so it should be maximized</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">C) The three regimes correspond to easy, medium, and hard difficulty settings</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">D) Reporting exploration regime is only required for PointGoal tasks</button></li>
+</ul><div class="q-explain" id="ex-l1-4">An agent trained in the test environment for hours has memorized the layout &mdash; it isn&rsquo;t navigating, it&rsquo;s recalling. An agent with zero prior exposure that achieves 60% success has genuinely learned to navigate. These are fundamentally different capabilities that cannot be compared without reporting the regime.</div></div>
+
+<div class="score" id="score-l1"></div><button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button>
+</div>
+</div></div>
+
+<!-- ==================== LEVEL 2 ==================== -->
+<div class="level l2" id="level2"><div class="level-header" onclick="toggle('level2')"><div class="level-dot"></div><h2>Level 2 &mdash; Intermediate</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>SPL under the hood</h3>
+<p>The formula has subtle design choices that matter:</p>
+
+<pre><code>SPL = (1/N) &times; &Sigma;&#7522; S&#7522; &times; (&ell;&#7522; / max(p&#7522;, &ell;&#7522;))
+
+S&#7522; &isin; {0, 1}
+  Binary. Agent either reached goal AND called DONE = 1.
+  Otherwise = 0. No partial credit.
+
+&ell;&#7522; = geodesic shortest path from start to goal
+  Computed by the simulator (ground truth).
+  This is the OPTIMAL path respecting walls/obstacles.
+
+p&#7522; = actual path length agent traveled
+  Total distance, including backtracking, dead ends,
+  circling. Every wasted meter counts against you.
+
+max(p&#7522;, &ell;&#7522;) &mdash; WHY THE MAX?
+  Prevents the ratio from exceeding 1.0.
+  Edge case: agent clips through a wall (collision)
+  and takes a "shortcut" where p&#7522; &lt; &ell;&#7522;.
+  Without the max, this cheating would score &gt;1.
+  The max clamps it to 1.0 at best.
+
+CRITICAL PROPERTY:
+  SPL &isin; [0, 1]
+  SPL = 0  &rarr; total failure (never reaches goal)
+  SPL = 1  &rarr; perfect (always reaches goal, optimal paths)</code></pre>
+
+<p>Why not just multiply success rate &times; average efficiency separately?</p>
+<pre><code>Per-episode weighting means an episode where the agent
+wanders 10&times; the optimal path drags down the score MORE
+than an episode where it's only 1.5&times; optimal.
+
+Per-episode weighting prevents a few efficient successes
+from masking many wildly inefficient ones.</code></pre>
+
+<h3>Geodesic vs. Euclidean &mdash; why it changes everything</h3>
+<pre><code>FLOOR PLAN:
+  &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+  &#9474;           WALL           &#9474;
+  &#9474;    &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;      &#9474;
+  &#9474;    &#9474;              &#9474;      &#9474;
+  &#9474;  A &#9474;              &#9474;  B   &#9474;
+  &#9474;    &#9474;              &#9474;      &#9474;
+  &#9474;    &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;       &#9474;      &#9474;
+  &#9474;           &#9474; door  &#9474;      &#9474;
+  &#9474;           &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;      &#9474;
+  &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;
+
+  EUCLIDEAN distance A&rarr;B: ~3 meters (through wall)
+  GEODESIC distance A&rarr;B: ~12 meters (around wall, through door)
+
+  With Euclidean: agent on the wrong side of a wall
+  gets credit for being "close."
+  With geodesic: agent must be REACHABLY close.</code></pre>
+
+<h3>The DONE action &mdash; subtler than it looks</h3>
+<pre><code>WITH DONE ACTION, the agent must:
+  1. Navigate to the goal      (path planning)
+  2. Recognize it has arrived   (perception/understanding)
+  3. Decide to stop             (confidence/decision-making)
+
+All three are required. Missing any one = failure.
+
+SUCCESS THRESHOLD &tau;:
+  Default: &tau; = 2 &times; agent body width
+  For body width 0.2m &rarr; &tau; = 0.4m
+  For AreaGoal: center of mass inside target area</code></pre>
+
+<h3>The four simulator environments</h3>
+<table><thead><tr><th>Environment</th><th>Type</th><th>Scenes</th><th>Goals</th><th>Key Feature</th></tr></thead><tbody>
+<tr><td><strong>SUNCG</strong></td><td>Synthetic</td><td>500</td><td>Pt/Obj/Area</td><td>41K objects, 110K m&sup2;</td></tr>
+<tr><td><strong>Matterport3D</strong></td><td>Real scan</td><td>90</td><td>Pt/Obj/Area</td><td>Real homes/hotels/offices</td></tr>
+<tr><td><strong>AI2-THOR</strong></td><td>Synthetic</td><td>120</td><td>Pt/Obj</td><td>Interactive objects (open cabinets)</td></tr>
+<tr><td><strong>Gibson</strong></td><td>Real scan</td><td>572</td><td>Pt</td><td>Largest &mdash; 211K m&sup2;, 1,447 floors</td></tr>
+</tbody></table>
+
+<div class="card"><div class="card-label blue">SYNTHETIC VS. REAL</div>
+<pre><code>SYNTHETIC (SUNCG, AI2-THOR):
+  + Unlimited variations, perfect geometry
+  + Interactive objects possible (AI2-THOR)
+  - May not reflect real-world complexity
+  - "Sim-to-real gap" when deploying to robots
+
+REAL SCANS (Matterport3D, Gibson):
+  + Authentic visual complexity and clutter
+  + Real lighting, textures, layouts
+  - Fixed environments (can't generate new ones)
+  - Scanning artifacts (holes, stitching errors)</code></pre>
+</div>
+
+<h3>The exploration&ndash;navigation trade-off</h3>
+<pre><code>Agent gets a "budget" before navigation episodes:
+
+  Budget = 0m    &rarr; zero-shot (Regime 1)
+  Budget = 500m  &rarr; brief exploration
+  Budget = 1000m &rarr; moderate exploration
+  Budget = 2000m &rarr; extensive exploration
+  Budget = &infin;     &rarr; full memorization
+
+  SPL
+  1.0 &#9508;
+      &#9474;                          &#9679;&mdash;&mdash;&mdash;&mdash; ceiling
+  0.8 &#9508;                    &#9679;&mdash;&mdash;
+      &#9474;               &#9679;&mdash;&mdash;
+  0.6 &#9508;          &#9679;&mdash;&mdash;
+      &#9474;     &#9679;&mdash;&mdash;
+  0.4 &#9508;&#9679;&mdash;&mdash;
+      &#9474;
+  0.2 &#9508;
+      &#9474;
+  0.0 &#9532;&mdash;&mdash;&#9516;&mdash;&mdash;&#9516;&mdash;&mdash;&#9516;&mdash;&mdash;&#9516;&mdash;&mdash;&#9516;&mdash;
+      0   500  1000 1500 2000  &infin;
+           Exploration Budget (meters)
+
+THIS CURVE is the real evaluation, not a single number.
+Different agents may dominate at different budgets.</code></pre>
+
+<h3>Agent architecture spectrum</h3>
+<pre><code>LEVEL 0: PURELY REACTIVE
+  Current frame &rarr; Deep Network &rarr; Action
+  No memory. Can't build a mental map.
+
+LEVEL 1: SHORT-TERM VECTORIAL MEMORY (LSTM/GRU)
+  Recurrent state carries compressed history.
+  Can remember "I tried going left already."
+  But fixed-size vector &mdash; lossy.
+
+LEVEL 2: RICH INTERNAL REPRESENTATIONS
+  Agent builds explicit spatial maps, topologies,
+  semantic labels. Can plan paths through its model.
+
+The paper deliberately doesn't recommend an architecture &mdash;
+it highlights that internal representation IS the core
+research question.</code></pre>
+
+<div class="quiz" id="quiz-l2"><div class="quiz-title">Quiz &mdash; Level 2</div>
+
+<div class="q"><div class="q-text">1. The SPL formula uses <code>max(p&#7522;, &ell;&#7522;)</code> in the denominator rather than simply <code>p&#7522;</code>. What specific edge case does this address?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">A) It handles cases where the goal is unreachable, preventing division by zero</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">B) It ensures shorter paths always score higher than longer paths</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,true)">C) If an agent clips through a wall or exploits a collision bug, its path could be shorter than the optimal geodesic &mdash; without the max, this &ldquo;cheating&rdquo; would score &gt;1.0; the max clamps the best possible score to exactly 1.0</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">D) It compensates for measurement noise in the simulator&rsquo;s distance tracking</button></li>
+</ul><div class="q-explain" id="ex-l2-0">The <code>max(p&#7522;, &ell;&#7522;)</code> is a safety clamp. In simulation, collision handling can allow agents to pass through geometry and take physically impossible shortcuts where p &lt; &ell;. The max ensures no single episode can score above 1.0, preventing physics exploits from inflating SPL.</div></div>
+
+<div class="q"><div class="q-text">2. AI2-THOR has a unique capability among the four environments, but also a fundamental limitation. What are they?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">A) AI2-THOR is the only environment with outdoor scenes, but lacks depth sensing</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">B) AI2-THOR supports more goal types than other environments, but has lower visual quality</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">C) AI2-THOR has the largest number of scenes, but they are all synthetic</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,true)">D) AI2-THOR uniquely supports interactive objects (opening cabinets, moving items) enabling an interaction-based ObjectGoal variant, but its scenes are single-room only, making AreaGoal tasks impossible</button></li>
+</ul><div class="q-explain" id="ex-l2-1">AI2-THOR&rsquo;s interactive objects (open/close cabinets, pick up and move items) enable a unique ObjectGoal variant where the target may be hidden inside a cabinet. But each scene is a single room (30 kitchens, 30 living rooms, etc.), so there&rsquo;s no multi-room layout to navigate between &mdash; ruling out AreaGoal.</div></div>
+
+<div class="q"><div class="q-text">3. The paper describes three levels of agent architecture but deliberately refuses to recommend one. Why?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',2,true)">A) The internal representation an agent builds is the central research question &mdash; prescribing an architecture would prematurely close off exploration of what makes good spatial reasoning, and the spectrum represents fundamentally different hypotheses about what information agents need to retain</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">B) The authors couldn&rsquo;t agree on which architecture was best</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">C) All three architectures perform identically on SPL benchmarks</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">D) Architecture recommendations would make the paper too long</button></li>
+</ul><div class="q-explain" id="ex-l2-2">The spectrum from reactive (no memory) to map-building (explicit representations) represents fundamentally different hypotheses about navigation. The paper&rsquo;s position is that studying what representations emerge &mdash; and which ones enable better navigation &mdash; IS the research question, not something to be prescribed by a standards document.</div></div>
+
+<div class="q"><div class="q-text">4. The exploration&ndash;navigation trade-off creates a performance profile rather than a single number. Why is the full curve more informative?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">A) The curve shows which agent uses the most compute</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,true)">B) Different agents may dominate at different budgets &mdash; one might excel zero-shot while another needs 1000m of exploration to outperform everyone, revealing fundamentally different capabilities that no single SPL number can capture</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">C) The curve always shows linear improvement, so any single point is representative</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">D) The full curve is required by reviewers but doesn&rsquo;t add information beyond the zero-shot point</button></li>
+</ul><div class="q-explain" id="ex-l2-3">The exploration&ndash;navigation profile reveals whether an agent has strong innate spatial priors (good zero-shot) vs. efficient environment modeling (improves dramatically with budget). A Pareto analysis across budgets captures trade-offs that any single number necessarily obscures.</div></div>
+
+<div class="q"><div class="q-text">5. The DONE action requires the agent to do three things to score a success. What are they, and why does requiring all three matter?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">A) Detect obstacles, avoid collisions, and reach the goal within the time limit</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">B) Perceive accurately, predict the goal location, and compute an optimal path</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,true)">C) Navigate to the goal (path planning), recognize arrival (perception), and decide to stop by calling DONE (confidence) &mdash; requiring all three prevents random-walk agents in small environments from inflating success rates without genuine comprehension</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">D) The three capabilities are mapping, localization, and exploration &mdash; the SLAM pipeline</button></li>
+</ul><div class="q-explain" id="ex-l2-4">Without the DONE action, an agent could accidentally pass through the goal region during a random walk and receive credit. The DONE requirement ensures the agent demonstrates three distinct capabilities: spatial planning, perceptual recognition, and decision-making confidence. All three must be present for genuine navigation.</div></div>
+
+<div class="score" id="score-l2"></div><button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button>
+</div>
+</div></div>
+
+<!-- ==================== LEVEL 3 ==================== -->
+<div class="level l3" id="level3"><div class="level-header" onclick="toggle('level3')"><div class="level-dot"></div><h2>Level 3 &mdash; Expert</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>SPL&rsquo;s blind spots &mdash; what the standard metric hides</h3>
+<p>SPL became universal. But universality breeds complacency &mdash; and SPL has real limitations the field only discovered by using it for years:</p>
+
+<div class="card"><div class="card-label red">BLIND SPOTS</div>
+<pre><code>BLIND SPOT 1: ALL FAILURES LOOK THE SAME
+  Agent stops 0.1m too early from goal &rarr; S&#7522; = 0
+  Agent wanders aimlessly for 500m &rarr; S&#7522; = 0
+  SPL score for both: 0. These are fundamentally different.
+
+BLIND SPOT 2: PATH QUALITY IS ONE-DIMENSIONAL
+  Agent takes optimal-LENGTH path but scrapes every wall,
+  spins 360&deg; at every intersection, moves in jerky bursts.
+  SPL: 1.0 (perfect!). You&rsquo;d never deploy this robot.
+
+BLIND SPOT 3: NO DYNAMICS
+  Agent A reaches goal in 30 seconds.
+  Agent B reaches goal in 300 seconds (same path length).
+  SPL: identical. Time is invisible.
+
+BLIND SPOT 4: THRESHOLD SENSITIVITY
+  Agent consistently stops 0.39m from goal.
+  With &tau; = 0.4m &rarr; success rate: 100%
+  With &tau; = 0.35m &rarr; success rate: 0%</code></pre>
+</div>
+
+<p>These blind spots spawned follow-up metrics:</p>
+<ul>
+<li><strong>SoftSPL:</strong> Replaces binary S&#7522; with continuous proximity score. Near-misses get partial credit.</li>
+<li><strong>SCT (2021):</strong> Success weighted by Completion Time. Penalizes slow agents even with short paths.</li>
+<li><strong>SPL Sweep:</strong> Report SPL across varying &tau; thresholds. Shows robustness to threshold choice.</li>
+</ul>
+
+<h3>The Habitat lineage &mdash; from paper to platform</h3>
+<pre><code>  July 2018: This paper published
+       &darr;
+  Dec 2019: Habitat 1.0 released (Facebook AI Research)
+       &darr;     Built by co-authors Savva, Malik + others
+       &darr;     Implements EVERY recommendation
+       &darr;
+  2019: First Habitat Challenge &mdash; PointGoal focus
+       &darr;
+  2020: PointGoal essentially SOLVED
+       &darr;     DD-PPO agent: 0.97 SPL on Gibson
+       &darr;     Near-optimal paths in unseen environments
+       &darr;     Zero-shot generalization regime
+       &darr;
+  2020+: Challenge shifts to ObjectGoal
+       &darr;     SPL drops from 0.97 to ~0.3
+       &darr;     Adding recognition + world knowledge
+       &darr;     is MASSIVELY harder than pure path planning
+       &darr;
+  2022+: MultiObjectNav, Social Navigation, Rearrangement
+       &darr;
+  2023+: Foundation models enter navigation
+         LLM/VLM planners with small RL execution policies</code></pre>
+
+<h3>PointGoal solved &mdash; ObjectGoal still hard</h3>
+
+<div class="result-row">
+<div class="result-box green-bg"><div class="result-number">0.97</div><div class="result-label">PointGoal SPL (2020)</div></div>
+<div class="result-box amber-bg"><div class="result-number">~0.45</div><div class="result-label">ObjectGoal SPL (2026)</div></div>
+</div>
+
+<pre><code>WHY POINTGOAL WAS "EASY" (in retrospect):
+  Agent always KNOWS where the goal is.
+  Challenge is purely: find a collision-free path.
+  No recognition. No world knowledge. No language.
+  Deep RL + massive compute was enough.
+
+WHY OBJECTGOAL IS STILL HARD:
+  "Find the refrigerator" requires:
+  1. Explore systematically (where to look?)
+  2. Recognize the target (is that a refrigerator?)
+  3. Use world knowledge (fridges are in kitchens)
+  4. Reason about layout (kitchen is near dining room)
+  5. Handle ambiguity (which refrigerator?)
+
+  Adding ONE cognitive layer dropped performance by HALF.
+  This is the navigation equivalent of "integration density"
+  &mdash; coordinating multiple cognitive operations is
+  fundamentally harder than any single operation.</code></pre>
+
+<h3>The sim-to-real gap &mdash; the unsolved problem</h3>
+<pre><code>Agent in simulation:  SPL = 0.95
+Same agent on robot:  SPL = 0.30 (if you're lucky)
+
+SOURCES OF THE GAP:
+
+  VISUAL DOMAIN: Clean renders vs. noisy sensor data
+  (motion blur, varying lighting, reflections)
+
+  ACTUATION: move_forward(0.25m) &rarr; moves EXACTLY 0.25m
+  in sim. Real robot: 0.23m, drifts 0.02m right, wheel slips.
+
+  DYNAMICS: Agent is a perfect cylinder in sim.
+  Real robot: complex geometry, shifting center of mass.
+
+  ENVIRONMENT: Sim is frozen at scan time.
+  Real world: furniture moves, people walk through,
+  doors change state, lighting varies hour to hour.</code></pre>
+
+<h3>Subtle memorization &mdash; deeper than train/test splits</h3>
+<pre><code>Even with proper train/test splits, memorization leaks:
+
+1. ENVIRONMENT-TYPE MEMORIZATION
+   All training kitchens have fridges on south wall &rarr;
+   agent "learns" to always go south for fridge.
+   Works in training distribution. Fails in novel layouts.
+
+2. SIMULATOR ARTIFACT MEMORIZATION
+   Agent learns Matterport3D-specific stitching patterns
+   as navigation cues. Useless in AI2-THOR or real world.
+
+3. DISTRIBUTION MEMORIZATION
+   Training: 80% of goals are 3&ndash;10m away.
+   Agent calibrates to this range.
+   Novel environments with longer paths &rarr; degraded SPL.</code></pre>
+
+<h3>VLN &mdash; the fourth goal type</h3>
+<p>The paper mentioned natural language goal specification but didn&rsquo;t standardize it. Peter Anderson (this paper&rsquo;s first author) simultaneously created Room-to-Room (R2R), which combined natural language instructions with navigation:</p>
+<pre><code>"Walk past the dining table, turn left at the hallway,
+ go through the second door on your right, and stop
+ in front of the bathroom mirror."
+
+This is HARDER because:
+- Language is ambiguous ("second door" from which side?)
+- Instructions reference landmarks requiring recognition
+- Instructions may be wrong or imprecise
+- Grounding: mapping words to visual percepts in real-time</code></pre>
+
+<h3>Standards documents as field-shapers</h3>
+<div class="takeaway"><div class="takeaway-label">The pattern</div>
+<pre><code>ImageNet (2009): standardized image classification eval
+  &rarr; catalyzed the deep learning revolution
+
+This paper (2018): standardized navigation eval
+  &rarr; catalyzed embodied AI progress
+
+The meta-lesson: EVALUATION DRIVES RESEARCH DIRECTION.
+Whatever you measure is what people optimize.
+If the metric is wrong, the field goes sideways.
+If the metric is right, the field accelerates.</code></pre>
+</div>
+
+<div class="quiz" id="quiz-l3"><div class="quiz-title">Quiz &mdash; Level 3</div>
+
+<div class="q"><div class="q-text">1. PointGoal was solved by 2020 (0.97 SPL) yet ObjectGoal remains around 0.4&ndash;0.5. What does this gap reveal about navigation?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">A) ObjectGoal environments are physically larger, requiring longer paths</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">B) ObjectGoal agents need more compute but will converge given sufficient scale</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">C) The gap is an artifact of different evaluation thresholds</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,true)">D) PointGoal is purely spatial path planning &mdash; the agent always knows WHERE the goal is &mdash; while ObjectGoal adds recognition, world knowledge, and exploration strategy on top, revealing that each additional cognitive layer dramatically degrades performance</button></li>
+</ul><div class="q-explain" id="ex-l3-0">The PointGoal-to-ObjectGoal gap demonstrates that navigation difficulty scales with cognitive integration, not spatial distance. Adding recognition and world knowledge on top of path planning cuts performance roughly in half &mdash; each layer of cognitive demand compounds difficulty non-linearly.</div></div>
+
+<div class="q"><div class="q-text">2. SPL has significant blind spots the field discovered through years of use. Which is a genuine limitation that led to follow-up metrics?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',1,true)">A) SPL treats all failures identically (near-miss = total failure), ignores path quality (collisions, jitter), ignores time/dynamics, and is sensitive to the arbitrary success threshold &tau; &mdash; spawning SoftSPL, SCT, and SPL sweeps</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">B) SPL cannot be computed in real-time during agent operation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">C) SPL requires access to the agent&rsquo;s internal state</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">D) SPL only works for PointGoal and cannot be applied to other task types</button></li>
+</ul><div class="q-explain" id="ex-l3-1">Each blind spot motivated a specific fix: SoftSPL gives partial credit for near-misses (fixing the binary failure problem), SCT replaces path length with completion time (fixing the dynamics blindness), and SPL sweeps across &tau; values show robustness to threshold choice. The paper recommended auxiliary metrics but the field largely adopted SPL alone until these limitations became painful.</div></div>
+
+<div class="q"><div class="q-text">3. The sim-to-real gap remains largely unsolved. What are the primary sources?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">A) Real robots have smaller memory and can&rsquo;t store the policy</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">B) The gap exists only because real environments are larger</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,true)">C) Visual domain shift (clean renders vs. noisy sensors), actuation noise (commanded &ne; actual movement), dynamic environments (furniture moves, people walk through), and environment mismatch (simulation frozen at scan time vs. constantly evolving reality)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">D) Sim-to-real is solved for PointGoal; the gap only exists for ObjectGoal</button></li>
+</ul><div class="q-explain" id="ex-l3-2">The sim-to-real gap is multi-layered: visual (render quality vs. real sensors), physical (perfect vs. noisy actuation), temporal (frozen vs. dynamic environments), and geometric (idealized vs. real robot bodies). Domain randomization and real-world fine-tuning help but don&rsquo;t close the gap, making this one of the field&rsquo;s hardest open problems.</div></div>
+
+<div class="q"><div class="q-text">4. What pattern does this paper exemplify about how scientific fields accelerate?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">A) Fields accelerate when individual labs compete more intensely</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,true)">B) Evaluation drives research direction &mdash; defining the right metric and protocol shapes what entire communities build, making &ldquo;are we measuring the right thing?&rdquo; potentially more consequential than any individual algorithm</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">C) Standards documents slow research by constraining creativity</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">D) The impact comes from the prestige of the authors, not the content</button></li>
+</ul><div class="q-explain" id="ex-l3-3">ImageNet standardized image classification evaluation and catalyzed the deep learning revolution. This paper standardized navigation evaluation and catalyzed embodied AI. The pattern: when a field pauses to ask &ldquo;are we measuring the right thing?&rdquo; and gets the answer right, rapid progress follows. The metric becomes the field&rsquo;s optimization target.</div></div>
+
+<div class="q"><div class="q-text">5. Even with proper train/test environment splits, subtle memorization can leak through. What forms does this take?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">A) Only visual memorization matters</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">B) Subtle memorization is theoretical and hasn&rsquo;t been observed</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">C) The only form is overfitting to training path length distributions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,true)">D) Environment-type memorization (learning dataset-specific spatial patterns), simulator artifact memorization (using platform-specific visual artifacts as cues), and distribution memorization (calibrating to training goal distances) &mdash; all producing agents that appear to navigate but collapse in novel settings</button></li>
+</ul><div class="q-explain" id="ex-l3-4">Cross-simulator transfer tests reveal these subtle forms: train on SUNCG, test on Matterport3D, and performance drops dramatically &mdash; the agent hasn&rsquo;t learned navigation, it&rsquo;s learned SUNCG-navigation. This is the navigation equivalent of benchmark contamination in language models.</div></div>
+
+<div class="score" id="score-l3"></div><button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button>
+</div>
+</div></div>
+
+<!-- ==================== LEVEL 4 ==================== -->
+<div class="level l4" id="level4"><div class="level-header" onclick="toggle('level4')"><div class="level-dot"></div><h2>Level 4 &mdash; Frontier</h2><span class="chevron">&#9660;</span></div><div class="level-body">
+
+<h3>What the paper got right and wrong (2018 &rarr; 2026)</h3>
+<div class="card"><div class="card-label green">PREDICTIONS THAT LANDED</div>
+<pre><code>&check; "SPL of 0.5 would represent good performance"
+   Understated for PointGoal (hit 0.97), but prescient
+   for ObjectGoal (still ~0.4&ndash;0.5 in 2026).
+
+&check; "Internal representation is central"
+   Became THE research question. The entire "world models"
+   movement is about what representations agents build.
+
+&check; "Standardization will catalyze progress"
+   Habitat Challenge created a coordination mechanism
+   that drove steady improvement year over year.
+
+&check; "Sim-to-real deployment matters"
+   Still the hardest problem. Their concern was justified.</code></pre>
+</div>
+
+<div class="card"><div class="card-label red">PREDICTIONS THAT MISSED</div>
+<pre><code>&cross; DIDN'T ANTICIPATE FOUNDATION MODELS
+   The paper assumes agents trained FROM SCRATCH via RL
+   in simulation. Nobody in 2018 imagined that a model
+   trained on internet text + images could navigate at all.
+
+&cross; DIDN'T ANTICIPATE THE LANGUAGE SHIFT
+   Natural language became the PRIMARY interface for
+   embodied agents by 2024. VLN is now bigger than
+   pure ObjectGoal research.
+
+&cross; UNDERWEIGHTED MULTI-AGENT SCENARIOS
+   No mention of multiple agents, social navigation,
+   or collaborative tasks. These are now central.
+
+&cross; THE SIMULATOR MONOCULTURE
+   Standardizing on 4 environments created a
+   "teaching to the test" effect &mdash; agents optimized
+   for those specific environments rather than
+   developing general navigation ability.</code></pre>
+</div>
+
+<h3>Foundation models vs. RL policies &mdash; the paradigm shift</h3>
+<pre><code>THE 2018 PARADIGM (what this paper assumed):
+  Train an RL agent FROM SCRATCH in simulation:
+  Environment &rarr; RGB &rarr; CNN &rarr; LSTM &rarr; Policy &rarr; Action
+  Millions of episodes. Months of GPU time.
+
+THE 2024+ PARADIGM (what actually happened):
+  Foundation model as "brain" + small RL policy for control:
+
+  &#9484;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&#9488;
+  &#9474;    FOUNDATION MODEL         &#9474;
+  &#9474;  (GPT-4V / Gemini / etc.)   &#9474;
+  &#9474;                              &#9474;
+  &#9474;  "I see a hallway with       &#9474;
+  &#9474;   doors. The kitchen is      &#9474;
+  &#9474;   likely ahead-left."        &#9474;
+  &#9492;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&#9516;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&#9496;
+               &#9474; high-level plan
+               &#9660;
+  &#9484;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&#9488;
+  &#9474;    LOW-LEVEL RL POLICY       &#9474;
+  &#9474;  (obstacle avoidance,        &#9474;
+  &#9474;   motor commands)            &#9474;
+  &#9492;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&#9496;
+
+WHY THIS CHANGES EVERYTHING:
+  1. ZERO-SHOT GENERALIZATION &mdash; model already knows
+     "refrigerators are in kitchens" from pretraining
+  2. LANGUAGE IS NATIVE &mdash; VLN tasks need no special training
+  3. COMMON SENSE &mdash; impossible for RL agents to learn
+  4. SIM-TO-REAL GAP SHRINKS for perception
+     (trained on real images, not renders)
+
+THE CATCH: latency (2&ndash;5s per decision vs. &lt;100ms needed),
+cost, and hallucination risk.</code></pre>
+
+<h3>The evaluation crisis beyond SPL</h3>
+<p>SPL was designed for one agent, one goal, one episode, static environment. Modern embodied AI needs to evaluate far more:</p>
+
+<pre><code>MULTI-STEP TASKS:
+  "Go to kitchen, pick up red mug, bring to living room."
+  SPL measures: did you reach the kitchen?
+  Doesn't measure: did you grab the RIGHT mug?
+
+SOCIAL NAVIGATION:
+  "Navigate to exit without making people uncomfortable."
+  SPL: did you reach the exit efficiently?
+  Doesn't measure: did you violate personal space?
+
+OPEN-ENDED EXPLORATION:
+  "Explore this building and report what's here."
+  No single goal. No success/failure binary.
+
+CONTINUOUS OPERATION:
+  Home robot that navigates ALL DAY.
+  How do you measure a month of navigation?
+
+The field needs integrated evaluation that tests navigation
++ manipulation + language + social reasoning together &mdash;
+not as separate tasks, but as one combined challenge.</code></pre>
+
+<h3>The world model connection</h3>
+<p>The paper&rsquo;s Recommendation 7 (&ldquo;internal representation is central&rdquo;) anticipated today&rsquo;s world models debate:</p>
+
+<pre><code>2018: "Internal representation" = LSTM hidden state.
+      A black-box vector. We don't know what's in it.
+
+2020: Spatial memory maps emerge.
+      Agents build top-down 2D maps from egocentric views.
+
+2022: Neural scene representations (NeRF-based).
+      Encode 3D geometry + appearance from observations.
+
+2024+: Foundation model "mental models."
+       Semantic, not geometric.
+       "I've seen a living room and two bedrooms.
+        Kitchen is probably beyond the hallway."
+
+THE LIKELY SYNTHESIS:
+  Foundation model for HIGH-LEVEL reasoning
+  (which room to visit, what strategy to use)
+  +
+  Geometric map for LOW-LEVEL execution
+  (collision avoidance, precise path following)
+
+Neither pure reasoning nor pure spatial computation
+is optimal alone. The combination wins.</code></pre>
+
+<h3>Connections to perception and generation</h3>
+<p>The paper&rsquo;s goal taxonomy maps directly to both media perception and generation:</p>
+
+<div class="card"><div class="card-label purple">PERCEPTION &amp; GENERATION LOOP</div>
+<pre><code>NAVIGATION GOALS AS A PERCEPTION STACK:
+  PointGoal &rarr; Spatial perception
+    (depth estimation, free-space segmentation)
+  ObjectGoal &rarr; Object perception + world knowledge
+    (detection, recognition, semantic segmentation)
+  AreaGoal &rarr; Scene perception + layout understanding
+    (room classification, spatial layout estimation)
+
+VIDEO GENERATION NEEDS THE SAME CAPABILITIES:
+  A video generator that produces coherent sequences
+  must internally represent:
+  - Consistent 3D geometry across frames
+  - Object persistence through occlusion
+  - Physics-aware motion
+  - Navigable camera paths
+
+  A video generator IS a world model.
+  Generation = perception in reverse.
+
+THE LOOP:
+  Generation pretraining &rarr; better representations
+  &rarr; better perception &rarr; better spatial reasoning
+  &rarr; better world models &rarr; better generation
+
+  It's a loop, not a pipeline.</code></pre>
+</div>
+
+<h3>The embodied AI frontier (2026)</h3>
+<pre><code>SOLVED:
+  &check; PointGoal in simulation (0.97 SPL)
+  &check; Standard evaluation framework (this paper)
+  &check; High-quality simulators (Habitat, AI2-THOR)
+
+PARTIALLY SOLVED:
+  &#9681; ObjectGoal (~0.5 SPL, improving)
+  &#9681; VLN (language-conditioned navigation)
+  &#9681; Foundation model integration
+
+UNSOLVED:
+  &cross; Sim-to-real transfer at scale
+  &cross; Manipulation + navigation combined
+  &cross; Social navigation (around people)
+  &cross; Long-horizon multi-step tasks
+  &cross; Continuous real-world operation
+  &cross; Real-time foundation model planning</code></pre>
+
+<h3>Scorecard</h3>
+<table><thead><tr><th>Dimension</th><th>Score</th><th>Notes</th></tr></thead><tbody>
+<tr><td><strong>Novelty</strong></td><td>7/10</td><td>Not a new algorithm &mdash; but a new framework for an entire field</td></tr>
+<tr><td><strong>Impact</strong></td><td>10/10</td><td>500+ citations, created Habitat, defined the field&rsquo;s vocabulary</td></tr>
+<tr><td><strong>Reproducibility</strong></td><td>9/10</td><td>Standards doc &mdash; nothing to reproduce, everything to implement</td></tr>
+<tr><td><strong>Technical Depth</strong></td><td>6/10</td><td>Deliberately high-level; depth is in the design choices</td></tr>
+<tr><td><strong>Writing</strong></td><td>9/10</td><td>Remarkably clear, concise, well-structured for 7 pages</td></tr>
+<tr><td><strong>Longevity</strong></td><td>8/10</td><td>SPL and goal taxonomy endure; sim-to-real and multi-agent gaps now visible</td></tr>
+</tbody></table>
+
+<div class="takeaway"><div class="takeaway-label">Final takeaway</div><p>This paper proves that a well-timed standards document &mdash; zero figures, zero tables, one equation &mdash; can be more consequential than any individual algorithmic advance. The seven recommendations didn&rsquo;t just evaluate navigation &mdash; they <strong>shaped what navigation research became</strong>. Whatever you measure is what people build.</p></div>
+
+<div class="quiz" id="quiz-l4"><div class="quiz-title">Quiz &mdash; Level 4</div>
+
+<div class="q"><div class="q-text">1. The foundation model paradigm fundamentally changes embodied AI. How does it affect the sim-to-real gap?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">A) Foundation models eliminate the sim-to-real gap entirely</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,true)">B) Foundation models trained on real images largely bypass the visual domain shift, but introduce a new planning-to-execution gap: the model&rsquo;s high-level reasoning (2&ndash;5s latency, hallucination risk) must be translated into real-time motor commands (&lt;100ms), shifting the bottleneck from perceptual transfer to decision-speed transfer</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">C) Foundation models make the gap worse because they hallucinate obstacles</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">D) Foundation models don&rsquo;t affect the gap since they still require simulation training</button></li>
+</ul><div class="q-explain" id="ex-l4-0">Foundation models solve one major source of the sim-to-real gap (visual domain shift) since they&rsquo;re pretrained on real images. But they introduce a new gap: real-time control requires &lt;100ms decisions while VLMs take seconds per inference. The solution is a hybrid architecture with fast low-level policies handling execution while slow foundation models handle planning.</div></div>
+
+<div class="q"><div class="q-text">2. PointGoal was solved faster than expected. What does this reveal about evaluation frameworks and field direction?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">A) PointGoal was never truly solved because SPL doesn&rsquo;t measure intelligence</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">B) The paper should have focused exclusively on ObjectGoal</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,true)">C) Evaluation frameworks shape what communities optimize &mdash; by standardizing PointGoal first, the paper directed initial energy toward the easiest task, demonstrating that where you point the measurement spotlight determines where progress happens first</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">D) The rapid solution proves the framework was too lenient</button></li>
+</ul><div class="q-explain" id="ex-l4-1">PointGoal was solved in 2 years (vs. the paper&rsquo;s &ldquo;0.5 SPL would be good&rdquo; calibration). The harder tasks &mdash; ObjectGoal, VLN, manipulation &mdash; still lack equivalently rigorous evaluation standards. This demonstrates that metrics are steering mechanisms: what gets measured gets optimized, and what gets optimized first gets solved first.</div></div>
+
+<div class="q"><div class="q-text">3. Three distinct representation paradigms have emerged since Recommendation 7. What are they, and what is the likely synthesis?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',2,true)">A) Geometric maps (explicit, precise, no hallucination but brittle), neural scene representations (NeRF-based 3D encoding), and semantic foundation model representations (language-based &ldquo;mental models&rdquo;) &mdash; with the likely synthesis being foundation models for high-level planning and geometric maps for low-level execution</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">B) LSTM hidden states, transformer attention maps, and diffusion model latents</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">C) Only geometric maps have proven useful</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">D) The three paradigms are identical in practice</button></li>
+</ul><div class="q-explain" id="ex-l4-2">Each paradigm has complementary strengths: geometric maps are precise but non-semantic, foundation models are semantically rich but spatially imprecise. The hybrid approach &mdash; high-level semantic planning from foundation models combined with low-level geometric execution &mdash; mirrors a general principle that neither pure reasoning nor pure computation is optimal alone.</div></div>
+
+<div class="q"><div class="q-text">4. Video generation and embodied navigation share a deep connection. What is it?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">A) They use identical architectures</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">B) Both need real-time deployment on mobile devices</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">C) The connection is purely historical</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,true)">D) A video generator producing coherent sequences must internally represent 3D geometry, object persistence, physics, and navigable camera paths &mdash; making it functionally a world model, the same capability navigation agents need &mdash; and both fields face the same evaluation crisis where surface metrics miss what matters</button></li>
+</ul><div class="q-explain" id="ex-l4-3">The connection runs deep: coherent video requires an implicit world model (consistent geometry, persistent objects, plausible physics), which is exactly what navigation agents need explicitly. Furthermore, generation pretraining may improve perception (the &ldquo;generation &rarr; understanding&rdquo; loop), creating a positive feedback cycle between the two domains.</div></div>
+
+<div class="q"><div class="q-text">5. What is the fundamental tension in designing evaluation metrics for AI, and why hasn&rsquo;t it been resolved?</div><ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">A) The tension is between making metrics easy to compute vs. accurate</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,true)">B) The tension is between stringency and coverage &mdash; a stringent metric like SPL precisely measures one dimension but blinds the field to everything it doesn&rsquo;t capture, while comprehensive metrics integrate across dimensions but make it harder to diagnose specific weaknesses &mdash; unresolved because any single number compresses a high-dimensional capability space</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">C) The tension is between academic rigor and industry applicability</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">D) The tension only exists because labs refuse to agree on a standard</button></li>
+</ul><div class="q-explain" id="ex-l4-4">SPL precisely measures efficient goal-reaching but ignores path quality, dynamics, social behavior, and multi-step reasoning. A comprehensive metric integrating all dimensions would be harder to interpret and optimize against. This is a fundamental information-theoretic limit: compressing high-dimensional capabilities into one number always loses information, and the choice of what to preserve determines research direction.</div></div>
+
+<div class="score" id="score-l4"></div><button class="reset-btn" id="reset-l4" onclick="resetQuiz('l4')">Try again</button>
+</div>
+</div></div>
+
+</div>
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('open')}
+var quizState={};
+function ans(btn,quizId,qIdx,correct){
+  if(!quizState[quizId])quizState[quizId]={answered:0,correct:0,total:5};
+  var s=quizState[quizId],q=btn.closest('.q'),btns=q.querySelectorAll('.q-btn');
+  if(btn.classList.contains('correct')||btn.classList.contains('incorrect'))return;
+  btns.forEach(function(b){b.disabled=true});
+  if(correct){btn.classList.add('correct');s.correct++}
+  else{btn.classList.add('incorrect');btns.forEach(function(b){if(b!==btn&&b.getAttribute('onclick').indexOf('true')!==-1)b.classList.add('reveal')})}
+  var ex=document.getElementById('ex-'+quizId+'-'+qIdx);if(ex)ex.classList.add('show');
+  s.answered++;
+  if(s.answered===s.total){
+    var sc=document.getElementById('score-'+quizId);
+    sc.textContent=s.correct+'/'+s.total+(s.correct>=4?' — Excellent!':(s.correct>=3?' — Good':' — Review the material'));
+    sc.className='score show '+(s.correct>=4?'pass':'fail');
+    document.getElementById('reset-'+quizId).classList.add('show');
+  }
+}
+function resetQuiz(quizId){
+  quizState[quizId]={answered:0,correct:0,total:5};
+  var quiz=document.getElementById('quiz-'+quizId);
+  quiz.querySelectorAll('.q-btn').forEach(function(b){b.disabled=false;b.classList.remove('correct','incorrect','reveal')});
+  quiz.querySelectorAll('.q-explain').forEach(function(e){e.classList.remove('show')});
+  document.getElementById('score-'+quizId).classList.remove('show');
+  document.getElementById('reset-'+quizId).classList.remove('show');
+}
+</script>
+</body>
+</html>

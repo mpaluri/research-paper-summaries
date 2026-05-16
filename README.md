@@ -10,6 +10,7 @@ See [SKILL.md](SKILL.md) for the full study system design, quiz construction rul
 
 | # | Paper | Topic | Published | Created |
 |:--|:------|:------|:----------|:--------|
+| 14 | [On Evaluation of Embodied Navigation Agents](papers/embodied-nav-eval.html) | Embodied AI, navigation, evaluation, SPL metric | 07/18/18 | 05/15/26 |
 | 13 | [Seedance 2.0](papers/seedance2.html) | Video generation, diffusion transformer, audio-video, RLHF | 04/15/26 | 05/11/26 |
 | 12 | [Vision Banana](papers/vision-banana.html) | Generative vision, segmentation, depth estimation, instruction tuning | 04/22/26 | 05/04/26 |
 | 11 | [AlphaFold 2](papers/alphafold2.html) | Protein structure prediction, attention, co-evolution, structural biology | 07/15/21 | 05/02/26 |
