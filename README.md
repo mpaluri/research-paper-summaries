@@ -10,6 +10,8 @@ See [SKILL.md](SKILL.md) for the full study system design, quiz construction rul
 
 | # | Paper | Topic | Published | Created |
 |:--|:------|:------|:----------|:--------|
+| 16 | [ASARA Interviews](papers/asara-interviews.html) | Qualitative interviews, intelligence explosion, AI governance | 03/05/26 | 05/20/26 |
+| 15 | [GIM](papers/gim-eval.html) | Evaluation, IRT psychometrics, centaur study, integration density | 03/01/26 | 05/19/26 |
 | 14 | [On Evaluation of Embodied Navigation Agents](papers/embodied-nav-eval.html) | Embodied AI, navigation, evaluation, SPL metric | 07/18/18 | 05/15/26 |
 | 13 | [Seedance 2.0](papers/seedance2.html) | Video generation, diffusion transformer, audio-video, RLHF | 04/15/26 | 05/11/26 |
 | 12 | [Vision Banana](papers/vision-banana.html) | Generative vision, segmentation, depth estimation, instruction tuning | 04/22/26 | 05/04/26 |

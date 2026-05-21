@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASARA Interviews &mdash; AI Researchers&rsquo; Perspectives on Automating AI R&amp;D and Intelligence Explosions</title>
+<meta name="description" content="Four-level explainer: Field, Douglas, Krueger (2026) qualitative interview study of 25 leading AI researchers on automating AI research and intelligence explosion scenarios.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f6f8fa;--text:#1f2328;--text2:#656d76;--text3:#8b949e;--border:#d0d7de;--accent:#0969da;--accent-bg:#ddf4ff;--green:#1a7f37;--green-bg:#dafbe1;--red:#cf222e;--red-bg:#ffebe9;--code-bg:#f0f0f0;--purple:#8250df;--purple-bg:#fbefff;--amber:#bf8700;--amber-bg:#fff8c5}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--bg2:#161b22;--text:#e6edf3;--text2:#8b949e;--text3:#656d76;--border:#30363d;--accent:#58a6ff;--accent-bg:#1a2332;--green:#2ea043;--green-bg:#0f2d16;--red:#f85149;--red-bg:#3a1a1a;--code-bg:#1c2129;--purple:#bc8cff;--purple-bg:#2a1a3a;--amber:#d4a017;--amber-bg:#2a2000}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem}
+.back{display:inline-block;font-size:.875rem;color:var(--accent);text-decoration:none;margin-bottom:1.5rem}
+.back:hover{text-decoration:underline}
+h1{font-size:1.6rem;font-weight:700;line-height:1.3;margin-bottom:.75rem}
+.paper-info{font-size:.875rem;color:var(--text2);margin-bottom:.5rem}
+.paper-info a{color:var(--accent);text-decoration:none}
+.paper-info a:hover{text-decoration:underline}
+.tldr{font-size:.9rem;color:var(--text2);padding:1rem 1.25rem;background:var(--bg2);border-radius:8px;margin-bottom:2rem;border-left:3px solid var(--accent)}
+.level{margin-bottom:2.5rem;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.level-header{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;cursor:pointer;background:var(--bg2);user-select:none;border-bottom:1px solid var(--border)}
+.level-header:hover{background:var(--bg2)}
+.level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.l1 .level-dot{background:#2da44e}
+.l2 .level-dot{background:#bf8700}
+.l3 .level-dot{background:#cf222e}
+.l4 .level-dot{background:var(--purple)}
+.level-header h2{font-size:1rem;font-weight:600;margin:0;flex:1}
+.chevron{font-size:.8rem;color:var(--text3);transition:transform .2s}
+.level.open .chevron{transform:rotate(180deg)}
+.level-body{display:none;padding:1.5rem 1.25rem}
+.level.open .level-body{display:block}
+h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}
+.level-body>h3:first-child{margin-top:0}
+h4{font-size:.95rem;font-weight:600;margin:1.25rem 0 .5rem;color:var(--text2)}
+p{margin-bottom:.75rem}
+ul,ol{margin:0 0 .75rem 1.25rem}
+li{margin-bottom:.25rem}
+strong{font-weight:600}
+em{font-style:italic}
+blockquote{border-left:3px solid var(--accent);padding:.75rem 1rem;margin:1rem 0;background:var(--accent-bg);border-radius:0 6px 6px 0;font-size:.9rem;font-style:italic}
+code{font-family:'JetBrains Mono',monospace;font-size:.85em;background:var(--code-bg);padding:1px 5px;border-radius:3px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;margin:.75rem 0;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.5}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.875rem}
+th{text-align:left;font-weight:600;padding:.5rem .75rem;border-bottom:2px solid var(--border);font-size:.8rem}
+td{padding:.5rem .75rem;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0}
+.card-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}
+.card-label.green{color:var(--green)}
+.card-label.amber{color:var(--amber)}
+.card-label.red{color:var(--red)}
+.card-label.blue{color:var(--accent)}
+.card-label.purple{color:var(--purple)}
+.card p:last-child{margin-bottom:0}
+.takeaway{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0}
+.takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.35rem}
+.tag-explore{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:4px;background:var(--red-bg);color:var(--red);font-weight:500;margin-left:.5rem}
+.tag-substantial{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:4px;background:var(--green-bg);color:var(--green);font-weight:500;margin-left:.5rem}
+.tag-partial{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:4px;background:var(--amber-bg);color:var(--amber);font-weight:500;margin-left:.5rem}
+.quiz{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1.5rem}
+.quiz-title{font-weight:600;font-size:.9rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.q{margin-bottom:1.25rem}
+.q:last-of-type{margin-bottom:.5rem}
+.q-text{font-weight:500;font-size:.9rem;margin-bottom:.5rem}
+.q-options{list-style:none;padding:0;margin:0}
+.q-btn{display:block;width:100%;text-align:left;padding:.5rem .85rem;margin:.3rem 0;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.85rem;font-family:inherit;color:var(--text);transition:border-color .12s,background .12s}
+.q-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg)}
+.q-btn:disabled{cursor:default}
+.q-btn.correct{border-color:var(--green)!important;background:var(--green-bg)!important}
+.q-btn.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;opacity:.7}
+.q-btn.reveal{border-color:var(--green)!important;background:var(--green-bg)!important}
+.q-explain{display:none;font-size:.8rem;color:var(--text2);margin:.4rem 0 0;padding:.5rem .85rem;border-left:2px solid var(--border)}
+.q-explain.show{display:block}
+.score{display:none;padding:.85rem 1rem;border-radius:6px;font-weight:600;font-size:.9rem;margin-top:.75rem}
+.score.show{display:block}
+.score.pass{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}
+.score.fail{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}
+.reset-btn{display:none;margin-top:.5rem;padding:.4rem 1rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:.8rem;font-family:inherit;color:var(--text)}
+.reset-btn.show{display:inline-block}
+.reset-btn:hover{border-color:var(--accent)}
+.figure-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin:1rem 0}
+.figure-title{font-size:.9rem;font-weight:600;margin-bottom:.25rem}
+.figure-sub{font-size:.8rem;color:var(--text2);margin-bottom:.75rem}
+.legend{display:flex;flex-wrap:wrap;gap:.85rem;font-size:.75rem;color:var(--text2);margin-top:.5rem}
+.legend span{display:flex;align-items:center;gap:.35rem}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.eqn{font-family:'JetBrains Mono',monospace;background:var(--code-bg);padding:.6rem .85rem;border-radius:6px;margin:.5rem 0;font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back" href="../index.html">&larr; Back to all papers</a>
+
+<h1>AI Researchers&rsquo; Perspectives on Automating AI R&amp;D and Intelligence Explosions</h1>
+<div class="paper-info">Severin Field, Raymond Douglas, David Krueger (MATS Program / Berkeley) &middot; <a href="https://arxiv.org/abs/2603.03338" target="_blank">arXiv:2603.03338v2</a> &middot; March 2026</div>
+
+<div class="tldr"><strong>TL;DR.</strong> 25 leading AI researchers from frontier labs (OpenAI, Anthropic, DeepMind, Meta) and academia (Berkeley, Princeton, Stanford) were interviewed in Aug&ndash;Sep 2025 about automating AI R&amp;D and intelligence explosions. 20/25 flagged it as one of the most severe and urgent AI risks. 17/25 expect frontier ASARA-capable models to be kept internal rather than deployed publicly. A &ldquo;schism&rdquo; emerged between frontier-lab researchers (clearer path to ASARA, more concerned) and academics (more skeptical, more obstacle-focused). Participants split evenly on whether red-line governance would work.</div>
+
+<!-- LEVEL 1 -->
+<div class="level l1 open" id="level1">
+<div class="level-header" onclick="toggle('level1')"><div class="level-dot"></div><h2>Level 1 &mdash; Beginner</h2><span class="chevron">&#9660;</span></div>
+<div class="level-body">
+
+<h3>What is this paper?</h3>
+<p>Imagine 25 chefs at the world&rsquo;s most cutting-edge restaurants and culinary schools. A researcher asks each one: &ldquo;Do you think AI cooking robots will eventually get so good they start <em>designing better cooking robots themselves</em> &mdash; and if they do, will that change everything overnight?&rdquo;</p>
+<p>The chefs from fancy new restaurants (where AI tools are already speeding up the kitchen) tend to say &ldquo;yes, this is happening, and faster than most people realize.&rdquo; The chefs from culinary schools say &ldquo;slow down &mdash; we&rsquo;ve heard hype like this before, and there are real obstacles you&rsquo;re ignoring.&rdquo;</p>
+<p>That&rsquo;s what this paper does, but with AI researchers and AI that builds AI. The authors interviewed 25 top researchers in August and September 2025 and published the patterns they found.</p>
+
+<h3>The big idea: &ldquo;Intelligence Explosion&rdquo;</h3>
+<p>The core idea was first proposed by <strong>I.J. Good in 1966</strong>:</p>
+<blockquote>If AI ever gets smart enough to <em>improve itself</em>, then a slightly smarter AI can design an even smarter AI, which can design an even smarter one, and so on &mdash; a runaway feedback loop where AI capability shoots up at a pace humans can&rsquo;t follow.</blockquote>
+<p>The paper calls this kind of AI <strong>ASARA</strong> &mdash; <em>AI Systems for AI R&amp;D Automation</em>. The technical name for &ldquo;AI smart enough to help build better AI.&rdquo;</p>
+
+<h3>What did the researchers find?</h3>
+<p>Four big takeaways:</p>
+<div class="card"><div class="card-label red">1. Most experts take this seriously</div><p>Out of 25 leading researchers, <strong>20 said this was one of the most severe and urgent AI risks</strong> &mdash; not a sci-fi distraction, but a real concern.</p></div>
+<div class="card"><div class="card-label amber">2. Industry vs. academia divide</div><p>Researchers <em>inside</em> frontier AI companies tend to see a relatively clear path to ASARA. Academic researchers are more skeptical &mdash; they&rsquo;ve seen AI hype cycles fizzle before and their culture rewards skepticism.</p></div>
+<div class="card"><div class="card-label blue">3. Most expect ASARA to be kept secret</div><p><strong>17 out of 25</strong> thought frontier AI labs will keep their most powerful AI internal rather than release it publicly. It&rsquo;s more valuable for accelerating their own research than for selling to customers.</p></div>
+<div class="card"><div class="card-label purple">4. Experts disagree on how to handle it</div><p>Some want &ldquo;red lines&rdquo; &mdash; bright-line rules like &ldquo;no AI may improve itself without human approval.&rdquo; Others think red lines are too rigid and prefer transparency requirements (mandatory reporting, government monitoring).</p></div>
+
+<h3>The three-stage path the experts described</h3>
+<p>The interviewees mostly agreed on the <em>shape</em> of the path to ASARA, even when they disagreed on timing:</p>
+<ol>
+<li><strong>Speedup:</strong> AI is a power tool that makes researchers faster (where we are now &mdash; Cursor, Claude Code making coding 5&times; faster)</li>
+<li><strong>Collaboration:</strong> AI handles whole sub-tasks on its own while humans set direction</li>
+<li><strong>Full automation:</strong> AI runs the whole research loop. As one professor put it: <em>&ldquo;The human will become the bottleneck &mdash; companies will try to remove the humans by all means.&rdquo;</em></li>
+</ol>
+
+<div class="takeaway"><div class="takeaway-label">Why this paper matters</div><p>Most discussions of &ldquo;will AI take over&rdquo; happen between two camps: enthusiastic believers and dismissive skeptics, shouting past each other. This paper is one of the first <strong>systematic surveys</strong> of what the people actually building this technology privately think. It captures nuance &mdash; the same person who thinks ASARA is coming might also think red lines won&rsquo;t work. A thermometer reading of where expert opinion <em>actually</em> sits in late 2025.</p></div>
+
+<!-- Quiz L1 -->
+<div class="quiz" id="quiz-l1">
+<div class="quiz-title">Quiz &mdash; Level 1</div>
+
+<div class="q"><div class="q-text">1. What does ASARA stand for as defined in the paper?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">Advanced Self-Aware Reasoning Agents</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,true)">AI Systems for AI R&amp;D Automation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">Autonomous Systems Achieving Recursive Acceleration</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',0,false)">Artificial Superintelligence and Recursive Augmentation</button></li>
+</ul>
+<div class="q-explain" id="ex-l1-0">ASARA = AI Systems for AI R&amp;D Automation. The authors borrowed the term from Eth&rsquo;s Forethought essay and use it throughout as shorthand for AI capable enough to meaningfully contribute to building frontier AI.</div>
+</div>
+
+<div class="q"><div class="q-text">2. Who first introduced the concept of an &ldquo;intelligence explosion&rdquo;?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',1,true)">I.J. Good in 1966</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">Eliezer Yudkowsky in the 2000s</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">Nick Bostrom in 2014</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',1,false)">Fran&ccedil;ois Chollet in 2018</button></li>
+</ul>
+<div class="q-explain" id="ex-l1-1">I.J. Good (British statistician, Bletchley Park codebreaker) proposed it in 1966 in &ldquo;Speculations Concerning the First Ultraintelligent Machine.&rdquo; Yudkowsky later formalized it via &ldquo;return on cognitive investment,&rdquo; Bostrom popularized it in <em>Superintelligence</em> (2014), and Chollet wrote a well-known critique (2018).</div>
+</div>
+
+<div class="q"><div class="q-text">3. Out of 25 researchers interviewed, how many identified automating AI research as one of the most severe and urgent AI risks?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">8 out of 25</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">12 out of 25</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,false)">17 out of 25</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',2,true)">20 out of 25</button></li>
+</ul>
+<div class="q-explain" id="ex-l1-2">20/25. Don&rsquo;t confuse with another headline number: 17/25 is the count who expect frontier models to be kept internal. The risk-perception number is 80% &mdash; four out of five flagged ASARA as a top-tier risk.</div>
+</div>
+
+<div class="q"><div class="q-text">4. According to the paper, what is the key difference between frontier-lab researchers and academic researchers?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">Lab researchers support red lines; academics oppose them</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">Academics expect public deployment; lab researchers expect internal</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,true)">Lab researchers see a clearer path to ASARA; academics are more skeptical</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',3,false)">Academics are more worried about ASARA than lab researchers</button></li>
+</ul>
+<div class="q-explain" id="ex-l1-3">The paper calls this the &ldquo;Schism Between Silicon Valley and Academia.&rdquo; Lab researchers have firsthand experience with rapid capability gains; academic culture rewards skepticism. Academics are also generally less worried about ASARA, not more.</div>
+</div>
+
+<div class="q"><div class="q-text">5. Which sequence best describes the three-stage path to ASARA that participants converged on?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l1',4,true)">Research speedup &rarr; Collaboration &rarr; Full loop automation</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">Tool &rarr; Assistant &rarr; Replacement &rarr; Self-improvement</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">Coding helper &rarr; Math solver &rarr; Scientific discoverer</button></li>
+<li><button class="q-btn" onclick="ans(this,'l1',4,false)">Pre-training &rarr; Fine-tuning &rarr; Reinforcement learning</button></li>
+</ul>
+<div class="q-explain" id="ex-l1-4">17 of 25 participants described this exact 3-stage path. Stage 1: AI raises the floor for all researchers. Stage 2: AI autonomously handles sub-tasks. Stage 3: humans become the bottleneck and full research loops run autonomously.</div>
+</div>
+
+<div class="score" id="score-l1"></div>
+<button class="reset-btn" id="reset-l1" onclick="resetQuiz('l1')">Try again</button>
+</div>
+
+</div>
+</div>
+
+<!-- LEVEL 2 -->
+<div class="level l2" id="level2">
+<div class="level-header" onclick="toggle('level2')"><div class="level-dot"></div><h2>Level 2 &mdash; Intermediate</h2><span class="chevron">&#9660;</span></div>
+<div class="level-body">
+
+<h3>The methodology: semi-structured qualitative interviews</h3>
+<p>This is a <strong>qualitative research study</strong>. The goal isn&rsquo;t to count things or run statistical tests &mdash; it&rsquo;s to surface reasoning patterns and capture <em>why</em> experts hold the views they do.</p>
+
+<h4>Sampling</h4>
+<p>182 researchers invited; 25 agreed (13.7% response rate, normal for elite-expert interviews). Three recruitment channels deliberately to capture different vantage points:</p>
+<table><thead><tr><th>Channel</th><th>Count</th><th>Captures</th></tr></thead><tbody>
+<tr><td>Literature-based (Google Scholar)</td><td>7</td><td>Published authors on recursive improvement</td></tr>
+<tr><td>Conference workshops (NeurIPS / ICLR 2024)</td><td>8</td><td>Active researchers at relevant venues</td></tr>
+<tr><td>Network / snowball</td><td>10</td><td>&ldquo;Recommend someone who disagrees with you&rdquo;</td></tr>
+</tbody></table>
+<p>Participant mix: <strong>7 from frontier labs, 4 ex-frontier-lab, 9 academics, 3 industry, 2 nonprofit.</strong> The stratification is what lets them compare clusters later.</p>
+
+<h4>Interview protocol</h4>
+<p>14 core questions, 40&ndash;60 minutes each, organized into three sections:</p>
+<ul>
+<li><strong>Section A</strong> &mdash; Conceptualizing ASARA: what it&rsquo;ll look like, trajectory, intelligence-explosion expectations</li>
+<li><strong>Section B</strong> &mdash; Organizational dynamics: deployment decisions, internal discussions</li>
+<li><strong>Section C</strong> &mdash; Risk assessment and governance: red lines, mitigations</li>
+</ul>
+<p>Critical detail: when participants didn&rsquo;t know a concept, the interviewer read a scripted definition. This standardizes the prompt so people react to the <em>same</em> idea.</p>
+
+<h4>Inductive coding + AI-assisted classification</h4>
+<p>The lead author developed codes inductively (grounded-theory style). For the categorical dot plots in Figures 1&ndash;4, the authors did something novel: they fed anonymized transcripts to Claude with structured prompts that forced classification into fixed codes. The full prompt is in Appendix B.</p>
+<p>This makes the categorical results reproducible &mdash; but creates a methodological dependency on Claude that the paper acknowledges only partially.</p>
+
+<h3>The four figures &mdash; what they actually show</h3>
+
+<div class="figure-wrap">
+<div class="figure-title">Figure 1 &mdash; Deployment expectations</div>
+<div class="figure-sub">Of 20 with a clear position: 10 internal, 6 nuanced, 4 public. Frontier and ex-frontier dots cluster left (internal).</div>
+<svg id="fig1" viewBox="0 0 660 175" width="100%"></svg>
+<div class="legend"><span><i style="background:#7F77DD"></i>Expects internal</span><span><i style="background:#888780"></i>Nuanced</span><span><i style="background:#5DCAA5"></i>Expects public</span></div>
+</div>
+
+<div class="figure-wrap">
+<div class="figure-title">Figure 2 &mdash; Trajectory clarity toward ASARA</div>
+<div class="figure-sub">Frontier lab researchers cluster at &ldquo;clear path&rdquo;; academics spread toward &ldquo;major obstacles.&rdquo; No one chose &ldquo;unknown unknowns.&rdquo;</div>
+<svg id="fig2" viewBox="0 0 660 175" width="100%"></svg>
+<div class="legend"><span><i style="background:#7F77DD"></i>Clear path</span><span><i style="background:#888780"></i>Major obstacles</span><span><i style="background:#5DCAA5"></i>Unknown unknowns</span></div>
+</div>
+
+<div class="figure-wrap">
+<div class="figure-title">Figure 3 &mdash; Risk perception of ASARA</div>
+<div class="figure-sub">Most see ASARA as carrying serious risk. Academia is where variance lives &mdash; only 2 dismissed it outright.</div>
+<svg id="fig3" viewBox="0 0 660 175" width="100%"></svg>
+<div class="legend"><span><i style="background:#7F77DD"></i>Primary driver</span><span><i style="background:#534AB7"></i>Major risk</span><span><i style="background:#888780"></i>Some concern</span><span><i style="background:#5DCAA5"></i>Minimal</span><span><i style="background:#1D9E75"></i>Dismissive</span></div>
+</div>
+
+<div class="figure-wrap">
+<div class="figure-title">Figure 4 &mdash; Views on red lines as governance</div>
+<div class="figure-sub">Roughly even split. Even supporters identified implementation challenges; even skeptics often wanted transparency-based mitigations.</div>
+<svg id="fig4" viewBox="0 0 660 175" width="100%"></svg>
+<div class="legend"><span><i style="background:#7F77DD"></i>Favorable</span><span><i style="background:#888780"></i>Conditional / mixed</span><span><i style="background:#5DCAA5"></i>Skeptical</span></div>
+</div>
+
+<p style="font-size:.8rem;color:var(--text2);font-style:italic">Figures recreated from the paper&rsquo;s text. Position totals are exact (stated in the paper); per-affiliation dot placements are inferred from qualitative descriptions. Original figures at <a href="https://arxiv.org/html/2603.03338v2" target="_blank">arxiv.org/html/2603.03338v2</a>.</p>
+
+<h3>The &ldquo;ideation vs execution&rdquo; framework</h3>
+<p>The most analytically interesting frame. <strong>15 of 25 participants</strong> spontaneously distinguished:</p>
+<table><thead><tr><th>Skill</th><th>What it is</th><th>Why hard for AI</th></tr></thead><tbody>
+<tr><td><strong>Execution</strong></td><td>Implementing experiments, training code, ablations</td><td>Easier &mdash; well-defined sub-goals, fast feedback</td></tr>
+<tr><td><strong>Ideation</strong></td><td>Picking experiments, &ldquo;research taste,&rdquo; noticing what matters</td><td>Harder &mdash; long feedback loops, hard to evaluate, paradigm shifts have a long tail</td></tr>
+</tbody></table>
+<p>A subset reframed the ideation problem more sharply: it&rsquo;s not generating ideas that&rsquo;s hard, it&rsquo;s <strong>validating</strong> them. Expert humans with decades of experience struggle to recognize good ideas. And ML models tend to learn the <em>mode</em> of training data, not exceptional cases &mdash; exactly the wrong inductive bias for spotting paradigm shifts.</p>
+
+<h3>Internal vs. public deployment &mdash; the argument map</h3>
+<h4>Why labs will keep ASARA internal (top three codes)</h4>
+<ol>
+<li><strong>Preserving competitive advantage</strong> (12 transcripts) &mdash; deploying gives competitors capability lifts</li>
+<li><strong>Limited compute</strong> (10) &mdash; every GPU serving the API isn&rsquo;t accelerating internal R&amp;D. One striking quote: $100k of compute used for R&amp;D might be worth $1M in researcher salary equivalent</li>
+<li><strong>Avoiding diffusion</strong> (6) &mdash; public deployment enables distillation and reverse-engineering</li>
+</ol>
+<h4>Why labs will deploy publicly (top three)</h4>
+<ol>
+<li><strong>Financial pressures</strong> (10) &mdash; labs need to raise $20B+/year</li>
+<li><strong>Government intervention</strong> (7) &mdash; regulators may force visibility</li>
+<li><strong>Business model and culture</strong> (6) &mdash; Meta&rsquo;s open-source culture vs OpenAI&rsquo;s more closed approach</li>
+</ol>
+
+<h3>Constraints discussed</h3>
+<p>Sixteen participants flagged binding constraints. Three came up repeatedly:</p>
+<ul>
+<li><strong>Compute</strong> (11 mentions) &mdash; split between &ldquo;engineering challenge, solvable&rdquo; and &ldquo;physical limit, real barrier&rdquo;</li>
+<li><strong>Data</strong> (5 mentions) &mdash; &ldquo;data determines the ceiling of self-improvement&rdquo; (P3)</li>
+<li><strong>Bootstrapping level</strong> &mdash; the capability threshold required for sustained autonomous improvement. P1: <em>&ldquo;Can the model evaluate its own answers? Until relatively recently, the models just could not do that.&rdquo;</em></li>
+</ul>
+
+<h3>Red lines vs transparency &mdash; comparing governance approaches</h3>
+<p><strong>Red lines</strong> = bright-line rules that trigger major response when crossed (e.g. IDAIS Beijing: &ldquo;No AI system should copy or improve itself without explicit human approval&rdquo;).</p>
+<p><strong>Three implementation challenges</strong> identified even by supporters:</p>
+<ol>
+<li><strong>Specification problem</strong> &mdash; the more precisely you define a threshold, the more it diverges from the abstract risk you&rsquo;re trying to capture</li>
+<li><strong>Verification &amp; enforcement</strong> &mdash; &ldquo;any kind of AI includes some intelligence and a compiler optimization&rdquo; makes self-improvement hard to define</li>
+<li><strong>Timing</strong> &mdash; too early handicaps beneficial development; too late and it&rsquo;s useless</li>
+</ol>
+<p>Trade-off captured by P8: red lines are <em>&ldquo;the dumbest possible supervisor but the most trustworthy&rdquo;</em> &mdash; crude but transparent vs. sophisticated but discretionary.</p>
+
+<h3>Headline numbers</h3>
+<table><thead><tr><th>Finding</th><th>Count</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>ASARA as severe / urgent risk</td><td>20/25</td><td>Strong elite consensus on risk salience</td></tr>
+<tr><td>Expects internal deployment</td><td>17/25</td><td>Most expect frontier labs to withhold ASARA models</td></tr>
+<tr><td>Three-stage path described</td><td>17/25</td><td>Convergence on trajectory shape</td></tr>
+<tr><td>Ideation/execution distinction</td><td>15/25</td><td>Spontaneous frame for thinking about capabilities</td></tr>
+<tr><td>Risk = &ldquo;meta risk&rdquo; (amplifies others)</td><td>18/25</td><td>Most common reason for concern</td></tr>
+<tr><td>Concerned about adaptation lag</td><td>17/25</td><td>Second most common concern</td></tr>
+</tbody></table>
+
+<!-- Quiz L2 -->
+<div class="quiz" id="quiz-l2">
+<div class="quiz-title">Quiz &mdash; Level 2</div>
+
+<div class="q"><div class="q-text">1. How did the authors generate the categorical dot plots in Figures 1&ndash;4?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">Manual hand-coding by multiple raters with inter-rater reliability checks</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">Statistical clustering based on word frequencies in transcripts</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,true)">AI-assisted coding using Claude with structured classification prompts</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',0,false)">Self-reported answers from a follow-up survey to all 25 participants</button></li>
+</ul>
+<div class="q-explain" id="ex-l2-0">They fed anonymized transcripts to Claude with structured prompts that forced classification into fixed codes. The full prompt is in Appendix B. The inductive theme-coding was done by the first author alone &mdash; the paper notes inter-rater reliability was NOT calculated.</div>
+</div>
+
+<div class="q"><div class="q-text">2. Why might &ldquo;research ideation&rdquo; be harder for AI than &ldquo;research execution,&rdquo; according to participants?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',1,true)">Validating which ideas are good is itself a hard, long-tailed problem</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Ideation requires more compute than execution does</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Execution can be parallelized; ideation cannot</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',1,false)">Ideation requires access to private lab data that public models lack</button></li>
+</ul>
+<div class="q-explain" id="ex-l2-1">Good ideas have a long tail &mdash; most are mediocre, a few are paradigm-shifting. ML models tend to learn the mode of training data, exactly the wrong inductive bias. P24 framed this as &ldquo;research taste&rdquo; vs &ldquo;experiment implementation.&rdquo;</div>
+</div>
+
+<div class="q"><div class="q-text">3. Among the 20 participants who took a clear position on deployment, what was the approximate split?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">Roughly even three-way split between internal, nuanced, and public</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,true)">About half expected internal, only 20% expected public deployment</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">About 70% expected public deployment driven by financial pressures</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',2,false)">Nearly all expected internal, with only one or two outliers</button></li>
+</ul>
+<div class="q-explain" id="ex-l2-2">10 internal (half), 6 nuanced, 4 public (20%) of those with a clear position. 5 participants had no clear position and were omitted from Figure 1.</div>
+</div>
+
+<div class="q"><div class="q-text">4. What is the &ldquo;specification problem&rdquo; with red lines as governance?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">Different countries cannot agree on the same red line definition</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">Red lines require expensive verification infrastructure to enforce</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,false)">Red lines can be technically circumvented by AI systems themselves</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',3,true)">The more precisely a threshold is defined, the more it diverges from the actual risk</button></li>
+</ul>
+<div class="q-explain" id="ex-l2-3">P24: &ldquo;The more concrete your red line, the more decoupled it becomes from the abstract intelligence explosion risk that you&rsquo;re worried about.&rdquo; A specific benchmark threshold will catch AI that isn&rsquo;t actually dangerous and miss other AI that is.</div>
+</div>
+
+<div class="q"><div class="q-text">5. What does Participant 1 mean by a &ldquo;bootstrapping level&rdquo; in the context of recursive improvement?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">The compute threshold at which models can begin training themselves end-to-end</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">The minimum number of parameters required for general intelligence</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,true)">A capability threshold (e.g. self-evaluation) past which human time stops being the binding constraint</button></li>
+<li><button class="q-btn" onclick="ans(this,'l2',4,false)">The point at which AI can write papers indistinguishable from human researchers</button></li>
+</ul>
+<div class="q-explain" id="ex-l2-4">P1&rsquo;s specific example was self-evaluation: &ldquo;Can the model evaluate its own answers? Can it rank its own answers?&rdquo; This is a phase transition &mdash; below the level, human time gates progress; above, it doesn&rsquo;t.</div>
+</div>
+
+<div class="score" id="score-l2"></div>
+<button class="reset-btn" id="reset-l2" onclick="resetQuiz('l2')">Try again</button>
+</div>
+
+</div>
+</div>
+
+<!-- LEVEL 3 -->
+<div class="level l3" id="level3">
+<div class="level-header" onclick="toggle('level3')"><div class="level-dot"></div><h2>Level 3 &mdash; Expert</h2><span class="chevron">&#9660;</span></div>
+<div class="level-body">
+
+<p style="color:var(--text2);font-size:.9rem">Since this is a qualitative interview study, L3 goes deep on methodology, the intelligence explosion theoretical literature this paper sits inside, and critical evaluation rather than equations and algorithms.</p>
+
+<h3>1. Qualitative methodology &mdash; what was done, what&rsquo;s missing</h3>
+
+<h4>Sampling architecture</h4>
+<p>40% of participants came through network/snowball channels including MATS connections (Krueger is a MATS supervisor; lead author is in the program). Snowball sampling is known to produce homophilous networks &mdash; even when you ask for disagreement, you get disagreement <em>within</em> your cluster. Likely shape of non-response bias: declines included skeptics who think the framing is uninteresting, systematically reducing the &ldquo;skeptical academic&rdquo; representation in the sample. This actually works <em>against</em> the headline schism finding, which is epistemically reassuring.</p>
+
+<h4>Inductive coding by a single author</h4>
+<p>Codes were developed inductively &mdash; grounded-theory style, letting concepts emerge. The Limitations section flags that <em>inter-rater reliability was not calculated</em>. The standard remedy is a second researcher independently coding a subset, with Cohen&rsquo;s kappa or Krippendorff&rsquo;s alpha. Values above ~0.8 are strong agreement; below 0.6 starts being concerning. This absence matters less for descriptive counts (&ldquo;20 of 25 said X&rdquo;) and more for <em>interpretive</em> claims like &ldquo;a schism emerged.&rdquo;</p>
+
+<h4>AI-assisted coding with Claude</h4>
+<p>For Figures 1&ndash;4, transcripts were fed to Claude with structured prompts forcing classification into fixed codes. Methodological strength: reproducible (anyone can re-run the prompt), removes manual coder bias, auditable via extracted quotes.</p>
+<p>Three issues the paper doesn&rsquo;t engage with:</p>
+<ul>
+<li><strong>Single-LLM coder problem</strong> &mdash; structurally analogous to a single human coder. No triangulation across model families.</li>
+<li><strong>Prompt-as-framing</strong> &mdash; forcing participants into one of four buckets is itself an interpretive act; the structure isn&rsquo;t validated against a held-out human-coded set.</li>
+<li><strong>Conflict-of-interest pattern</strong> &mdash; Anthropic researchers are in the sample, classified using an Anthropic product. A robustness check would have been appropriate.</li>
+</ul>
+
+<h3>2. The intelligence explosion theoretical lineage</h3>
+
+<h4>Good 1966 &mdash; the syllogism</h4>
+<blockquote>&ldquo;An ultraintelligent machine could design even better machines; there would then unquestionably be an &lsquo;intelligence explosion,&rsquo; and the intelligence of man would be left far behind.&rdquo;</blockquote>
+<p>Three buried assumptions, each a fault line in later literature:</p>
+<ol>
+<li><strong>Intelligence is sufficiently coherent</strong> (more intelligence &rarr; better at AI design)</li>
+<li><strong>Marginal improvement is substantial, not trivial</strong></li>
+<li><strong>The design process doesn&rsquo;t hit external constraints</strong> (treats AI design as pure intellectual work)</li>
+</ol>
+
+<h4>Yudkowsky &mdash; return on cognitive investment</h4>
+<p>Yudkowsky&rsquo;s <em>Intelligence Explosion Microeconomics</em> (2013) formalizes Good&rsquo;s argument with the <strong>k-factor</strong>:</p>
+<div class="eqn">k = (cognitive improvement per round) / (cognitive effort per round)</div>
+<p>Mapping onto chain-reaction physics:</p>
+<pre>k &lt; 1  &rarr;  subcritical    (improvements taper off)
+k = 1  &rarr;  critical       (sustained linear improvement)
+k &gt; 1  &rarr;  supercritical  (each round produces more than it cost
+                            &rarr; exponential explosion)</pre>
+<p>With I(t) the cognitive capability and R(t) the resources invested:</p>
+<div class="eqn">dI/dt = k &middot; R(t),  R(t) &prop; I(t),  k &gt; 1<br>&rArr; I(t) = I(0) &middot; e<sup>kt</sup></div>
+<p>Yudkowsky&rsquo;s key move: the empirical question isn&rsquo;t &ldquo;will AI improve?&rdquo; (yes) but <strong>is k persistently &gt; 1?</strong> Most natural processes have k &lt; 1 &mdash; diminishing returns dominate.</p>
+<p>This formalism also describes the &ldquo;bootstrapping level&rdquo; P1 mentioned: the capability threshold below which k &lt; 1 (human time gates progress) and above which k &gt; 1 (system sustains its own improvement).</p>
+
+<h4>Bostrom 2014 &mdash; the takeoff equation</h4>
+<div class="eqn">Rate of improvement = (Optimization power applied) / (Recalcitrance to improvement)</div>
+<p>Fast takeoff: optimization power grows faster than recalcitrance. In the <em>software-only</em> regime, optimization power can grow superlinearly while recalcitrance grows sublinearly. In the hardware regime, recalcitrance grows much faster &mdash; you have to fab chips, build datacenters, generate power.</p>
+<p>This exactly matches the paper&rsquo;s ideation/execution distinction: ideation = low-recalcitrance but hard to apply optimization power; execution = higher-recalcitrance but easier to apply optimization power.</p>
+<p>Bostrom adds two theses absent from Good/Yudkowsky:</p>
+<ul>
+<li><strong>Orthogonality thesis</strong>: capability and goals are independent &mdash; you can have a superintelligent paperclip maximizer</li>
+<li><strong>Instrumental convergence</strong>: nearly any final goal implies similar subgoals (resource acquisition, self-preservation, cognitive enhancement)</li>
+</ul>
+<p>The paper&rsquo;s &ldquo;meta risk&rdquo; framing (ASARA amplifies all other risks) is a downstream consequence of instrumental convergence.</p>
+
+<h4>Davidson &mdash; the empirical model</h4>
+<p>Effective compute: <code>E = C &times; A</code> (physical compute &times; algorithmic efficiency).</p>
+<div class="eqn">dA/dt = &alpha; &middot; R(t) &middot; A(t)<sup>&beta;</sup></div>
+<p>Once AI labor dominates research (R &prop; A), substitution gives:</p>
+<div class="eqn">dA/dt = &alpha; &middot; A(t) &middot; A(t)<sup>&beta;</sup> = &alpha; &middot; A(t)<sup>1+&beta;</sup></div>
+<p>Regimes:</p>
+<table><thead><tr><th>Condition</th><th>Dynamics</th></tr></thead><tbody>
+<tr><td>&beta; &lt; 0</td><td>Diminishing returns &mdash; sub-exponential</td></tr>
+<tr><td>&beta; = 0</td><td>Constant returns &mdash; plain exponential</td></tr>
+<tr><td>&beta; &gt; 0</td><td>Increasing returns &mdash; finite-time singularity</td></tr>
+</tbody></table>
+<p>When &beta; &gt; 0, the ODE produces a finite-time blow-up (in the idealized model). Whether this happens in reality depends on historical algorithmic-progress data once AI dominates research &mdash; data we don&rsquo;t yet have.</p>
+
+<h4>Chollet &mdash; the principled critique (2018)</h4>
+<ol>
+<li><strong>Intelligence is not scalar</strong> &mdash; capability is domain-specific. In Yudkowsky&rsquo;s notation: k &gt; 1 in domain i doesn&rsquo;t imply k &gt; 1 overall.</li>
+<li><strong>Feedback loops require reality, not just thought</strong> &mdash; algorithmic progress requires experiments, which need compute, data, and calendar time.</li>
+<li><strong>Diminishing returns are the default</strong> &mdash; almost every system in nature exhibits them. Research productivity per researcher in physics has fallen by orders of magnitude.</li>
+<li><strong>No general intelligence has ever exhibited recursive self-improvement</strong> &mdash; smart humans don&rsquo;t have smarter children at faster rates.</li>
+</ol>
+
+<h4>Putting them on the same axes</h4>
+<p>The key disagreement isn&rsquo;t whether AI will improve. It&rsquo;s whether <strong>k &gt; 1 (or &beta; &gt; 0) is sustained for AI-on-AI improvement</strong>.</p>
+<table><thead><tr><th>Thinker</th><th>Core position</th><th>Implicit prior on k</th></tr></thead><tbody>
+<tr><td>Good 1966</td><td>Argues from definition</td><td>k &gt; 1 by assumption</td></tr>
+<tr><td>Yudkowsky</td><td>Framework for asking the question</td><td>Open empirical</td></tr>
+<tr><td>Bostrom</td><td>Decomposes into opt power / recalcitrance</td><td>k &gt; 1 likely in software regime</td></tr>
+<tr><td>Davidson</td><td>Empirical model fit to ML history</td><td>k &gt; 1 contingent on &beta; estimate</td></tr>
+<tr><td>Chollet</td><td>Principled skepticism</td><td>k &le; 1, diminishing returns rule</td></tr>
+</tbody></table>
+<p>The Field et al. participants are basically a poll across this fault line. Frontier-lab researchers cluster near Bostrom/Davidson; academic researchers cluster near Chollet.</p>
+
+<h3>3. Ideation vs execution &mdash; and the evaluation problem</h3>
+
+<p>The sharper frame: research progress is bottlenecked on evaluation, and ASARA-class self-improvement is bottlenecked on evaluating research direction.</p>
+<pre>Execution = generation + evaluation
+         &asymp; generation (med)   +  evaluation (easy, fast feedback)
+Ideation = generation + evaluation
+         &asymp; generation (easy)  +  evaluation (hard)</pre>
+
+<h4>Research taste as a reward model</h4>
+<p>&ldquo;Research taste&rdquo; is the human-research term for what ML calls a reward model:</p>
+<div class="eqn">RewardModel<sub>human</sub>: ResearchIdea &rarr; ExpectedImpact</div>
+<p>You don&rsquo;t just need AI that proposes directions (solved) &mdash; you need <code>RewardModel<sub>AI</sub></code> matching <code>RewardModel<sub>senior_human</sub></code> well enough that following its rankings produces good research. Two failure modes that echo RLHF:</p>
+<ul>
+<li><strong>Mode collapse on training distribution</strong> &mdash; reward models trained on what the community valued historically will undervalue paradigm shifts that the community would have rejected at the time</li>
+<li><strong>Goodharting on observable proxies</strong> &mdash; optimizing citation count, benchmark improvement, conference acceptance produces the proxy, not the underlying thing</li>
+</ul>
+
+<h4>The long tail of research impact</h4>
+<pre>~80% of papers       &rarr;  cited &lt; 10 times
+~15% of papers       &rarr;  cited 10&ndash;100 times
+~5% of papers        &rarr;  cited 100&ndash;1000 times
+~0.1% of papers      &rarr;  cited &gt; 10,000 times, define paradigms</pre>
+<p>Cumulative impact is dominated by the tail. A reward model 95% accurate on the median idea but mode-seeking on the tail produces 95% reasonable-looking work and 5% missed paradigm shifts &mdash; functionally similar to &ldquo;no paradigm shifts.&rdquo;</p>
+
+<h4>Mode-seeking behavior in MLE</h4>
+<p>MLE minimizes forward KL:</p>
+<div class="eqn">KL(p<sub>data</sub> &Vert; p<sub>&theta;</sub>) = E[log(p<sub>data</sub> / p<sub>&theta;</sub>)]</div>
+<p>Forward KL is mean-seeking &mdash; it penalizes the model for assigning low probability to high-data regions, smearing probability across modes. The colloquial sense (&ldquo;learning the typical case, missing the tail&rdquo;) is exactly what MLE does. Both cut against tail-case evaluation accuracy.</p>
+
+<h4>RLHF and the Gao et al. 2023 result</h4>
+<p>Gao, Schulman, Hilton fit functional forms to gold reward vs proxy reward as KL grows. RL version:</p>
+<div class="eqn">R<sub>gold</sub>(d) = d &middot; (&alpha;<sub>RL</sub> &minus; &beta;<sub>RL</sub> &middot; log d)</div>
+<p>Where d = &radic;KL(&pi; &Vert; &pi;<sub>init</sub>). Gold reward follows an <strong>inverted-U</strong>: it rises, peaks, then declines. Proxy keeps rising monotonically. The two terms map to:</p>
+<table><thead><tr><th>Term</th><th>Goodhart type</th><th>Mechanism</th><th>Reduced by</th></tr></thead><tbody>
+<tr><td>&alpha; (linear)</td><td>Regressional</td><td>Selection on noise in proxy features</td><td>Larger RM helps weakly</td></tr>
+<tr><td>&beta; log(d)</td><td>Extremal</td><td>Optimized samples drift OOD</td><td>Larger RM helps strongly</td></tr>
+<tr><td>(not captured)</td><td>Adversarial</td><td>Policy manipulates the proxy</td><td>Open research problem</td></tr>
+</tbody></table>
+
+<h4>The iterated RLHF result &mdash; critical for ASARA</h4>
+<p>If you retrain the RM in k stages of distance d/k each:</p>
+<div class="eqn">R<sub>RL</sub>(d, k iter) = d &middot; (&alpha;<sub>RL</sub> &minus; &beta;<sub>RL</sub> &middot; log d + &beta;<sub>RL</sub> &middot; log k)</div>
+<p>The new term &beta; &middot; log k is positive but <strong>logarithmic in k</strong>, not linear. Doubling iterations adds the same as the previous doubling. The &alpha; term doesn&rsquo;t move &mdash; regressional Goodhart is unaffected by iteration.</p>
+<p>Translation for ASARA: even idealized &ldquo;AI keeps retraining its own evaluator&rdquo; produces logarithmic gains, not exponential ones. The mechanism Section 2&rsquo;s k &gt; 1 regime needs, the math gives you k<sub>effective</sub> decaying like 1/log(rounds) &mdash; sub-exponential dynamics inside &ldquo;the explosion.&rdquo;</p>
+
+<h4>What this means for the speed of any recursive loop</h4>
+<pre>Research progress rate = min(generation rate, evaluation rate)
+
+If generation rate &rarr; &infin; (AI is fast):
+  Bottleneck shifts to evaluation rate
+  Evaluation rate is bounded by:
+    - quality of the reward model
+    - true distribution of idea quality (long-tailed)
+    - calibration on tail cases (poor by default)</pre>
+<p>Asymmetric capability growth pattern:</p>
+<table><thead><tr><th>Capability</th><th>Trajectory</th><th>Reason</th></tr></thead><tbody>
+<tr><td>Coding ability</td><td>Fast, sustained growth</td><td>Clear evaluators</td></tr>
+<tr><td>Math problem solving</td><td>Fast, sustained growth</td><td>Clear evaluators</td></tr>
+<tr><td>Benchmark performance</td><td>Fast growth, then saturation</td><td>Goodhart</td></tr>
+<tr><td>True novel-research generation</td><td>Slow growth, possible plateau</td><td>No evaluator</td></tr>
+</tbody></table>
+<p>That asymmetry is already visible in 2025&ndash;2026 data. Coding and math benchmarks have shot up; novel-paradigm research from AI has not appeared.</p>
+
+<div class="takeaway"><div class="takeaway-label">The L3 takeaway</div><p>Under this analysis, the recursive loop has a specific shape: fast on execution, gated on evaluation, with each evaluation improvement requiring increasing amounts of ground-truth signal that takes calendar time to accumulate. Not Chollet&rsquo;s &ldquo;no acceleration ever&rdquo; and not Bostrom&rsquo;s &ldquo;fast takeoff&rdquo; &mdash; something in between, dominated by long stretches of incremental work punctuated by paradigm shifts that arrive roughly on the historical schedule because that&rsquo;s how long ground truth takes to accumulate.</p></div>
+
+<!-- Quiz L3 -->
+<div class="quiz" id="quiz-l3">
+<div class="quiz-title">Quiz &mdash; Level 3</div>
+
+<div class="q"><div class="q-text">1. In Yudkowsky&rsquo;s framing, what specifically distinguishes an intelligence explosion regime from incremental AI progress?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',0,true)">The k-factor (cognitive improvement per round of investment) being persistently &gt; 1</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">The presence of any positive feedback loop, regardless of strength</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">AI capability exceeding the median human researcher&rsquo;s capability</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',0,false)">Self-supervised learning replacing reinforcement learning as the dominant paradigm</button></li>
+</ul>
+<div class="q-explain" id="ex-l3-0">Yudkowsky reframed the question precisely: explosion is the regime where each round of cognitive investment produces more than it cost. Below k = 1 subcritical, at k = 1 critical, above k = 1 supercritical. The whole disagreement is whether k &gt; 1 is sustained.</div>
+</div>
+
+<div class="q"><div class="q-text">2. Davidson&rsquo;s software-intelligence-explosion model produces a finite-time singularity when which condition holds in dA/dt = &alpha;&middot;R(t)&middot;A(t)<sup>&beta;</sup>?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">&beta; &lt; 0 (diminishing returns dominate)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">&beta; = 0 (constant returns)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,true)">&beta; &gt; 0 (increasing returns to research scale)</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',1,false)">&alpha; &gt; 1 (productivity constant exceeds unity)</button></li>
+</ul>
+<div class="q-explain" id="ex-l3-1">Once AI labor dominates research (R &prop; A), substitution gives dA/dt &prop; A<sup>1+&beta;</sup>. When the exponent exceeds 1 (i.e. &beta; &gt; 0), this ODE has finite-time blow-up. &beta; = 0 gives plain exponential growth; &beta; &lt; 0 gives sub-exponential. &alpha; controls timescale, not the qualitative dynamics.</div>
+</div>
+
+<div class="q"><div class="q-text">3. Why is the AI-assisted coding methodology worth flagging beyond what the paper notes in Limitations?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">Claude is slower than human coders, biasing the figures toward incomplete classification</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">LLMs cannot read transcripts longer than 32k tokens, so quotes were truncated</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,false)">The paper used GPT-4 instead of Claude, contradicting Appendix B</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',2,true)">A single LLM coder has the same IRR problem as a single human coder, with no triangulation across models</button></li>
+</ul>
+<div class="q-explain" id="ex-l3-2">The defense of AI-assisted coding is reproducibility. But a single LLM coder is structurally analogous to a single human coder &mdash; one perspective, not triangulation. A stronger implementation would have run prompts on multiple model families and reported agreement, or held out a human-coded subset for validation.</div>
+</div>
+
+<div class="q"><div class="q-text">4. Under Gao et al.&rsquo;s 2023 scaling law R<sub>RL</sub>(d, k iter) = d&middot;(&alpha; &minus; &beta;&middot;log d + &beta;&middot;log k), what does this predict for a recursive self-improvement loop that keeps retraining its evaluator?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">Exponential gains with each iteration, sustaining k &gt; 1 dynamics</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,true)">Logarithmic gains in k; &alpha; (regressional Goodhart) is unaffected by iteration</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">Linear gains in k until the policy reaches the size of the reward model</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',3,false)">Iteration cannot improve gold reward; only larger reward models help</button></li>
+</ul>
+<div class="q-explain" id="ex-l3-3">The positive term is &beta;&middot;log k &mdash; gains grow logarithmically with diminishing returns built in. The &alpha; term (regressional Goodhart, selection on noise) is structural and unchanged by iteration. Even idealized &ldquo;AI retrains its own evaluator&rdquo; produces sub-exponential gains.</div>
+</div>
+
+<div class="q"><div class="q-text">5. Why does the &ldquo;long tail of research impact&rdquo; argument predict that AI-driven research could plateau in quality even while quantitative outputs accelerate?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l3',4,true)">Long-tailed distributions mean cumulative impact comes from rare paradigm shifts, which mode-seeking-trained evaluators systematically miss</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">AI is bad at writing in the academic style required for top venues</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">AI lacks access to private experimental data from frontier labs</button></li>
+<li><button class="q-btn" onclick="ans(this,'l3',4,false)">Long-tail effects only emerge in physics, not in machine learning research</button></li>
+</ul>
+<div class="q-explain" id="ex-l3-4">Research impact follows a power-law-like distribution where ~0.1% of papers define paradigms and contribute most cumulative impact. MLE-trained models learn the mode and have known calibration problems on tail cases. An AI evaluator can be 95% accurate on median ideas while being systematically miscalibrated on the paradigm-shifting tail.</div>
+</div>
+
+<div class="score" id="score-l3"></div>
+<button class="reset-btn" id="reset-l3" onclick="resetQuiz('l3')">Try again</button>
+</div>
+
+</div>
+</div>
+
+<!-- PHASE 4 -->
+<div class="level l4" id="level4">
+<div class="level-header" onclick="toggle('level4')"><div class="level-dot"></div><h2>Phase 4 &mdash; Frontier</h2><span class="chevron">&#9660;</span></div>
+<div class="level-body">
+
+<h3>Six improvement vectors</h3>
+<ol>
+<li><strong>Methodological triangulation</strong> &mdash; multiple human coders, multiple LLM classifiers, held-out validation</li>
+<li><strong>Larger and more representative samples</strong> &mdash; supplement depth with breadth via survey instrument</li>
+<li><strong>Longitudinal tracking</strong> &mdash; re-interview the same 25 every 6&ndash;12 months</li>
+<li><strong>Operationalizing the observable milestones</strong> &mdash; concrete metrics with thresholds</li>
+<li><strong>Empirical grounding for the theoretical disagreement</strong> &mdash; measure &beta; in the AI-on-AI regime</li>
+<li><strong>Cross-national and cross-institutional coverage</strong> &mdash; PRC researchers, open-source / decentralized contexts</li>
+</ol>
+
+<h3>What&rsquo;s happened since</h3>
+
+<h4>1. Methodological triangulation<span class="tag-explore">Area to explore</span></h4>
+<p>No follow-on study has reproduced this paper&rsquo;s interviews with multiple human coders, multiple LLM classifiers, or a held-out validation set. The methodological dependency on a single LLM (Claude) and single human coder remains the largest unaddressed gap. This is the cheapest fix &mdash; running the existing 25 transcripts through a Claude-vs-GPT-vs-Gemini comparison could be done in a weekend.</p>
+
+<h4>2. Larger and more representative samples<span class="tag-partial">Partial</span></h4>
+<p><a href="https://metr.org/blog/2026-05-11-ai-usage-survey/" target="_blank">METR&rsquo;s May 2026 self-reported productivity survey</a> of 349 technical workers found median 1.4&ndash;2&times; value uplift from AI tools. But it&rsquo;s about <em>current</em> productivity, not ASARA scenarios &mdash; it doesn&rsquo;t ask about intelligence explosion, governance, or deployment. A semi-structured 200+ researcher study with proper stratification is still wide open.</p>
+
+<h4>3. Longitudinal tracking<span class="tag-explore">Area to explore</span></h4>
+<p>No team is running ASARA-belief surveys on a recurring cadence. Given how quickly the technology is moving &mdash; GPT-5 IMO gold August 2025, Claude Mythos May 2026, METR time horizons reaching 16 hours in May 2026 &mdash; a snapshot-and-update protocol would be the highest-information-density direction.</p>
+
+<h4>4. Operationalizing the observable milestones<span class="tag-substantial">Substantial</span></h4>
+<p>METR has built much of this infrastructure:</p>
+<ul>
+<li><a href="https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/" target="_blank"><strong>Time-horizon metric</strong></a> &mdash; duration of human-expert-time tasks AI completes reliably. Doubling every ~7 months.</li>
+<li><strong>RE-Bench</strong> (Wijk et al., NeurIPS 2024) &mdash; 7 ML research engineering environments, best AI 4&times; human at 2-hour budgets, humans 2&times; AI at 32-hour budgets.</li>
+<li><strong>MLE-Bench</strong> (OpenAI) &mdash; autonomous ML engineering on Kaggle-style tasks.</li>
+<li><strong>MLR-Bench</strong> (2025) &mdash; open-ended ML research with LLM-judge validated against human reviewers.</li>
+<li><strong>MLRC-Bench</strong> (2025) &mdash; novel methods on cutting-edge research problems, best agent closes only 9.3% of the human gap &mdash; strongest empirical confirmation of the ideation/execution gap.</li>
+</ul>
+<p>Open: nobody has formally mapped Field et al.&rsquo;s qualitative milestone descriptions onto these existing benchmarks.</p>
+
+<h4>5. Empirical grounding for the theoretical disagreement<span class="tag-substantial">Substantial</span></h4>
+<p>Davidson, Halperin, Houlden, and Korinek &mdash; <a href="https://www.nber.org/papers/w35155" target="_blank"><em>&ldquo;When Does Automating AI Research Produce Explosive Growth? Feedback Loops in Innovation Networks&rdquo;</em></a> (NBER Working Paper 35155, 2026) &mdash; develops a semi-endogenous growth model with an innovation network and derives a clean analytical condition for superexponential (&ldquo;explosive&rdquo;) growth. Two reinforcing channels offset diminishing returns:</p>
+<ol>
+<li><strong>Technological feedback</strong> across research sectors</li>
+<li><strong>Economic feedback</strong> &mdash; higher output finances further research</li>
+</ol>
+<p>This is the most direct extension of the theoretical lineage &mdash; bridges the qualitative k &gt; 1 / &beta; &gt; 0 disagreement into a formal model with testable conditions. Still open: no measurements of &beta; in the AI-on-AI regime, because we don&rsquo;t yet have sustained AI doing the research at scale.</p>
+
+<h4>6. Cross-national and cross-institutional coverage<span class="tag-partial">Partial</span></h4>
+<p>Substantial reporting on Chinese AI development exists, but no comparable interview study of PRC researchers.</p>
+<ul>
+<li><a href="https://carnegieendowment.org/research/2024/08/china-artificial-intelligence-ai-safety-regulation" target="_blank">Carnegie</a> documents Chinese views on AI safety shifting toward greater concern; senior Chinese scientists signed the 2024 IDAIS-Beijing consensus.</li>
+<li><a href="https://cset.georgetown.edu/publication/chinas-embodied-ai-a-path-to-agi/" target="_blank">CSET</a> documents that Chinese researchers favor embodied AI as a path to AGI rather than software-only recursive self-improvement &mdash; a <em>substantively different model of the path to ASARA</em>.</li>
+<li><a href="https://www.chinatalk.media/p/how-china-hopes-to-build-agi-through" target="_blank">ChinaTalk</a>: &ldquo;Rather than a rapid software-driven intelligence explosion, Chinese thinking converges on something more embodied&rdquo; &mdash; which would invert several Field et al. findings about trajectory shape.</li>
+</ul>
+<p>A Field-et-al-style interview study with 20&ndash;25 Chinese AI researchers using the same protocol is still missing.</p>
+
+<h3>Emergent finding &mdash; the governance landscape moved fast</h3>
+<p>A development post-dating the paper that directly affects the red-lines findings:</p>
+<p><strong>The <a href="https://red-lines.ai/" target="_blank">Global Call for AI Red Lines</a></strong> (September 2025) gathered 200+ prominent signatories including Nobel laureates, calling for binding international agreement on AI red lines by end of 2026. Followed by:</p>
+<ul>
+<li><strong>IDAIS-Shanghai</strong> (August 2025) &mdash; proposed an international coordination body for red line implementation</li>
+<li><strong>India AI Impact Summit</strong> (February 2026) &mdash; meant to operationalize specific thresholds</li>
+<li><strong>Anthropic-DoD dispute</strong> (April 2026) &mdash; the DoD requested Anthropic remove contractual red lines on fully autonomous weapons and mass domestic surveillance, providing a real-world test case</li>
+</ul>
+<p>Field et al.&rsquo;s participants in Aug&ndash;Sep 2025 were debating red lines as an <em>abstract</em> governance approach. By mid-2026, red lines became an <em>active political fight</em> &mdash; making the paper&rsquo;s documentation of expert preferences a useful historical baseline.</p>
+
+<h3>Scorecard</h3>
+<table><thead><tr><th>Vector</th><th>Status</th><th>What exists</th><th>What&rsquo;s still open</th></tr></thead><tbody>
+<tr><td>1. Methodological triangulation</td><td><span class="tag-explore">Area to explore</span></td><td>&mdash;</td><td>Multi-model classification, multi-coder IRR, validation sets</td></tr>
+<tr><td>2. Larger samples</td><td><span class="tag-partial">Partial</span></td><td>METR n=349 (productivity only)</td><td>ASARA-specific large-N study</td></tr>
+<tr><td>3. Longitudinal tracking</td><td><span class="tag-explore">Area to explore</span></td><td>&mdash;</td><td>Recurring panel of same researchers</td></tr>
+<tr><td>4. Operationalizing milestones</td><td><span class="tag-substantial">Substantial</span></td><td>METR time-horizon, RE-Bench, MLE-Bench, MLR-Bench, MLRC-Bench, AIFM</td><td>Formal mapping of paper&rsquo;s qualitative milestones to benchmarks</td></tr>
+<tr><td>5. Theoretical grounding</td><td><span class="tag-substantial">Substantial</span></td><td>Davidson-Halperin-Houlden-Korinek NBER 2026, AIFM</td><td>Direct measurement of &beta; in AI-on-AI regime</td></tr>
+<tr><td>6. Cross-national coverage</td><td><span class="tag-partial">Partial</span></td><td>CSET, Carnegie, ChinaTalk reporting</td><td>Parallel interview study with PRC researchers</td></tr>
+</tbody></table>
+
+<div class="takeaway"><div class="takeaway-label">The single most useful follow-on</div><p>A <strong>longitudinal panel reconnecting the original 25 every 9 months</strong>, expanding to include 25 PRC-based researchers using the same protocol, with multi-model AI-assisted coding and a human-validation subset. One design hits Vectors 1, 3, and 6 simultaneously and provides exactly the time-series data needed to test whether the &ldquo;schism&rdquo; persists or converges as capabilities advance.</p></div>
+
+<!-- Quiz Phase 4 -->
+<div class="quiz" id="quiz-l4">
+<div class="quiz-title">Quiz &mdash; Phase 4 Frontier</div>
+
+<div class="q"><div class="q-text">1. Which 2026 paper most directly formalizes the theoretical disagreement between frontier and academic researchers about whether AI-on-AI research produces explosive growth?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">METR&rsquo;s Task-Completion Time Horizons paper</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,true)">Davidson, Halperin, Houlden, and Korinek&rsquo;s NBER Working Paper 35155 on innovation networks</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">OpenAI&rsquo;s MLE-Bench autonomous ML engineering benchmark</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',0,false)">The IDAIS-Shanghai consensus statement on red lines</button></li>
+</ul>
+<div class="q-explain" id="ex-l4-0">The NBER paper develops a semi-endogenous growth model with an innovation network and derives a clean analytical condition for superexponential growth. METR measures capability; MLE-Bench measures ML engineering ability; IDAIS is a governance document. Only the NBER paper extends the Yudkowsky/Davidson theoretical lineage into a formal model.</div>
+</div>
+
+<div class="q"><div class="q-text">2. Which existing benchmark provides the strongest empirical confirmation of the &ldquo;ideation vs execution gap&rdquo; that 15 of 25 Field et al. participants raised?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">MLE-Bench, since best agents achieve gold medals on most Kaggle competitions</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">METR RE-Bench, where AI agents achieve 4&times; human scores at 2-hour budgets</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,true)">MLRC-Bench, where the best agent closes only 9.3% of the gap between baseline and top human on novel research problems</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',1,false)">HumanEval, where AI agents now exceed human performance</button></li>
+</ul>
+<div class="q-explain" id="ex-l4-1">MLRC-Bench tests novel methodologies &mdash; problems that are NOT solvable by sufficient engineering effort. The 9.3% result is the cleanest empirical confirmation of asymmetric capability growth: execution-heavy benchmarks saturate, ideation-heavy benchmarks don&rsquo;t.</div>
+</div>
+
+<div class="q"><div class="q-text">3. Why is a longitudinal version of the Field et al. study (re-interviewing the same participants every 9&ndash;12 months) particularly valuable?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">It would lower the response rate enough to filter out less committed participants</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,true)">Tracking how the same individuals update lets you measure belief revision against capability milestones, separating updating from selection</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">It would automatically resolve the schism between frontier and academic researchers</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',2,false)">Re-interviews are required for any qualitative study to satisfy IRB protocols</button></li>
+</ul>
+<div class="q-explain" id="ex-l4-2">A panel design isolates belief revision by holding respondents fixed. Cross-sectional surveys conflate updating with sample-composition change. With major capability milestones happening on the same cadence as the proposed interval, you&rsquo;d get the cleanest possible signal about which milestones move expert opinion.</div>
+</div>
+
+<div class="q"><div class="q-text">4. How would a parallel Field-et-al-style interview study with PRC researchers likely change the headline findings?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">The schism between industry and academia would disappear, replaced by uniform high concern</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">All 20+ of the &ldquo;severe and urgent risk&rdquo; counts would invert to &ldquo;minimal concern&rdquo;</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,false)">The internal-deployment finding would invert because PRC firms have no commercial pressure</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',3,true)">Trajectory expectations would shift away from a software-driven recursive loop toward embodied AI paths to AGI</button></li>
+</ul>
+<div class="q-explain" id="ex-l4-3">CSET, ChinaTalk, and Carnegie all document that Chinese AI researchers tend to favor embodied AI as a path to AGI. This is a substantively different trajectory model &mdash; not software recursive self-improvement but AI grounded in physical-world interaction. The cleanest predicted change is on Figure 2 (trajectory), not Figure 1 or 3.</div>
+</div>
+
+<div class="q"><div class="q-text">5. What is the strongest methodological reason a single LLM coder (Claude) for the Field et al. figures should be the first vector addressed in follow-on work?</div>
+<ul class="q-options">
+<li><button class="q-btn" onclick="ans(this,'l4',4,true)">It is the cheapest fix &mdash; the existing transcripts can be re-classified by other model families in a weekend</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">Anthropic is one of the firms studied, so all results are systematically biased and need full re-analysis</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">Claude&rsquo;s classification accuracy is publicly known to be below 70% on this kind of task</button></li>
+<li><button class="q-btn" onclick="ans(this,'l4',4,false)">Qualitative research conventions require at least three independent LLM coders</button></li>
+</ul>
+<div class="q-explain" id="ex-l4-4">The transcripts already exist, the prompts are published in Appendix B, and re-running on GPT/Gemini would take a small fraction of any other vector. The result would be a concrete inter-classifier-agreement number, directly addressing the missing reliability metric. Lowest cost, highest information yield.</div>
+</div>
+
+<div class="score" id="score-l4"></div>
+<button class="reset-btn" id="reset-l4" onclick="resetQuiz('l4')">Try again</button>
+</div>
+
+</div>
+</div>
+
+<a class="back" href="../index.html" style="margin-top:2rem">&larr; Back to all papers</a>
+</div>
+
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('open')}
+var S={};
+function ans(btn,qid,qi,ok){
+  if(!S[qid])S[qid]={a:[],t:document.querySelectorAll('#quiz-'+qid+' .q').length};
+  var s=S[qid];
+  if(s.a[qi]!=null)return;
+  s.a[qi]=ok;
+  btn.parentElement.querySelectorAll('.q-btn').forEach(function(b){
+    b.disabled=true;
+    if(b===btn)b.classList.add(ok?'correct':'incorrect');
+    if(!ok&&b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(',true)')>-1)b.classList.add('reveal');
+  });
+  var ex=document.getElementById('ex-'+qid+'-'+qi);
+  if(ex)ex.classList.add('show');
+  var done=s.a.filter(function(x){return x!=null}).length;
+  if(done===s.t){
+    var c=s.a.filter(function(x){return x===true}).length;
+    var el=document.getElementById('score-'+qid);
+    var pass=c>=4;
+    el.className='score show '+(pass?'pass':'fail');
+    el.textContent=c+'/'+s.t+(c===s.t?' \u2014 Perfect score!':pass?' \u2014 Great job! Level passed.':' \u2014 Review the material and try again.');
+    if(!pass)document.getElementById('reset-'+qid).classList.add('show');
+  }
+}
+function resetQuiz(qid){
+  S[qid]=null;
+  var container=document.getElementById('quiz-'+qid);
+  container.querySelectorAll('.q-btn').forEach(function(b){b.disabled=false;b.classList.remove('correct','incorrect','reveal')});
+  container.querySelectorAll('.q-explain').forEach(function(e){e.classList.remove('show')});
+  document.getElementById('score-'+qid).className='score';
+  document.getElementById('reset-'+qid).classList.remove('show');
+}
+
+// Draw figures
+(function(){
+  var affRows=[{name:"Frontier lab",n:7},{name:"Ex-frontier lab",n:4},{name:"Academia",n:9},{name:"Industry",n:3},{name:"Nonprofit",n:2}];
+  var purple="#7F77DD",purpleDark="#534AB7",gray="#888780",teal="#5DCAA5",tealDark="#1D9E75";
+
+  var fig1={cols:["Expects internal","Nuanced","Expects public"],colors:[purple,gray,teal],data:[[4,2,1],[2,1,1],[2,2,1],[1,0,1],[1,1,0]]};
+  var fig2={cols:["Clear path","Major obstacles","Unknown unknowns"],colors:[purple,gray,teal],data:[[6,1,0],[2,2,0],[2,5,0],[1,2,0],[0,2,0]]};
+  var fig3={cols:["Primary driver","Major risk","Some concern","Minimal","Dismissive"],colors:[purple,purpleDark,gray,teal,tealDark],data:[[5,2,0,0,0],[2,1,1,0,0],[1,2,2,2,2],[1,1,0,1,0],[1,1,0,0,0]]};
+  var fig4={cols:["Favorable","Conditional","Skeptical"],colors:[purple,gray,teal],data:[[2,3,2],[1,1,2],[3,3,2],[1,1,1],[1,1,0]]};
+
+  function drawFig(svgId,fig){
+    var svg=document.getElementById(svgId);
+    if(!svg)return;
+    var W=660,H=175,leftPad=110,rightPad=20,topPad=12,bottomPad=32;
+    var plotW=W-leftPad-rightPad,plotH=H-topPad-bottomPad;
+    var rowH=plotH/affRows.length,colW=plotW/fig.cols.length;
+    var ns="http://www.w3.org/2000/svg";
+
+    var textColor=getComputedStyle(document.documentElement).getPropertyValue('--text2')||'#656d76';
+    var borderColor=getComputedStyle(document.documentElement).getPropertyValue('--border')||'#d0d7de';
+    var bgColor=getComputedStyle(document.documentElement).getPropertyValue('--bg')||'#fff';
+
+    for(var r=0;r<affRows.length;r++){
+      var y=topPad+r*rowH+rowH/2;
+      var label=document.createElementNS(ns,"text");
+      label.setAttribute("x",leftPad-8);
+      label.setAttribute("y",y+4);
+      label.setAttribute("text-anchor","end");
+      label.setAttribute("font-size","10.5");
+      label.setAttribute("fill",textColor.trim());
+      label.textContent=affRows[r].name+" (n="+affRows[r].n+")";
+      svg.appendChild(label);
+      if(r<affRows.length-1){
+        var line=document.createElementNS(ns,"line");
+        line.setAttribute("x1",leftPad);line.setAttribute("x2",W-rightPad);
+        line.setAttribute("y1",topPad+(r+1)*rowH);line.setAttribute("y2",topPad+(r+1)*rowH);
+        line.setAttribute("stroke",borderColor.trim());line.setAttribute("stroke-width","0.5");
+        svg.appendChild(line);
+      }
+    }
+    for(var c=0;c<fig.cols.length;c++){
+      var x=leftPad+c*colW+colW/2;
+      var clabel=document.createElementNS(ns,"text");
+      clabel.setAttribute("x",x);clabel.setAttribute("y",H-10);
+      clabel.setAttribute("text-anchor","middle");clabel.setAttribute("font-size","10.5");
+      clabel.setAttribute("fill",textColor.trim());
+      clabel.textContent=fig.cols[c];
+      svg.appendChild(clabel);
+      if(c>0){
+        var vline=document.createElementNS(ns,"line");
+        vline.setAttribute("x1",leftPad+c*colW);vline.setAttribute("x2",leftPad+c*colW);
+        vline.setAttribute("y1",topPad);vline.setAttribute("y2",H-bottomPad);
+        vline.setAttribute("stroke",borderColor.trim());vline.setAttribute("stroke-width","0.5");
+        svg.appendChild(vline);
+      }
+    }
+    var border=document.createElementNS(ns,"rect");
+    border.setAttribute("x",leftPad);border.setAttribute("y",topPad);
+    border.setAttribute("width",plotW);border.setAttribute("height",plotH);
+    border.setAttribute("fill","none");border.setAttribute("stroke",borderColor.trim());
+    border.setAttribute("stroke-width","0.5");
+    svg.appendChild(border);
+
+    function pseudo(seed){var x=Math.sin(seed*12.9898)*43758.5453;return x-Math.floor(x);}
+    var seedCounter=svgId.charCodeAt(3)*7;
+    for(var r=0;r<fig.data.length;r++){
+      for(var c=0;c<fig.data[r].length;c++){
+        var count=fig.data[r][c];
+        var cellCx=leftPad+c*colW+colW/2;
+        var cellCy=topPad+r*rowH+rowH/2;
+        var maxJitter=Math.min(colW,rowH)*0.32;
+        for(var d=0;d<count;d++){
+          seedCounter++;
+          var jx=(pseudo(seedCounter)-0.5)*maxJitter*2;
+          seedCounter++;
+          var jy=(pseudo(seedCounter)-0.5)*maxJitter*2;
+          var dot=document.createElementNS(ns,"circle");
+          dot.setAttribute("cx",cellCx+jx);dot.setAttribute("cy",cellCy+jy);
+          dot.setAttribute("r","4.5");
+          dot.setAttribute("fill",fig.colors[c]);
+          dot.setAttribute("opacity","0.88");
+          dot.setAttribute("stroke",bgColor.trim());
+          dot.setAttribute("stroke-width","0.5");
+          svg.appendChild(dot);
+        }
+      }
+    }
+  }
+  drawFig("fig1",fig1);
+  drawFig("fig2",fig2);
+  drawFig("fig3",fig3);
+  drawFig("fig4",fig4);
+})();
+</script>
+</body>
+</html>
